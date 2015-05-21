@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head>
+  <title>Test Group Results - {test_class.full_name}</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="description" content="TestNG unit test results." />
+  <link href="report.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript">
+function toggleElements(elementName, displayStyle)
+{{elements = document.getElementsByName(elementName)
+	for(var i=0;i<elements.length;i++){{
+		var current = getStyle(elements[i], 'display');
+		elements[i].style.display = (current == 'none' ? displayStyle : 'none');
+	}}}}
+function getStyle(element, property){{
+    return element.currentStyle ? element.currentStyle[property]
+           : document.defaultView.getComputedStyle(element, null).getPropertyValue(property);
+}}
+</script>
+</head>
+<body>
+<h1>Test Class Results</h1>
+<table>
+  <tr>
+      <td>All/passed/failed/skipped:&nbsp;&nbsp;</td>
+      <td>{test_class.test_case_status_count[0]}&nbsp;/
+          {test_class.test_case_status_count[1]}&nbsp;/
+          {test_class.test_case_status_count[2]}&nbsp;/
+          {test_class.test_case_status_count[3]}</td>
+  </tr>
+  <tr><td>Start time: </td><td>{test_class.start_time}</td></tr>
+  <tr><td>End time: </td><td>{test_class.end_time}</td></tr>
+  <tr><td>Duration: </td><td>{test_class.elapsed_time}s</td></tr>
+  <tr><td>Run mode: </td><td>{test_class.run_mode}</td></tr>
+</table>
+<table class="overviewTable">
+   <tr>
+    <th colspan="7" class="header suite" title="{test_class.description}">
+      {test_class.full_name}
+    </th>
+  </tr>
+  <tr class="columnHeadings">
+    <td>Test Case</td>
+    <th>Duration</th>
+    <th>Logs</th>
+    <th>Screenshot</th>
+  </tr>
+{test_cases_results}
+</table>
+</body>
+</html>
