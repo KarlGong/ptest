@@ -69,40 +69,35 @@ def __get_test_cases_in_package(package_ref, class_filter_group, method_filter_g
 
 
 def __get_test_cases_in_module(module_ref, class_filter_group, method_filter_group):
-    test_classes = []
+    test_class_refs = []
     for module_element in dir(module_ref):
-        test_class = getattr(module_ref, module_element)
+        test_class_ref = getattr(module_ref, module_element)
         try:
-            ng_type = test_class.__ng_type__
-            is_enabled = test_class.__enabled__
+            ng_type = test_class_ref.__ng_type__
+            is_enabled = test_class_ref.__enabled__
         except AttributeError:
             continue
-        if ng_type == NGDecoratorType.TestClass and is_enabled and class_filter_group.filter(test_class):
-            test_classes.append(test_class)
-    if len(test_classes) != 0:
-        for test_class in test_classes:
-            __get_test_cases_in_class(test_class, method_filter_group)
+        if ng_type == NGDecoratorType.TestClass and is_enabled and class_filter_group.filter(test_class_ref):
+            test_class_refs.append(test_class_ref)
+    if len(test_class_refs) != 0:
+        for test_class_ref in test_class_refs:
+            __get_test_cases_in_class(test_class_ref, method_filter_group)
 
 
-def __get_test_cases_in_class(class_ref, method_filter_group):
-    test_case_funcs = []
-    for class_element in dir(class_ref):
-        test_case_func = getattr(class_ref, class_element)
+def __get_test_cases_in_class(test_class_ref, method_filter_group):
+    test_case_refs = []
+    for class_element in dir(test_class_ref):
+        test_case_ref = getattr(test_class_ref, class_element)
         try:
-            ng_type = test_case_func.__ng_type__
-            is_enabled = test_case_func.__enabled__
+            ng_type = test_case_ref.__ng_type__
+            is_enabled = test_case_ref.__enabled__
         except AttributeError:
             continue
-        if ng_type == NGDecoratorType.Test and is_enabled and method_filter_group.filter(test_case_func):
-            test_case_funcs.append(getattr(class_ref(), class_element))
-    if len(test_case_funcs) != 0:
-        test_class_full_name = "%s.%s" % (class_ref.__module__, class_ref.__name__)
-        test_class = test_suite.get_test_class(test_class_full_name)
-        if test_class is None:
-            test_class = TestClass(class_ref)
-            test_suite.add_test_class(test_class)
-        for test_case_func in test_case_funcs:
-            test_class.add_test_case(TestCase(test_case_func))
+        if ng_type == NGDecoratorType.Test and is_enabled and method_filter_group.filter(test_case_ref):
+            test_case_refs.append(getattr(test_class_ref(), class_element))
+    if len(test_case_refs) != 0:
+        for test_case_ref in test_case_refs:
+            test_suite.add_test_case(test_class_ref, test_case_ref)
 
 
 class ImportTestTargetError(Exception):

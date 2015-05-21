@@ -15,8 +15,25 @@ class TestSuite:
         self.end_time = None
         self.__lock = threading.Lock()
 
+    def get_test_class(self, full_name):
+        for test_class in self.test_classes:
+            if test_class.full_name == full_name:
+                return test_class
+        return None
+
     def add_test_class(self, test_class_ref):
-        self.test_classes.append(TestClass(self, test_class_ref))
+        test_class = TestClass(self, test_class_ref)
+        self.test_classes.append(test_class)
+        return test_class
+
+    def add_test_case(self, test_class_ref, test_case_ref):
+        test_class = self.get_test_class(test_class_ref.__full_name__)
+        if test_class is None:
+            test_class = self.add_test_class(test_class_ref)
+        test_case = test_class.get_test_case(test_case_ref.__name__)
+        if test_case is None:
+            test_case = test_class.add_test_case(test_case_ref)
+        return test_case
 
     @property
     def elapsed_time(self):
@@ -93,13 +110,15 @@ class NoTestCaseAvailableForThisThread(Exception):
 
 
 class TestClass:
-    def __init__(self, test_suite, inner_class):
-        self.test_cases = []
+    def __init__(self, test_suite, test_class_ref):
         self.test_suite = test_suite
+        self.test_cases = []
+        self.name = test_class_ref.__name__
+        self.full_name = test_class_ref.__full_name__
         self.run_thread = None
-        self.run_mode = inner_class.__run_mode__
-        self.description = inner_class.__description__
-        self.full_name = "%s.%s" % (inner_class.__module__, inner_class.__name__)
+        self.run_mode = test_class_ref.__run_mode__
+        self.description = test_class_ref.__description__
+
 
     def get_test_case(self, name):
         for test_case in self.test_cases:
@@ -107,9 +126,10 @@ class TestClass:
                 return test_case
         return None
 
-    def add_test_case(self, test_case):
-        test_case.test_class = self
+    def add_test_case(self, test_case_ref):
+        test_case = TestCase(self, test_case_ref)
         self.test_cases.append(test_case)
+        return test_case
 
     @property
     def start_time(self):
@@ -159,14 +179,15 @@ class TestClass:
 
 
 class TestCase:
-    def __init__(self, inner_func):
-        self.test_class = None
-        self.name = inner_func.__name__
+    def __init__(self, test_class, test_case_ref):
+        self.test_class = test_class
+        self.name = test_case_ref.__name__
+        self.full_name = "%s.%s" % (self.test_class.full_name, self.name)
         self.run_thread = None
         self.start_time = None
         self.end_time = None
 
-        self.test = Test(inner_func)
+        self.test = Test(self, test_case_ref)
 
         self.status = TestCaseStatus.NOT_RUN
         self.failure_message = ""
@@ -177,18 +198,14 @@ class TestCase:
         self.description = self.test.description
 
         self.before_method = None
-        before_method_func = inner_func.__self__.__before_method__
-        if before_method_func:
-            self.before_method = BeforeMethod(before_method_func)
+        before_method_ref = test_case_ref.__self__.__before_method__
+        if before_method_ref:
+            self.before_method = BeforeMethod(self, before_method_ref)
 
         self.after_method = None
-        after_method_func = inner_func.__self__.__after_method__
-        if after_method_func:
-            self.after_method = AfterMethod(after_method_func)
-
-    @property
-    def full_name(self):
-        return "%s.%s" % (self.test_class.full_name, self.name)
+        after_method_ref = test_case_ref.__self__.__after_method__
+        if after_method_ref:
+            self.after_method = AfterMethod(self, after_method_ref)
 
     @property
     def elapsed_time(self):
@@ -198,17 +215,18 @@ class TestCase:
 
 
 class TestCaseFixture:
-    def __init__(self, inner_func, fixture_type):
-        self.__inner_func = inner_func
+    def __init__(self, test_case, test_fixture_ref, fixture_type):
+        self.__test_fixture_ref = test_fixture_ref
+        self.test_case = test_case
         self.logs = []
         self.screen_shot = None
         self.start_time = None
         self.end_time = None
-        self.description = inner_func.__description__
+        self.description = test_fixture_ref.__description__
         self.fixture_type = fixture_type
 
     def run(self):
-        self.__inner_func.__call__()
+        self.__test_fixture_ref.__call__()
 
     @property
     def html_format_logs(self):
@@ -231,20 +249,20 @@ class TestCaseFixture:
 
 
 class BeforeMethod(TestCaseFixture):
-    def __init__(self, inner_func):
-        TestCaseFixture.__init__(self, inner_func, NGDecoratorType.BeforeMethod)
+    def __init__(self, test_case, test_fixture_ref):
+        TestCaseFixture.__init__(self, test_case, test_fixture_ref, NGDecoratorType.BeforeMethod)
 
 
 class Test(TestCaseFixture):
-    def __init__(self, inner_func):
-        TestCaseFixture.__init__(self, inner_func, NGDecoratorType.Test)
-        self.tags = inner_func.__tags__
+    def __init__(self, test_case, test_fixture_ref):
+        TestCaseFixture.__init__(self, test_case, test_fixture_ref, NGDecoratorType.Test)
+        self.tags = test_fixture_ref.__tags__
 
 
 class AfterMethod(TestCaseFixture):
-    def __init__(self, inner_func):
-        TestCaseFixture.__init__(self, inner_func, NGDecoratorType.AfterMethod)
-        self.always_run = inner_func.__always_run__
+    def __init__(self, test_case, test_fixture_ref):
+        TestCaseFixture.__init__(self, test_case, test_fixture_ref, NGDecoratorType.AfterMethod)
+        self.always_run = test_fixture_ref.__always_run__
 
 
 test_suite = TestSuite()

@@ -37,6 +37,7 @@ def AfterMethod(enabled=True, always_run=False, description=""):
 
 def TestClass(enabled=True, run_mode=TestClassRunMode.Parallel, description=""):
     def tracer(cls):
+        cls.__full_name__ = str(cls)
         cls.__ng_type__ = NGDecoratorType.TestClass
         cls.__enabled__ = enabled
         cls.__run_mode__ = run_mode
@@ -60,24 +61,3 @@ def TestClass(enabled=True, run_mode=TestClassRunMode.Parallel, description=""):
         return cls
 
     return tracer
-
-@TestClass()
-class Test1:
-    def __init__(self):
-        pass
-
-    @BeforeMethod()
-    def bm(self):
-        pass
-
-    @Test()
-    def t(self):
-        pass
-
-    @AfterMethod()
-    def am(self):
-        pass
-
-if __name__ == '__main__':
-    a = Test1()
-    print dir(a)
