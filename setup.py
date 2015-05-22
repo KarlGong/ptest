@@ -17,7 +17,7 @@ classifiers = ['License :: OSI Approved :: Apache Software License',
 def main():
     setup(
         name="ptest",
-        description="ptest: light testing framework for Python",
+        description="light testing framework for Python",
         long_description=long_description,
         version="1.0.0",
         keywords="test testing framework",
