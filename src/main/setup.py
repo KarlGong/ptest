@@ -8,8 +8,7 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
-classifiers = ['Development Status :: 2 - Pre-Alpha',
-               'License :: OSI Approved :: Apache Software License',
+classifiers = ['License :: OSI Approved :: Apache Software License',
                'Topic :: Software Development :: Testing'] + [
                   ('Programming Language :: Python :: %s' % x) for x in
                   '2.7'.split()]
@@ -20,7 +19,7 @@ def main():
         name="ptest",
         description="ptest: light testing framework for Python",
         long_description=long_description,
-        version="0.0.1",
+        version="1.0.0",
         keywords="test testing framework",
         platforms=['linux', 'win32'],
         author="Karl Gong",
