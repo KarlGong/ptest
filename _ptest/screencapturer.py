@@ -22,9 +22,7 @@ def take_screen_shot():
         # todo: directly get test_case_fixture, put test_case_fixture to the thread property
 
 
-        # Dismiss alert if it is present, so the alert will not block screen capture.
-        if active_browser.is_alert_present():
-            active_browser.get_alert().dismiss()
+        # todo: Dismiss alert if it is present, so the alert will not block screen capture.
 
         try:
             screen_shot = active_browser.get_screenshot_as_png()
