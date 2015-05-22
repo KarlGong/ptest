@@ -76,7 +76,7 @@ class Config:
         if options.test_targets and options.run_failed:
             parser.error("Options -t(--test_targets) and -R(--runfailed) are mutually exclusive.")
         if (options.test_targets is None) and (options.run_failed is None):
-            parser.error("You must specified one of the following options: -t(--test_target), -R(run_failed).")
+            parser.error("You must specified one of the following options: -t(--test_target), -R(--run_failed).")
         self.__options = options
 
 
