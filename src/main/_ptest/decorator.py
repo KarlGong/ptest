@@ -1,11 +1,11 @@
 __author__ = 'karl.gong'
 
-from enumeration import NGDecoratorType, TestClassRunMode
+from enumeration import PDecoratorType, TestClassRunMode
 
 
 def Test(enabled=True, description="", tags=[]):
     def handle_func(func):
-        func.__ng_type__ = NGDecoratorType.Test
+        func.__pd_type__ = PDecoratorType.Test
         func.__enabled__ = enabled
         func.__description__ = description
         func.__tags__ = sorted(tags)
@@ -16,7 +16,7 @@ def Test(enabled=True, description="", tags=[]):
 
 def BeforeMethod(enabled=True, description=""):
     def handle_func(func):
-        func.__ng_type__ = NGDecoratorType.BeforeMethod
+        func.__pd_type__ = PDecoratorType.BeforeMethod
         func.__enabled__ = enabled
         func.__description__ = description
         return func
@@ -26,7 +26,7 @@ def BeforeMethod(enabled=True, description=""):
 
 def AfterMethod(enabled=True, always_run=False, description=""):
     def handle_func(func):
-        func.__ng_type__ = NGDecoratorType.AfterMethod
+        func.__pd_type__ = PDecoratorType.AfterMethod
         func.__enabled__ = enabled
         func.__always_run__ = always_run
         func.__description__ = description
@@ -38,7 +38,7 @@ def AfterMethod(enabled=True, always_run=False, description=""):
 def TestClass(enabled=True, run_mode=TestClassRunMode.Parallel, description=""):
     def tracer(cls):
         cls.__full_name__ = str(cls)
-        cls.__ng_type__ = NGDecoratorType.TestClass
+        cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
         cls.__run_mode__ = run_mode
         cls.__description__ = description
@@ -49,14 +49,14 @@ def TestClass(enabled=True, run_mode=TestClassRunMode.Parallel, description=""):
         for element in dir(cls):
             attr = getattr(cls, element)
             try:
-                ng_type = attr.__ng_type__
+                pd_type = attr.__pd_type__
                 is_enabled = attr.__enabled__
             except AttributeError:
                 continue
             if is_enabled:
-                if ng_type == NGDecoratorType.BeforeMethod:
+                if pd_type == PDecoratorType.BeforeMethod:
                     cls.__before_method__ = attr
-                elif ng_type == NGDecoratorType.AfterMethod:
+                elif pd_type == PDecoratorType.AfterMethod:
                     cls.__after_method__ = attr
         return cls
 

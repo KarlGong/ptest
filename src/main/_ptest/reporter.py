@@ -7,7 +7,7 @@ from xml.dom import minidom
 
 from plogger import pconsole
 from testsuite import test_suite
-from enumeration import TestCaseStatus, NGDecoratorType
+from enumeration import TestCaseStatus, PDecoratorType
 
 
 __author__ = 'karl.gong'
@@ -24,7 +24,7 @@ def clean_report_dir(report_path):
 
 def generate_xunit_xml(xml_file):
     pconsole.info("Generating Junit report...")
-    os.mkdir(os.path.dirname(xml_file))
+    os.makedirs(os.path.dirname(xml_file))
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
@@ -147,7 +147,7 @@ def _generate_test_class_page(test_class, report_path):
         if test_case.before_method:
             before_method_screen_shot_name = ""
             if test_case.before_method.screen_shot:
-                before_method_screen_shot_name = test_case.full_name + "@" + NGDecoratorType.BeforeMethod + ".png"
+                before_method_screen_shot_name = test_case.full_name + "@" + PDecoratorType.BeforeMethod + ".png"
                 _write_to_file(test_case.before_method.screen_shot,
                                os.path.join(report_path, before_method_screen_shot_name), mode="wb")
             before_method_content = test_case_fixture_template.format(toggle_id=test_case.name,
@@ -156,7 +156,7 @@ def _generate_test_class_page(test_class, report_path):
 
         test_screen_shot_name = ""
         if test_case.test.screen_shot:
-            test_screen_shot_name = test_case.full_name + "@" + NGDecoratorType.Test + ".png"
+            test_screen_shot_name = test_case.full_name + "@" + PDecoratorType.Test + ".png"
             _write_to_file(test_case.test.screen_shot, os.path.join(report_path, test_screen_shot_name), mode="wb")
         test_content = test_case_fixture_template.format(toggle_id=test_case.name,
                                                          test_fixture=test_case.test,
@@ -165,7 +165,7 @@ def _generate_test_class_page(test_class, report_path):
         if test_case.after_method:
             after_method_screen_shot_name = ""
             if test_case.after_method.screen_shot:
-                after_method_screen_shot_name = test_case.full_name + "@" + NGDecoratorType.BeforeMethod + ".png"
+                after_method_screen_shot_name = test_case.full_name + "@" + PDecoratorType.BeforeMethod + ".png"
                 _write_to_file(test_case.after_method.screen_shot,
                                os.path.join(report_path, after_method_screen_shot_name), mode="wb")
             after_method_content = test_case_fixture_template.format(toggle_id=test_case.name,

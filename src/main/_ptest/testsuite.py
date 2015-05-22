@@ -1,6 +1,6 @@
 import threading
 
-from enumeration import TestClassRunMode, TestCaseStatus, NGDecoratorType
+from enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType
 
 
 __author__ = 'karl.gong'
@@ -137,7 +137,7 @@ class TestClass:
 
     @property
     def end_time(self):
-        return max([test_case.start_time for test_case in self.test_cases])
+        return max([test_case.end_time for test_case in self.test_cases])
 
     @property
     def elapsed_time(self):
@@ -250,18 +250,18 @@ class TestCaseFixture:
 
 class BeforeMethod(TestCaseFixture):
     def __init__(self, test_case, test_fixture_ref):
-        TestCaseFixture.__init__(self, test_case, test_fixture_ref, NGDecoratorType.BeforeMethod)
+        TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.BeforeMethod)
 
 
 class Test(TestCaseFixture):
     def __init__(self, test_case, test_fixture_ref):
-        TestCaseFixture.__init__(self, test_case, test_fixture_ref, NGDecoratorType.Test)
+        TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
         self.tags = test_fixture_ref.__tags__
 
 
 class AfterMethod(TestCaseFixture):
     def __init__(self, test_case, test_fixture_ref):
-        TestCaseFixture.__init__(self, test_case, test_fixture_ref, NGDecoratorType.AfterMethod)
+        TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.AfterMethod)
         self.always_run = test_fixture_ref.__always_run__
 
 

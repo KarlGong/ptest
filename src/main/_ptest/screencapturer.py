@@ -3,7 +3,7 @@ import traceback
 
 from testsuite import test_suite
 import plogger
-from enumeration import NGDecoratorType
+from enumeration import PDecoratorType
 
 
 __author__ = 'karl.gong'
@@ -32,11 +32,11 @@ def take_screen_shot():
             plogger.warn("Failed to take the screenshot: \n%s\n%s" % (e.message, traceback.format_exc()))
             return
 
-        if test_case_fixture == NGDecoratorType.Test:
+        if test_case_fixture == PDecoratorType.Test:
             test_case_result.test.screen_shot = screen_shot
-        elif test_case_fixture == NGDecoratorType.BeforeMethod:
+        elif test_case_fixture == PDecoratorType.BeforeMethod:
             test_case_result.before_method.screen_shot = screen_shot
-        elif test_case_fixture == NGDecoratorType.AfterMethod:
+        elif test_case_fixture == PDecoratorType.AfterMethod:
             test_case_result.after_method.screen_shot = screen_shot
 
     else:

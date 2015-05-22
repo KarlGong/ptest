@@ -6,7 +6,7 @@ class TestClassRunMode:
     Parallel = "Parallel"
 
 
-class NGDecoratorType:
+class PDecoratorType:
     Test = "Test"
     BeforeMethod = "BeforeMethod"
     AfterMethod = "AfterMethod"

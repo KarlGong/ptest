@@ -8,8 +8,8 @@ import sys
 
 import reporter
 from config import config
-from testsuite import test_suite, TestCase, TestClass, NoTestCaseAvailableForThisThread
-from enumeration import NGDecoratorType, TestCaseStatus
+from testsuite import test_suite, NoTestCaseAvailableForThisThread
+from enumeration import PDecoratorType, TestCaseStatus
 import plogger
 import screencapturer
 from plogger import pconsole
@@ -73,11 +73,11 @@ def __get_test_cases_in_module(module_ref, class_filter_group, method_filter_gro
     for module_element in dir(module_ref):
         test_class_ref = getattr(module_ref, module_element)
         try:
-            ng_type = test_class_ref.__ng_type__
+            pd_type = test_class_ref.__pd_type__
             is_enabled = test_class_ref.__enabled__
         except AttributeError:
             continue
-        if ng_type == NGDecoratorType.TestClass and is_enabled and class_filter_group.filter(test_class_ref):
+        if pd_type == PDecoratorType.TestClass and is_enabled and class_filter_group.filter(test_class_ref):
             test_class_refs.append(test_class_ref)
     if len(test_class_refs) != 0:
         for test_class_ref in test_class_refs:
@@ -89,11 +89,11 @@ def __get_test_cases_in_class(test_class_ref, method_filter_group):
     for class_element in dir(test_class_ref):
         test_case_ref = getattr(test_class_ref, class_element)
         try:
-            ng_type = test_case_ref.__ng_type__
+            pd_type = test_case_ref.__pd_type__
             is_enabled = test_case_ref.__enabled__
         except AttributeError:
             continue
-        if ng_type == NGDecoratorType.Test and is_enabled and method_filter_group.filter(test_case_ref):
+        if pd_type == PDecoratorType.Test and is_enabled and method_filter_group.filter(test_case_ref):
             test_case_refs.append(getattr(test_class_ref(), class_element))
     if len(test_case_refs) != 0:
         for test_case_ref in test_case_refs:
@@ -193,7 +193,7 @@ class Test_Executor(threading.Thread):
             # before method
             if before_method is not None:
                 self.update_properties(test_class=test_class_full_name, test_case=test_case_name,
-                                       test_case_fixture=NGDecoratorType.BeforeMethod)
+                                       test_case_fixture=PDecoratorType.BeforeMethod)
                 before_method.start_time = datetime.now()
                 try:
                     before_method.run()
@@ -206,14 +206,14 @@ class Test_Executor(threading.Thread):
 
             # test  case
             self.update_properties(test_class=test_class_full_name, test_case=test_case_name,
-                                   test_case_fixture=NGDecoratorType.Test)
+                                   test_case_fixture=PDecoratorType.Test)
             test.start_time = datetime.now()
             if is_before_method_failed:
                 # skip test case
-                plogger.warn("@%s failed, so skipped." % NGDecoratorType.BeforeMethod)
+                plogger.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
                 pconsole.warning("%s%s|SKIP|" % (test_case_full_name, logger_filler))
                 test_case.status = TestCaseStatus.SKIPPED
-                test_case.skip_message = "@%s failed, so skipped." % NGDecoratorType.BeforeMethod
+                test_case.skip_message = "@%s failed, so skipped." % PDecoratorType.BeforeMethod
             else:
                 # run test case
                 try:
@@ -233,7 +233,7 @@ class Test_Executor(threading.Thread):
             # after method
             if after_method is not None:
                 self.update_properties(test_class=test_class_full_name, test_case=test_case_name,
-                                       test_case_fixture=NGDecoratorType.AfterMethod)
+                                       test_case_fixture=PDecoratorType.AfterMethod)
                 after_method.start_time = datetime.now()
                 if not is_before_method_failed or after_method.always_run:
                     # run after method
@@ -244,7 +244,7 @@ class Test_Executor(threading.Thread):
                         screencapturer.take_screen_shot()
                 else:
                     # skip after method
-                    plogger.warn("@%s failed, so skipped." % NGDecoratorType.BeforeMethod)
+                    plogger.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
                 after_method.end_time = datetime.now()
             test_case.end_time = datetime.now()
 

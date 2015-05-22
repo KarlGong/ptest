@@ -2,7 +2,7 @@ import logging
 import threading
 
 from testsuite import test_suite
-from enumeration import NGDecoratorType
+from enumeration import PDecoratorType
 
 
 __author__ = 'karl.gong'
@@ -56,11 +56,11 @@ def __log(level, msg):
     test_case_result = test_suite.get_test_class(test_class_full_name).get_test_case(test_case_name)
 
     # add nglog to testPool for reporting
-    if test_case_fixture == NGDecoratorType.Test:
+    if test_case_fixture == PDecoratorType.Test:
         test_case_result.test.logs.append(msg)
-    elif test_case_fixture == NGDecoratorType.BeforeMethod:
+    elif test_case_fixture == PDecoratorType.BeforeMethod:
         test_case_result.before_method.logs.append(msg)
-    elif test_case_fixture == NGDecoratorType.AfterMethod:
+    elif test_case_fixture == PDecoratorType.AfterMethod:
         test_case_result.after_method.logs.append(msg)
 
     if pconsole_verbose:
