@@ -2,8 +2,8 @@ __author__ = 'KarlGong'
 
 
 class TestClassRunMode:
-    SingleLine = "SingleLine"
-    Parallel = "Parallel"
+    SingleLine = "singleline"
+    Parallel = "parallel"
 
 
 class PDecoratorType:

@@ -35,12 +35,16 @@ def AfterMethod(enabled=True, always_run=False, description=""):
     return handle_func
 
 
-def TestClass(enabled=True, run_mode=TestClassRunMode.Parallel, description=""):
+def TestClass(enabled=True, run_mode="parallel", description=""):
     def tracer(cls):
         cls.__full_name__ = str(cls)
         cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
-        cls.__run_mode__ = run_mode
+        if run_mode in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
+            cls.__run_mode__ = run_mode
+        else:
+            raise Exception("Run mode %s is not supported. Please use %s or %s." % (
+            run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
         cls.__description__ = description
         cls.__before_method__ = None
         cls.__after_method__ = None
