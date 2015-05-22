@@ -1,7 +1,7 @@
 =====
 ptest
 =====
-ptest is light testing framework for Python.
+ptest is a light testing framework for Python.
 
 Installation
 ------------
@@ -58,3 +58,7 @@ If the target is package/module/class, all the test cases under target will be e
 If you have multiple targets, just separate them by comma.
 ::
 	$ ptest -t packa.mo,packb
+
+For more options, please use -h.
+::
+	$ ptest -h
