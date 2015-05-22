@@ -19,6 +19,7 @@ c:\\test.py
 
 	from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
 	from ptest.assertion import assert_equals, assert_true, fail
+	from ptest import info
 	
 	@TestClass(run_mode="singleline")
 	class PTestClass:
@@ -27,6 +28,7 @@ c:\\test.py
 
 	  @BeforeMethod(description="Prepare test data.")
 	  def before(self):
+	    info("setting expected result.")
 	    self.expected = 10
 	
 	  @Test(tags=["regression"])
@@ -43,6 +45,7 @@ c:\\test.py
 	
 	  @AfterMethod(always_run=True, description="Clean up")
 	  def after(self):
+	    info("cleaning up")
 	    self.expected = None
 
 Then start to execute the tests.

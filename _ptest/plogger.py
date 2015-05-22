@@ -55,7 +55,7 @@ def __log(level, msg):
     test_case_fixture = current_thread.get_property("test_case_fixture")
     test_case_result = test_suite.get_test_class(test_class_full_name).get_test_case(test_case_name)
 
-    # add nglog to testPool for reporting
+    # add log to testPool for reporting
     if test_case_fixture == PDecoratorType.Test:
         test_case_result.test.logs.append(msg)
     elif test_case_fixture == PDecoratorType.BeforeMethod:
@@ -64,7 +64,7 @@ def __log(level, msg):
         test_case_result.after_method.logs.append(msg)
 
     if pconsole_verbose:
-        # output nglog to pconsole
+        # output log to pconsole
         message = "[%s.%s @%s] %s" % (test_class_full_name, test_case_name, test_case_fixture, msg)
         if level == DEBUG:
             pconsole.debug(message)
