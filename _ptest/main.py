@@ -179,8 +179,6 @@ class Test_Executor(threading.Thread):
                 test_case = test_suite.pop_test_case()
             except NoTestCaseAvailableForThisThread:
                 break
-            test_case_name = test_case.name
-            test_class_full_name = test_case.test_class.full_name
             test_case_full_name = test_case.full_name
             logger_filler = "-" * (100 - len(test_case_full_name) - 6)
 
@@ -192,8 +190,7 @@ class Test_Executor(threading.Thread):
             is_before_method_failed = False
             # before method
             if before_method is not None:
-                self.update_properties(test_class=test_class_full_name, test_case=test_case_name,
-                                       test_case_fixture=PDecoratorType.BeforeMethod)
+                self.update_properties(running_test_case_fixture=before_method)
                 before_method.start_time = datetime.now()
                 try:
                     before_method.run()
@@ -205,8 +202,7 @@ class Test_Executor(threading.Thread):
                 before_method.end_time = datetime.now()
 
             # test  case
-            self.update_properties(test_class=test_class_full_name, test_case=test_case_name,
-                                   test_case_fixture=PDecoratorType.Test)
+            self.update_properties(running_test_case_fixture=test)
             test.start_time = datetime.now()
             if is_before_method_failed:
                 # skip test case
@@ -232,8 +228,7 @@ class Test_Executor(threading.Thread):
 
             # after method
             if after_method is not None:
-                self.update_properties(test_class=test_class_full_name, test_case=test_case_name,
-                                       test_case_fixture=PDecoratorType.AfterMethod)
+                self.update_properties(running_test_case_fixture=after_method)
                 after_method.start_time = datetime.now()
                 if not is_before_method_failed or after_method.always_run:
                     # run after method

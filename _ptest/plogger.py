@@ -1,9 +1,6 @@
 import logging
 import threading
 
-from testsuite import test_suite
-from enumeration import PDecoratorType
-
 
 __author__ = 'karl.gong'
 
@@ -49,23 +46,13 @@ def critical(msg):
 
 
 def __log(level, msg):
-    current_thread = threading.currentThread()
-    test_class_full_name = current_thread.get_property("test_class")
-    test_case_name = current_thread.get_property("test_case")
-    test_case_fixture = current_thread.get_property("test_case_fixture")
-    test_case_result = test_suite.get_test_class(test_class_full_name).get_test_case(test_case_name)
-
-    # add log to testPool for reporting
-    if test_case_fixture == PDecoratorType.Test:
-        test_case_result.test.logs.append(msg)
-    elif test_case_fixture == PDecoratorType.BeforeMethod:
-        test_case_result.before_method.logs.append(msg)
-    elif test_case_fixture == PDecoratorType.AfterMethod:
-        test_case_result.after_method.logs.append(msg)
+    running_test_case_fixture = threading.currentThread().get_property("running_test_case_fixture")
+    running_test_case_fixture.logs.append(msg)
 
     if pconsole_verbose:
         # output log to pconsole
-        message = "[%s.%s @%s] %s" % (test_class_full_name, test_case_name, test_case_fixture, msg)
+        message = "[%s @%s] %s" % (
+            running_test_case_fixture.test_case.full_name, running_test_case_fixture.fixture_type, msg)
         if level == DEBUG:
             pconsole.debug(message)
         elif level == INFO:
