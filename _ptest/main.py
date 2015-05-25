@@ -5,6 +5,7 @@ from datetime import datetime
 import traceback
 import threading
 import sys
+from xml.dom import minidom
 
 import reporter
 from config import config
@@ -271,6 +272,21 @@ def run_test_cases(test_executor_number):
     test_suite.end_time = datetime.now()
 
 
+def get_rerun_targets(xml_file):
+    test_targets = []
+    doc = minidom.parse(xml_file)
+    if doc.documentElement.nodeName == "testsuites":
+        root = doc.documentElement
+    else:
+        root = doc
+    for test_suite_node in root.getElementsByTagName("testsuite"):
+        for test_case_node in test_suite_node.getElementsByTagName("testcase"):
+            if test_case_node.getElementsByTagName("failure") or test_case_node.getElementsByTagName("skipped"):
+                test_target = "%s.%s" % (test_case_node.getAttribute("classname"), test_case_node.getAttribute("name"))
+                test_targets.append(test_target)
+    return test_targets
+
+
 def main(args=sys.argv):
     # load config
     config.load(args)
@@ -283,16 +299,22 @@ def main(args=sys.argv):
     # add workspace to python path
     workspace = os.path.join(os.getcwd(), config.get_option("workspace"))
     sys.path.insert(0, workspace)
-    pconsole.info("Workspace: %s" % workspace)
+    pconsole.info("Workspace:")
+    pconsole.info(" %s" % workspace)
 
-    # test targets
-    test_targets = config.get_option("test_targets")
-    if test_targets:
+    # get test targets
+    test_targets_str = config.get_option("test_targets")
+    if test_targets_str:
+        test_targets = test_targets_str.split(",")
         pconsole.info("Test targets:")
-        for test_target in test_targets.split(","):
+        for test_target in test_targets:
             pconsole.info(" %s" % test_target)
-
-    # todo:rerun failed
+    else:
+        # rerun failed/skipped test cases
+        xunit_xml = os.path.join(workspace, config.get_option("run_failed"))
+        test_targets = get_rerun_targets(xunit_xml)
+        pconsole.info("Rerun failed/skipped test cases in xunit xml:")
+        pconsole.info(" %s" % xunit_xml)
 
     # test class and test case filter
     include_tags = config.get_option("include_tags")
@@ -308,7 +330,7 @@ def main(args=sys.argv):
         pconsole.info(" %s" % test_case_filter_group)
 
     # get test cases
-    for test_target in test_targets.split(","):
+    for test_target in test_targets:
         get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
 
     # sort the test groups for running
