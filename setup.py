@@ -30,7 +30,6 @@ def main():
         classifiers=classifiers,
         packages=["ptest"],
         package_data={"ptest": ["htmltemplate/*.*"]},
-        py_modules=["ptest"],
         zip_safe=False,
     )
 
