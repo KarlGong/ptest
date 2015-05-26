@@ -34,7 +34,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportError:
         splitted_test_target = test_target.split(".")
         if len(splitted_test_target) < 2:
-            raise ImportTestTargetError("Cannot import test target: %s" % test_target)
+            raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
         try:
             # test target is class
             module_ref = importlib.import_module(".".join(splitted_test_target[:-1]))
@@ -43,7 +43,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
         except ImportError:
             splitted_test_target = test_target.split(".")
             if len(splitted_test_target) < 3:
-                raise ImportTestTargetError("Cannot import test target: %s" % test_target)
+                raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
             try:
                 # test target is method
                 module_ref = importlib.import_module(".".join(splitted_test_target[:-2]))
@@ -51,7 +51,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
                 test_case_filter_group.append_filter(TestCaseNameFilter(splitted_test_target[-1]))
                 __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
             except ImportError:
-                raise ImportTestTargetError("Cannot import test target: %s" % test_target)
+                raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
 
 
 def __get_test_cases_in_package(package_ref, class_filter_group, method_filter_group):
@@ -288,10 +288,10 @@ def get_rerun_targets(xml_file):
 
 
 def main(args=sys.argv):
-    pconsole.info("Starting ptest...")
-
     # load config
     config.load(args)
+
+    pconsole.info("Starting ptest...")
 
     # config nglogger
     plogger.pconsole_verbose = config.get_option("verbose")
