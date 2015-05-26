@@ -288,10 +288,10 @@ def get_rerun_targets(xml_file):
 
 
 def main(args=sys.argv):
+    pconsole.info("Starting ptest...")
+
     # load config
     config.load(args)
-
-    pconsole.info("Starting ptest...")
 
     # config nglogger
     plogger.pconsole_verbose = config.get_option("verbose")

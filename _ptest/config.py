@@ -1,4 +1,5 @@
 from optparse import OptionParser, OptionGroup
+import os
 import re
 
 __author__ = 'karl.gong'
@@ -21,8 +22,22 @@ class Config:
     def load(self, args):
         option_args, property_args = self.__load_args(args)
         self.__parse_options(option_args)
-        # todo: read properties from file
+        self.__load_properties_from_file()
         self.__parse_properties(property_args)
+
+    def __load_properties_from_file(self):
+        property_file = self.get_option("propery_file")
+        if property_file is not None:
+            file_object = open(os.path.join(os.getcwd(), self.get_option("workspace"), property_file))
+            try:
+                property_regex_str = ur"^([^;#].*?)=(.*?)$"
+                property_regex = re.compile(property_regex_str)
+                for line in file_object:
+                    property_match = property_regex.search(line)
+                    if property_match:
+                        self.__properties[property_match.group(1)] = property_match.group(2)
+            finally:
+                file_object.close()
 
     def __load_args(self, args):
         property_args = []
@@ -45,7 +60,7 @@ class Config:
             self.__properties[property_match.group(1)] = property_match.group(2)
 
     def __parse_options(self, option_args):
-        parser = OptionParser(usage="ptest [options]", version="ptest 1.0.0",
+        parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.0.0",
                               description="ptest is a light testing framework for Python.")
         parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
                           help="Specify the workspace dir. Default value is current dir.")
@@ -67,6 +82,9 @@ class Config:
                           help="Specify the report dir.")
         parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="file",
                           help="Specify the path of test listener. The listener class must implement ptest.TestListener")
+        parser.add_option("-p", "--propertyfile", action="store", dest="propery_file", default=None, metavar="file",
+                          help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
+                               "Get property via get_property() in ptest.config.")
         parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                           help="Set ptest console to verbose mode.")
         parser.add_option_group(
