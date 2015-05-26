@@ -23,9 +23,9 @@ c:\\folder\\test.py
 .. code:: python
 
 	from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
-	from ptest.assertion import assert_equals, assert_true, fail
+	from ptest.assertion import assert_equals, assert_true, fail, assert_none
 	from ptest.plogger import info
-	from ptest.config import config
+	from ptest import config
 
 	@TestClass(run_mode="singleline")
 	class PTestClass:
