@@ -91,12 +91,12 @@ def _parse_options(option_args):
                       help="Specify the path of test listener. The listener class must implement ptest.TestListener")
     parser.add_option("-p", "--propertyfile", action="store", dest="propery_file", default=None, metavar="file",
                       help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
-                           "Get property via config.get_property() in ptest.config.")
+                           "Get property via get_property() in ptest/config.py")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
     parser.add_option_group(
         OptionGroup(parser, "User defined properties",
-                    "Define properties via -D<key>=<value>. Get defined property via config.get_property() in ptest.config."))
+                    "Define properties via -D<key>=<value>. Get defined property via get_property() in ptest/config.py"))
     options, unknown_args = parser.parse_args(option_args)
     if options.test_targets and options.run_failed:
         parser.error("Options -t(--test_targets) and -R(--runfailed) are mutually exclusive.")
