@@ -8,10 +8,10 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.rst")) as f:
     long_description = f.read()
 
-classifiers = ['License :: OSI Approved :: Apache Software License',
-               'Topic :: Software Development :: Testing'] + [
-                  ('Programming Language :: Python :: %s' % x) for x in
-                  '2.7'.split()]
+classifiers = ["License :: OSI Approved :: Apache Software License",
+               "Topic :: Software Development :: Testing"] + [
+                  ("Programming Language :: Python :: %s" % x) for x in
+                  "2.7".split()]
 
 
 def main():
@@ -21,15 +21,15 @@ def main():
         long_description=long_description,
         version="1.0.0",
         keywords="test testing framework",
-        platforms=['linux', 'win32'],
+        platforms=["linux", "win32"],
         author="Karl Gong",
         author_email="karl.gong@outlook.com",
         url="https://github.com/KarlGong/ptest",
         license="Apache",
-        entry_points={"console_scripts": ['ptest=ptest:main', ], },
+        entry_points={"console_scripts": ["ptest=ptest.main:main", ], },
         classifiers=classifiers,
-        packages=["_ptest"],
-        package_data={"_ptest": ["htmltemplate/*.*"]},
+        packages=["ptest"],
+        package_data={"ptest": ["htmltemplate/*.*"]},
         py_modules=["ptest"],
         zip_safe=False,
     )

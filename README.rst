@@ -24,7 +24,8 @@ c:\\folder\\test.py
 
 	from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
 	from ptest.assertion import assert_equals, assert_true, fail
-	from ptest import info
+	from ptest.plogger import info
+	from ptest.config import config
 
 	@TestClass(run_mode="singleline")
 	class PTestClass:
@@ -42,6 +43,7 @@ c:\\folder\\test.py
 	
 	    @Test(tags=["smoke"])
 	    def test2(self):
+	        assert_none(config.get_property("key"))
 	        assert_true(False) # failed
 	
 	    @Test(enabled=False)
