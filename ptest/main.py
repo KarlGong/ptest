@@ -8,7 +8,7 @@ import sys
 from xml.dom import minidom
 
 import reporter
-from config import config
+import config
 from testsuite import test_suite, NoTestCaseAvailableForThisThread
 from enumeration import PDecoratorType, TestCaseStatus
 import plogger
