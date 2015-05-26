@@ -30,7 +30,7 @@ def load(args):
 
 
 def _load_properties_from_file():
-    property_file = get_option("propery_file")
+    property_file = get_option("property_file")
     if property_file is not None:
         file_object = open(os.path.join(os.getcwd(), get_option("workspace"), property_file))
         try:
@@ -89,7 +89,7 @@ def _parse_options(option_args):
                       help="Specify the report dir.")
     parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="file",
                       help="Specify the path of test listener. The listener class must implement ptest.TestListener")
-    parser.add_option("-p", "--propertyfile", action="store", dest="propery_file", default=None, metavar="file",
+    parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
                       help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in ptest/config.py")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
