@@ -14,6 +14,7 @@ from enumeration import PDecoratorType, TestCaseStatus
 import plogger
 import screencapturer
 from plogger import pconsole
+import plistener
 
 
 __author__ = 'karl.gong'
@@ -187,6 +188,7 @@ class Test_Executor(threading.Thread):
             test = test_case.test
             after_method = test_case.after_method
 
+            plistener.test_listener.on_test_case_start(test_case)
             test_case.start_time = datetime.now()
             is_before_method_failed = False
             # before method
@@ -243,6 +245,7 @@ class Test_Executor(threading.Thread):
                     plogger.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
                 after_method.end_time = datetime.now()
             test_case.end_time = datetime.now()
+            plistener.test_listener.on_test_case_finish(test_case)
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)
@@ -259,7 +262,8 @@ def run_test_cases(test_executor_number):
     for _ in range(test_executor_number):
         test_executors.append(Test_Executor())
 
-    # set start time
+    # test suite start
+    plistener.test_listener.on_test_suite_start(test_suite)
     test_suite.start_time = datetime.now()
 
     for test_executor in test_executors:
@@ -268,8 +272,9 @@ def run_test_cases(test_executor_number):
     for test_executor in test_executors:
         test_executor.join()
 
-    # set end time
+    # test suite finish
     test_suite.end_time = datetime.now()
+    plistener.test_listener.on_test_suite_finish(test_suite)
 
 
 def get_rerun_targets(xml_file):
@@ -312,9 +317,19 @@ def main(args=sys.argv):
     else:
         # rerun failed/skipped test cases
         xunit_xml = os.path.join(workspace, config.get_option("run_failed"))
-        test_targets = get_rerun_targets(xunit_xml)
         pconsole.info("Rerun failed/skipped test cases in xunit xml:")
         pconsole.info(" %s" % xunit_xml)
+        test_targets = get_rerun_targets(xunit_xml)
+
+    # test listener
+    listener_path = config.get_option("listener")
+    if listener_path:
+        pconsole.info("Test listener:")
+        pconsole.info(" %s" % listener_path)
+        splitted_listener_path = listener_path.split(".")
+        listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
+        listener_class = getattr(listener_module, splitted_listener_path[-1])
+        plistener.test_listener = listener_class()
 
     # test class and test case filter
     include_tags = config.get_option("include_tags")

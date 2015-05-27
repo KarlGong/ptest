@@ -72,11 +72,13 @@ def _parse_options(option_args):
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
                       help="Specify the workspace dir. Default value is current dir.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
-                      help="Specify the test targets, separated by comma. Test target can be package/module/class/method.")
+                      help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
+                           "The target path format is: package[.module[.class[.method]]] "
+                           "NOTE: ptest ONLY search modules under workspace and sys.path")
     parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
-                      help="Select test cases to run by tag.")
+                      help="Select test cases to run by tags, separated by comma.")
     parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
-                      help="Select test cases not to run by tag. These tests are not run even if included with --includetags.")
+                      help="Select test cases not to run by tag, separated by comma. These tests are not run even if included with --includetags.")
     parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
     parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
@@ -87,16 +89,18 @@ def _parse_options(option_args):
                       metavar="file", help="Specify the xunit_xm pathl")
     parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
                       help="Specify the report dir.")
-    parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="file",
-                      help="Specify the path of test listener. The listener class must implement ptest.TestListener")
+    parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="class",
+                      help="Specify the path of test listener class. The listener class should implement class TestListener in ptest.plistener. "
+                           "The listener path format is: package.module.class "
+                           "NOTE: ptest ONLY search modules under workspace and sys.path")
     parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
                       help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
-                           "Get property via get_property() in ptest/config.py")
+                           "Get property via get_property() in module ptest.config.")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
     parser.add_option_group(
         OptionGroup(parser, "User defined properties",
-                    "Define properties via -D<key>=<value>. Get defined property via get_property() in ptest/config.py"))
+                    "Define properties via -D<key>=<value>. Get defined property via get_property() in module ptest.config."))
     options, unknown_args = parser.parse_args(option_args)
     if options.test_targets and options.run_failed:
         parser.error("Options -t(--test_targets) and -R(--runfailed) are mutually exclusive.")
