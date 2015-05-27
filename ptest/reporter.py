@@ -23,7 +23,7 @@ def clean_report_dir(report_path):
 
 
 def generate_xunit_xml(xml_file):
-    pconsole.info("Generating Junit report...")
+    pconsole.info("Generating xunit report...")
     os.makedirs(os.path.dirname(xml_file))
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
@@ -59,13 +59,13 @@ def generate_xunit_xml(xml_file):
         f = open(xml_file, "w")
         try:
             doc.writexml(f, "\t", "\t", "\n", "utf-8")
-            pconsole.info("Junit report is generated at %s." % os.path.abspath(xml_file))
+            pconsole.info("xunit report is generated at %s." % os.path.abspath(xml_file))
         except IOError as ioe1:
-            pconsole.error("Failed to generate Junit report. %s\n%s" % (ioe1.message, traceback.format_exc()))
+            pconsole.error("Failed to generate xunit report. %s\n%s" % (ioe1.message, traceback.format_exc()))
         finally:
             f.close()
     except IOError as ioe2:
-        pconsole.error("Failed to generate Junit report. %s\n%s" % (ioe2.message, traceback.format_exc()))
+        pconsole.error("Failed to generate xunit report. %s\n%s" % (ioe2.message, traceback.format_exc()))
 
 
 def generate_html_report(report_dir):
