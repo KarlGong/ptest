@@ -10,10 +10,13 @@ __author__ = 'karl.gong'
 def take_screen_shot():
     current_thread = threading.currentThread()
     active_browser = current_thread.get_property("browser")
-    # todo: support capturing multiple browsers
 
     if active_browser is not None:
-        # todo: Dismiss alert if it is present, so the alert will not block screen capture.
+        while True:
+            try:
+                active_browser.switch_to.alert.dismiss()
+            except Exception:
+                break
 
         try:
             screen_shot = active_browser.get_screenshot_as_png()
