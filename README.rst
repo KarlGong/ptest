@@ -27,7 +27,7 @@ Firstly, create a python file: *c:\\folder\\mytest.py*
 	from ptest.plogger import info
 	from ptest import config
 
-	@TestClass(run_mode="singleline") # the test cases will be only executed by one thread
+	@TestClass(run_mode="singleline") # the test cases in this class will be only executed by one thread
 	class PTestClass:
 	    def __init__(self):
 	        self.expected = 1
@@ -65,7 +65,7 @@ In this case, workspace is *c:\\folder* and target is *mytest*.
 
 The target can be package/module/class/method.
 If the target is package/module/class, all the test cases under target will be executed.
-For example, if you want to execute all the testcases under class *MyClass*, the class a is in module *mypackage.mymodule* .
+For example, if you want to execute all the testcases under class *MyClass*, the class is in module *mypackage.mymodule*.
 
 ::
 
@@ -96,7 +96,7 @@ Create a python file: *c:\\folder\\seleniumtest.py*
 	from selenium.webdriver import Chrome
 	from ptest import testexecutor
 
-	@TestClass(run_mode="parallel") # the test cases will be executed by multiple threads
+	@TestClass(run_mode="parallel") # the test cases in this class will be executed by multiple threads
 	class SeleniumTestClass:
 	    @BeforeMethod()
 	    def before(self):
@@ -119,6 +119,18 @@ Create a python file: *c:\\folder\\seleniumtest.py*
 	        self.webdriver.quit()
 	        # remove browser from current testexecutor
 	        testexecutor.update_properties(browser=None)
+
+Added following line after the browser is initialized.
+
+.. code:: python
+
+    testexecutor.update_properties(browser=self.webdriver)
+
+Added following line after the browser is closed.
+
+.. code:: python
+
+    testexecutor.update_properties(browser=None)
 
 Execute the test cases under module *seleniumtest.py* by 2 threads.
 Use -n to specify the number of test executors(threads).
