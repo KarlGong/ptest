@@ -43,7 +43,7 @@ Firstly, create a python file: *c:\\folder\\mytest.py*
 	
 	    @Test(tags=["smoke"])
 	    def test2(self):
-	        assert_none(config.get_property("key"))
+	        assert_none(config.get_property("key")) # assert the property defined via -D<key>=<value> in cmd line
 	        assert_true(False) # failed
 	
 	    @Test(enabled=False)
@@ -57,7 +57,7 @@ Firstly, create a python file: *c:\\folder\\mytest.py*
 
 Then start to execute all the testcases in module *mytest.py*.
 Use -w to specify the workspace and -t to specify the target.
-In this case, workspace is *c:\folder* and target is *mytest*.
+In this case, workspace is *c:\\folder* and target is *mytest*.
 
 ::
 
