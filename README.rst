@@ -18,7 +18,7 @@ Example
 -------
 You can tag test class, test, before method, after method by adding decorator @TestClass, @Test, @BeforeMethod, @AfterMethod.
 
-c:\\folder\\mytest.py
+Firstly, create a python file: *c:\\folder\\mytest.py*
 
 .. code:: python
 
@@ -55,8 +55,9 @@ c:\\folder\\mytest.py
 	        info("cleaning up")
 
 
-Then start to execute the tests.
+Then start to execute all the testcases in module *mytest.py*.
 Use -w to specify the workspace and -t to specify the target.
+In this case, workspace is *c:\folder* and target is *mytest*.
 
 ::
 
@@ -64,16 +65,17 @@ Use -w to specify the workspace and -t to specify the target.
 
 The target can be package/module/class/method.
 If the target is package/module/class, all the test cases under target will be executed.
+For example, if you want to execute all the testcases under class *MyClass*, the class a is in module *mypackage.mymodule* .
 
 ::
 
-	$ ptest -t pack.sub.module.class
+	$ ptest -t mypackage.mymodule.MyClass
 
 If you have multiple targets, just separate them by comma.
 
 ::
 
-	$ ptest -t packa.mo,packb
+	$ ptest -t mypackagea.mymodule,mypackageb
 
 For more options, please use -h.
 
@@ -85,7 +87,7 @@ Selenium Support
 ----------------
 ptest supports capturing screenshots for failed selenium test cases. But you need to make a little change to your code.
 
-c:\\folder\\seleniumtest.py
+Create a python file: *c:\\folder\\seleniumtest.py*
 
 .. code:: python
 
@@ -118,7 +120,7 @@ c:\\folder\\seleniumtest.py
 	        # remove browser from current testexecutor
 	        testexecutor.update_properties(browser=None)
 
-Then start to execute the tests.
+Execute the test cases under module *seleniumtest.py* by 2 threads.
 Use -n to specify the number of test executors(threads).
 
 ::
