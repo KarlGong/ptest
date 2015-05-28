@@ -50,7 +50,7 @@ def assert_set_contains(superset, subset, msg=""):
                 "%s Superset <%s> doesn't contain element <%s> from subset <%s>." % (msg, superset, element, subset))
 
 
-def fail(msg):
+def fail(msg=""):
     __raise_error(msg)
 
 

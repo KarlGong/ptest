@@ -67,7 +67,7 @@ def _parse_properties(property_args):
 
 
 def _parse_options(option_args):
-    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.0.2",
+    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.0.3",
                           description="ptest is a light testing framework for Python.")
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
                       help="Specify the workspace dir. Default value is current dir.")

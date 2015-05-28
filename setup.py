@@ -19,7 +19,7 @@ def main():
         name="ptest",
         description="light testing framework for Python",
         long_description=long_description,
-        version="1.0.2",
+        version="1.0.3",
         keywords="test testing framework",
         platforms=["linux", "win32"],
         author="Karl Gong",
