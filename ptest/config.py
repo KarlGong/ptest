@@ -74,7 +74,7 @@ def _parse_options(option_args):
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
-                           "NOTE: ptest ONLY search modules under workspace and sys.path")
+                           "NOTE: ptest ONLY searches modules under workspace and sys.path")
     parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
                       help="Select test cases to run by tags, separated by comma.")
     parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
@@ -82,17 +82,17 @@ def _parse_options(option_args):
     parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
     parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
-                      help="Specify the xunitxml path and run the failed test cases.")
+                      help="Specify the xunit xml path and run the failed test cases in it.")
     parser.add_option("-o", "--outputdir", action="store", dest="output_dir", default="test-output", metavar="dir",
                       help="Specify the output dir.")
     parser.add_option("-x", "--xunitxml", action="store", dest="xunit_xml", default="xunit-results.xml",
-                      metavar="file", help="Specify the xunit_xm pathl")
+                      metavar="file", help="Specify the xunit xml path.")
     parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
-                      help="Specify the report dir.")
+                      help="Specify the html report dir.")
     parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="class",
                       help="Specify the path of test listener class. The listener class should implement class TestListener in ptest.plistener. "
                            "The listener path format is: package.module.class "
-                           "NOTE: ptest ONLY search modules under workspace and sys.path")
+                           "NOTE: ptest ONLY searches modules under workspace and sys.path")
     parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
                       help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in module ptest.config.")

@@ -59,7 +59,7 @@ def generate_xunit_xml(xml_file):
         f = open(xml_file, "w")
         try:
             doc.writexml(f, "\t", "\t", "\n", "utf-8")
-            pconsole.info("xunit report is generated at %s." % os.path.abspath(xml_file))
+            pconsole.info("xunit report is generated at %s" % os.path.abspath(xml_file))
         except IOError as ioe1:
             pconsole.error("Failed to generate xunit report. %s\n%s" % (ioe1.message, traceback.format_exc()))
         finally:
@@ -80,7 +80,7 @@ def generate_html_report(report_dir):
         _generate_index_page(report_dir)
         for test_class in test_suite.test_classes:
             _generate_test_class_page(test_class, report_dir)
-        pconsole.info("Html report is generated at %s." % os.path.abspath(report_dir))
+        pconsole.info("html report is generated at %s" % os.path.abspath(report_dir))
     except Exception as e:
         pconsole.error("Failed to generate Html report. %s\n%s" % (e.message, traceback.format_exc()))
 
