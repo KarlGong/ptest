@@ -20,7 +20,7 @@ def main():
         description="light testing framework for Python",
         long_description=long_description,
         version="1.0.3",
-        keywords="test testing framework",
+        keywords="test testing framework automation python",
         platforms=["linux", "win32"],
         author="Karl Gong",
         author_email="karl.gong@outlook.com",
