@@ -14,8 +14,8 @@ class PDecoratorType:
 
 
 class TestCaseStatus:
-    NOT_RUN = "Not Run"
-    RUNNING = "Running"
-    PASSED = "Passed"
-    SKIPPED = "Skipped"
-    FAILED = "Failed"
+    NOT_RUN = "not_run"
+    RUNNING = "running"
+    PASSED = "passed"
+    SKIPPED = "skipped"
+    FAILED = "failed"

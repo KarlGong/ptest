@@ -20,7 +20,7 @@ function getStyle(element, property){{
 </script>
 </head>
 <body>
-<h1>Test Class Results</h1>
+<h1>Test Class Results - {test_class.full_name}</h1>
 <table>
   <tr>
       <td>All/passed/failed/skipped:&nbsp;&nbsp;</td>
@@ -34,13 +34,13 @@ function getStyle(element, property){{
   <tr><td>Duration: </td><td>{test_class.elapsed_time}s</td></tr>
   <tr><td>Run mode: </td><td>{test_class.run_mode}</td></tr>
 </table>
-<table class="overviewTable">
+<table class="overview-table">
    <tr>
     <th colspan="7" class="header suite" title="{test_class.description}">
       {test_class.full_name}
     </th>
   </tr>
-  <tr class="columnHeadings">
+  <tr class="column-headings">
     <td>Test Case</td>
     <th>Duration</th>
     <th>Logs</th>

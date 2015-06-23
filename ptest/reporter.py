@@ -103,7 +103,7 @@ def _generate_index_page(report_dir):
         <td class="passed number">{test_class.test_case_status_count[1]}</td>
         <td class="failed number">{test_class.test_case_status_count[2]}</td>
         <td class="skipped number">{test_class.test_case_status_count[3]}</td>
-        <td class="passRate">{test_class.pass_rate:.1f}%</td>
+        <td class="pass-rate">{test_class.pass_rate:.1f}%</td>
     </tr>
     """
     for test_class in test_suite.test_classes:
@@ -123,7 +123,7 @@ def _generate_test_class_page(test_class, report_path):
         template_file.close()
 
     test_case_template = """
-        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case_status}" onclick="javascript:toggleElements('{toggle_id}', 'table-row')">{test_case.name}&nbsp;&nbsp;&nbsp;&nbsp;{test_case.tags}</td></tr>
+        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('{toggle_id}', 'table-row')">{test_case.name}&nbsp;&nbsp;&nbsp;&nbsp;tags:&nbsp;{test_case.tags}</td></tr>
         {before_method_result}
         {test_result}
         {after_method_result}
@@ -173,7 +173,6 @@ def _generate_test_class_page(test_class, report_path):
                                                                      test_fixtrue_screenshot_path=after_method_screen_shot_name)
 
         test_case_content = test_case_template.format(toggle_id=test_case.name, test_case=test_case,
-                                                      test_case_status=test_case.status.lower(),
                                                       before_method_result=before_method_content,
                                                       test_result=test_content,
                                                       after_method_result=after_method_content)

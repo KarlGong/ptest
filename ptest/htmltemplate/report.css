@@ -12,7 +12,7 @@ td                       {font-size: 1.3em;}
 .passed                  {background-color: #44aa44;}
 .skipped                 {background-color: #ffaa00;}
 .failed                  {background-color: #ff5555;}
-.totalLabel              {font-weight: bold;}
+.total-label              {font-weight: bold;}
 
 .suite                   {background-color: #999999; font-weight: bold;}
 .test                    {background-color: #eeeeee; padding-left: 2em;}
@@ -20,27 +20,27 @@ td                       {font-size: 1.3em;}
 .test .passed            {background-color: #00ff00;}
 .test .skipped           {background-color: #ffff77;}
 .test .failed            {background-color: #ff0000;}
-.passRate                {font-weight: bold; text-align: right;background-color: #44aa44;}
+.pass-rate                {font-weight: bold; text-align: right;background-color: #44aa44;}
 .duration                {text-align: right;}
 .testcase                   {color: #000000; font-weight: bold;cursor:pointer;}
 
 .number                  {text-align: right;}
-.columnHeadings          {font-size: 1.2em;}
-.columnHeadings td      {font-size: 1.1em;}
-.columnHeadings th       {font-weight: normal;}
+.column-headings          {font-size: 1.2em;}
+.column-headings td      {font-size: 1.1em;}
+.column-headings th       {font-weight: normal;}
 
 .header.suite            {clear: right; height: 1.214em; margin-top: 1px;}
 
 #meta                    {font-size: 1em; text-align: right; float: right;}
-#systemInfo              {color: #666666;}
+#system-info              {color: #666666;}
 
-.overviewTable           {width: 100%; margin-top: 1.8em; line-height: 1.7em; border-spacing: 0.1em;}
-.overviewTable tr        {height: 1.6em;}
-.overviewTable td        {padding: 0 1em;}
-.overviewTable th        {padding: 0 .5em;}
-.overviewTable .duration {width: 6em;}
-.overviewTable .logs       {width:25em;}
-.overviewTable .screenshot {width:20em;}
-.overviewTable .passRate {width: 6em;}
-.overviewTable .number   {width: 5em;}
+.overview-table           {width: 100%; margin-top: 1.8em; line-height: 1.7em; border-spacing: 0.1em;}
+.overview-table tr        {height: 1.6em;}
+.overview-table td        {padding: 0 1em;}
+.overview-table th        {padding: 0 .5em;}
+.overview-table .duration {width: 6em;}
+.overview-table .logs       {width:25em;}
+.overview-table .screenshot {width:20em;}
+.overview-table .pass-rate {width: 6em;}
+.overview-table .number   {width: 5em;}
 

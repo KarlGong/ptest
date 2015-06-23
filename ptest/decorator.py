@@ -40,8 +40,8 @@ def TestClass(enabled=True, run_mode="parallel", description=""):
         cls.__full_name__ = str(cls)
         cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
-        if run_mode in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
-            cls.__run_mode__ = run_mode
+        if run_mode.lower() in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
+            cls.__run_mode__ = run_mode.lower()
         else:
             raise Exception("Run mode %s is not supported. Please use %s or %s." % (
             run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
