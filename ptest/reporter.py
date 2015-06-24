@@ -130,52 +130,34 @@ def _generate_test_class_page(test_class, report_path):
     """
     test_case_fixture_template = """
     <tr class="test" name="{toggle_id}" style="display:none">
-      <td title="{test_fixture.description}">@{test_fixture.fixture_type}</td>
-      <td class="duration">{test_fixture.elapsed_time}s</td>
-      <td class="logs">{test_fixture.html_format_logs}</td>
+      <td title="{test_case_fixture.description}">@{test_case_fixture.fixture_type}</td>
+      <td class="duration">{test_case_fixture.elapsed_time}s</td>
+      <td class="logs">{test_case_fixture.html_format_logs}</td>
       <th class="screenshot">
-        <a href="{test_fixtrue_screenshot_path}" target="_blank">
-          <img src="{test_fixtrue_screenshot_path}" onload="javascript:if(this.width> 200){{this.height=this.height*200/this.width;this.width=200;}}">
+        <a href="{test_case_fixtrue_screenshot_path}" target="_blank">
+          <img src="{test_case_fixtrue_screenshot_path}" onload="javascript:if(this.width> 200){{this.height=this.height*200/this.width;this.width=200;}}">
         </a>
        </th></tr>
     """
     test_cases_content = ""
+
+    def make_test_case_fixture_content(test_case_fixture):
+        if test_case_fixture:
+            test_case_fixture_screen_shot_name = ""
+            if test_case_fixture.screen_shot:
+                test_case_fixture_screen_shot_name = test_case_fixture.full_name + ".png"
+                _write_to_file(test_case_fixture.screen_shot,
+                               os.path.join(report_path, test_case_fixture_screen_shot_name), mode="wb")
+            return test_case_fixture_template.format(toggle_id=test_case_fixture.test_case.name,
+                                                                     test_case_fixture=test_case_fixture,
+                                                                     test_case_fixtrue_screenshot_path=test_case_fixture_screen_shot_name)
+        return ""
+
     for test_case in test_class.test_cases:
-        before_method_content = ""
-        after_method_content = ""
-
-        if test_case.before_method:
-            before_method_screen_shot_name = ""
-            if test_case.before_method.screen_shot:
-                before_method_screen_shot_name = test_case.full_name + "@" + PDecoratorType.BeforeMethod + ".png"
-                _write_to_file(test_case.before_method.screen_shot,
-                               os.path.join(report_path, before_method_screen_shot_name), mode="wb")
-            before_method_content = test_case_fixture_template.format(toggle_id=test_case.name,
-                                                                      test_fixture=test_case.before_method,
-                                                                      test_fixtrue_screenshot_path=before_method_screen_shot_name)
-
-        test_screen_shot_name = ""
-        if test_case.test.screen_shot:
-            test_screen_shot_name = test_case.full_name + "@" + PDecoratorType.Test + ".png"
-            _write_to_file(test_case.test.screen_shot, os.path.join(report_path, test_screen_shot_name), mode="wb")
-        test_content = test_case_fixture_template.format(toggle_id=test_case.name,
-                                                         test_fixture=test_case.test,
-                                                         test_fixtrue_screenshot_path=test_screen_shot_name)
-
-        if test_case.after_method:
-            after_method_screen_shot_name = ""
-            if test_case.after_method.screen_shot:
-                after_method_screen_shot_name = test_case.full_name + "@" + PDecoratorType.BeforeMethod + ".png"
-                _write_to_file(test_case.after_method.screen_shot,
-                               os.path.join(report_path, after_method_screen_shot_name), mode="wb")
-            after_method_content = test_case_fixture_template.format(toggle_id=test_case.name,
-                                                                     test_fixture=test_case.after_method,
-                                                                     test_fixtrue_screenshot_path=after_method_screen_shot_name)
-
         test_case_content = test_case_template.format(toggle_id=test_case.name, test_case=test_case,
-                                                      before_method_result=before_method_content,
-                                                      test_result=test_content,
-                                                      after_method_result=after_method_content)
+                                                      before_method_result=make_test_case_fixture_content(test_case.before_method),
+                                                      test_result=make_test_case_fixture_content(test_case.test),
+                                                      after_method_result=make_test_case_fixture_content(test_case.after_method))
         test_cases_content += test_case_content
 
     test_class_page_content = test_class_page_template.format(test_class=test_class,

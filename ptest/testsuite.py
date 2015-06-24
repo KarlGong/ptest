@@ -217,6 +217,7 @@ class TestCase:
 class TestCaseFixture:
     def __init__(self, test_case, test_fixture_ref, fixture_type):
         self.__test_fixture_ref = test_fixture_ref
+        self.full_name = "%s@%s" % (test_case.full_name, fixture_type)
         self.test_case = test_case
         self.logs = []
         self.screen_shot = None

@@ -46,6 +46,5 @@ def __log(level, msg):
 
     if pconsole_verbose:
         # output log to pconsole
-        message = "[%s @%s] %s" % (
-            running_test_case_fixture.test_case.full_name, running_test_case_fixture.fixture_type, msg)
+        message = "[%s] %s" % (running_test_case_fixture.full_name, msg)
         pconsole.log(level, message)
