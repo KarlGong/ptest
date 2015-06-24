@@ -4,11 +4,6 @@ import threading
 
 __author__ = 'karl.gong'
 
-DEBUG = 10
-INFO = 20
-WARN = 30
-ERROR = 40
-CRITICAL = 50
 
 # pconsole config
 pconsole = logging.getLogger("ptest")
@@ -26,23 +21,23 @@ pconsole_verbose = False
 
 
 def debug(msg):
-    __log(DEBUG, msg)
+    __log(logging.DEBUG, msg)
 
 
 def info(msg):
-    __log(INFO, msg)
+    __log(logging.INFO, msg)
 
 
 def warn(msg):
-    __log(WARN, msg)
+    __log(logging.WARN, msg)
 
 
 def error(msg):
-    __log(ERROR, msg)
+    __log(logging.ERROR, msg)
 
 
 def critical(msg):
-    __log(CRITICAL, msg)
+    __log(logging.CRITICAL, msg)
 
 
 def __log(level, msg):
@@ -53,13 +48,4 @@ def __log(level, msg):
         # output log to pconsole
         message = "[%s @%s] %s" % (
             running_test_case_fixture.test_case.full_name, running_test_case_fixture.fixture_type, msg)
-        if level == DEBUG:
-            pconsole.debug(message)
-        elif level == INFO:
-            pconsole.info(message)
-        elif level == WARN:
-            pconsole.warning(message)
-        elif level == ERROR:
-            pconsole.error(message)
-        elif level == CRITICAL:
-            pconsole.critical(message)
+        pconsole.log(level, message)
