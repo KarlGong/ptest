@@ -217,7 +217,7 @@ def main(args=sys.argv):
     workspace = os.path.join(os.getcwd(), config.get_option("workspace"))
     sys.path.insert(0, workspace)
     pconsole.info("Workspace:")
-    pconsole.info(" %s" % workspace)
+    pconsole.info(" %s" % os.path.abspath(workspace))
 
     # get test targets
     test_targets_str = config.get_option("test_targets")

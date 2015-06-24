@@ -37,11 +37,11 @@ Firstly, create a python file: *c:\\folder\\mytest.py*
             info("setting expected result.")
             self.expected = 10
     
-        @Test(tags=["regression"])
+        @Test(tags=["regression", "smoke"])
         def test1(self):
             assert_equals(10, self.expected) # pass
     
-        @Test(tags=["smoke"])
+        @Test(tags="smoke, nightly")
         def test2(self):
             assert_none(config.get_property("key")) # assert the property defined via -D<key>=<value> in cmd line
             assert_true(False) # failed

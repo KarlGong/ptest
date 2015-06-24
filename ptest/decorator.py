@@ -8,7 +8,13 @@ def Test(enabled=True, description="", tags=[]):
         func.__pd_type__ = PDecoratorType.Test
         func.__enabled__ = enabled
         func.__description__ = description
-        func.__tags__ = sorted(tags)
+        if isinstance(tags, basestring):
+            tag_list = tags.split(",")
+        elif isinstance(tags, list) or isinstance(tags, tuple):
+            tag_list = tags
+        else:
+            raise Exception("Tags type %s is not supported. Please use string or list." % type(tags))
+        func.__tags__ = sorted([str(tag.strip()) for tag in tag_list if tag.strip()])
         return func
 
     return handle_func
