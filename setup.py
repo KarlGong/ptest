@@ -21,7 +21,7 @@ def main():
         long_description=long_description,
         version="1.0.3",
         keywords="test testing framework automation python",
-        platforms=["linux", "win32"],
+        platforms=["win32"],
         author="Karl Gong",
         author_email="karl.gong@outlook.com",
         url="https://github.com/KarlGong/ptest",
