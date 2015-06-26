@@ -32,6 +32,9 @@ def warn(msg):
     __log(logging.WARN, msg)
 
 
+warning = warn
+
+
 def error(msg):
     __log(logging.ERROR, msg)
 
@@ -42,7 +45,7 @@ def critical(msg):
 
 def __log(level, msg):
     running_test_case_fixture = threading.currentThread().get_property("running_test_case_fixture")
-    running_test_case_fixture.logs.append(msg)
+    running_test_case_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
 
     if pconsole_verbose:
         # output log to pconsole

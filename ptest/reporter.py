@@ -123,33 +123,46 @@ def _generate_test_class_page(test_class, report_path):
         template_file.close()
 
     test_case_template = """
-        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('{toggle_id}', 'table-row')">{test_case.name}&nbsp;&nbsp;&nbsp;&nbsp;tags:&nbsp;{test_case.tags}</td></tr>
+        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('toggle-{toggle_id}', 'table-row')">{test_case.name}&nbsp;&nbsp;&nbsp;&nbsp;tags:&nbsp;{test_case.tags}</td></tr>
         {before_method_result}
         {test_result}
         {after_method_result}
     """
     test_case_fixture_template = """
-    <tr class="test" name="{toggle_id}" style="display:none">
+    <tr class="test toggle-{toggle_id}" style="display:none">
       <td title="{test_case_fixture.description}">@{test_case_fixture.fixture_type}</td>
       <td class="duration">{test_case_fixture.elapsed_time}s</td>
-      <td class="logs">{test_case_fixture.html_format_logs}</td>
+      <td class="logs">{test_case_fixture_logs}</td>
       <th class="screenshot">
         <a href="{test_case_fixtrue_screenshot_path}" target="_blank">
-          <img src="{test_case_fixtrue_screenshot_path}" onload="javascript:if(this.width> 200){{this.height=this.height*200/this.width;this.width=200;}}">
+          <img src="{test_case_fixtrue_screenshot_path}" style="width:200px;border:0;">
         </a>
        </th></tr>
+    """
+    test_case_fixture_log_template = """
+        <span class="log-level">[{level_name}]</span>
+        <span class="{level_name}">{msg}</span>
     """
     test_cases_content = ""
 
     def make_test_case_fixture_content(test_case_fixture):
         if test_case_fixture:
+            # screenshot
             test_case_fixture_screen_shot_name = ""
             if test_case_fixture.screen_shot:
                 test_case_fixture_screen_shot_name = test_case_fixture.full_name + ".png"
                 _write_to_file(test_case_fixture.screen_shot,
                                os.path.join(report_path, test_case_fixture_screen_shot_name), mode="wb")
+            # logs
+            test_case_fixture_log_content_list = []
+            for level_name, msg in test_case_fixture.logs:
+                html_msg = msg.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;")\
+                                            .replace('"', "&quot;").replace("\n", "<br/>")
+                test_case_fixture_log_content_list.append(test_case_fixture_log_template.format(level_name=level_name, msg=html_msg))
+            test_case_fixture_logs_content = "<br/>".join(test_case_fixture_log_content_list)
             return test_case_fixture_template.format(toggle_id=test_case_fixture.test_case.name,
                                                                      test_case_fixture=test_case_fixture,
+                                                                     test_case_fixture_logs=test_case_fixture_logs_content,
                                                                      test_case_fixtrue_screenshot_path=test_case_fixture_screen_shot_name)
         return ""
 

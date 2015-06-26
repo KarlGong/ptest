@@ -40,7 +40,18 @@ td                       {font-size: 1.3em;}
 .overview-table th        {padding: 0 .5em;}
 .overview-table .duration {width: 6em;}
 .overview-table .logs       {width:25em;}
+.overview-table .logs .log-level     {font-weight:bold;text-transform:uppercase;color:#777;}
+.overview-table .logs .debug   {color:#749A06;}
+.overview-table .logs .info   {color:#00A3E8;}
+.overview-table .logs .warning  {color:#ECBA04;}
+.overview-table .logs .error  {color:#CE2400;}
+.overview-table .logs .critical    {color:#FF0000}
 .overview-table .screenshot {width:20em;}
+/* Hide img with no src */
+img[src=""] {
+   display: none;
+}
+
 .overview-table .pass-rate {width: 6em;}
 .overview-table .number   {width: 5em;}
 

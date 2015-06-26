@@ -230,19 +230,6 @@ class TestCaseFixture:
         self.__test_fixture_ref.__call__()
 
     @property
-    def html_format_logs(self):
-        escaped_logs = []
-        for log in self.logs:
-            log = log.replace("&", "&amp;")
-            log = log.replace("<", "&lt;")
-            log = log.replace(">", "&gt;")
-            log = log.replace(" ", "&nbsp;")
-            log = log.replace('"', "&quot;")
-            log = log.replace("\n", "<br/>")
-            escaped_logs.append(log)
-        return "<br/>".join(escaped_logs)
-
-    @property
     def elapsed_time(self):
         time_delta = self.end_time - self.start_time
         seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
