@@ -142,3 +142,11 @@ Use -n to specify the number of test executors(threads).
 Contact me
 ----------
 For information and suggestions you can contact me at karl.gong@outlook.com
+
+Change Log
+----------
+1.0.4 (compared to 1.0.3)
+
+- Support capture screenshot for no-selenium test.
+
+- Optimize the html report.
