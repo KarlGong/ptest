@@ -14,11 +14,11 @@ The last stable release is available on PyPI and can be installed with ``pip``.
 
     $ pip install ptest
 
-Example
--------
-You can tag test class, test, before method, after method by adding decorator @TestClass, @Test, @BeforeMethod, @AfterMethod.
-
+Best Practice
+-------------
 Firstly, create a python file: *c:\\folder\\mytest.py*
+
+You can tag test class, test, before method, after method by adding decorator @TestClass, @Test, @BeforeMethod, @AfterMethod.
 
 .. code:: python
 
