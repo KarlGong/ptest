@@ -2,11 +2,12 @@ from datetime import datetime
 import threading
 import traceback
 
-from ptest import plistener, plogger, screencapturer
+import plistener
+import plogger
+import screencapturer
 from enumeration import PDecoratorType, TestCaseStatus
 from plogger import pconsole
 from testsuite import test_suite, NoTestCaseAvailableForThisThread
-
 
 __author__ = 'karl.gong'
 
@@ -97,11 +98,14 @@ class TestExecutor(threading.Thread):
         except KeyError:
             return None
 
+
 def update_properties(**kwargs):
     threading.currentThread().update_properties(**kwargs)
 
+
 def get_property(key):
     return threading.currentThread().get_property(key)
+
 
 def get_name():
     return threading.currentThread().getName()
