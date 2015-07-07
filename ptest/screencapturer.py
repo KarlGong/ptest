@@ -1,9 +1,8 @@
-import threading
 import traceback
 import StringIO
 
+import testexecutor
 import plogger
-
 
 try:
     from PIL import ImageGrab
@@ -23,8 +22,7 @@ __author__ = 'karl.gong'
 
 
 def take_screen_shot():
-    current_thread = threading.currentThread()
-    active_browser = current_thread.get_property("browser")
+    active_browser = testexecutor.get_property("browser")
 
     if active_browser is not None:
         while True:
@@ -55,6 +53,6 @@ def take_screen_shot():
         return
 
     try:
-        current_thread.get_property("running_test_case_fixture").screen_shot = capture_screen()
+        testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
     except Exception as e:
         plogger.warn("Failed to take the screenshot: \n%screen\n%screen" % (e.message, traceback.format_exc()))

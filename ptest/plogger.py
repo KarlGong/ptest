@@ -1,6 +1,6 @@
 import logging
-import threading
 
+import testexecutor
 
 __author__ = 'karl.gong'
 
@@ -44,7 +44,7 @@ def critical(msg):
 
 
 def __log(level, msg):
-    running_test_case_fixture = threading.currentThread().get_property("running_test_case_fixture")
+    running_test_case_fixture = testexecutor.get_property("running_test_case_fixture")
     running_test_case_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
 
     if pconsole_verbose:

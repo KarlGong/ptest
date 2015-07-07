@@ -1,7 +1,7 @@
 import threading
 
 from enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType
-
+import testexecutor
 
 __author__ = 'karl.gong'
 
@@ -86,7 +86,7 @@ class TestSuite:
 
     def pop_test_case(self):
         self.__lock.acquire()
-        current_thread_name = threading.currentThread().getName()
+        current_thread_name = testexecutor.get_name()
         try:
             for test_class in self.test_classes:
                 # get the not run test cases count
@@ -118,7 +118,6 @@ class TestClass:
         self.run_thread = None
         self.run_mode = test_class_ref.__run_mode__
         self.description = test_class_ref.__description__
-
 
     def get_test_case(self, name):
         for test_case in self.test_cases:

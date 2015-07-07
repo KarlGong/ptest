@@ -6,7 +6,7 @@ import traceback
 import sys
 from xml.dom import minidom
 
-from ptest.testexecutor import TestExecutor
+from testexecutor import TestExecutor
 import reporter
 import config
 from testsuite import test_suite
