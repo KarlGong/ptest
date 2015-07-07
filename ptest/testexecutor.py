@@ -101,7 +101,7 @@ def update_properties(**kwargs):
     threading.currentThread().update_properties(**kwargs)
 
 def get_property(key):
-    threading.currentThread().get_property(key)
+    return threading.currentThread().get_property(key)
 
 def get_name():
-    threading.currentThread().getName()
+    return threading.currentThread().getName()
