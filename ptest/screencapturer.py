@@ -3,6 +3,7 @@ import StringIO
 
 import testexecutor
 import plogger
+import config
 
 try:
     from PIL import ImageGrab
@@ -22,6 +23,9 @@ __author__ = 'karl.gong'
 
 
 def take_screen_shot():
+    if config.get_option("disable_screenshot"):
+        return
+
     active_browser = testexecutor.get_property("browser")
 
     if active_browser is not None:

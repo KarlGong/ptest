@@ -78,7 +78,7 @@ def _parse_options(option_args):
     parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
                       help="Select test cases to run by tags, separated by comma.")
     parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
-                      help="Select test cases not to run by tag, separated by comma. These tests are not run even if included with --includetags.")
+                      help="Select test cases not to run by tags, separated by comma. These tests are not run even if included with --includetags.")
     parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
     parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
@@ -98,6 +98,8 @@ def _parse_options(option_args):
                            "Get property via get_property() in module ptest.config.")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
+    parser.add_option("--disablescreenshot", action="store_true", dest="disable_screenshot", default=False,
+                      help="Disable taking screenshot for failed test fixtures.")
     parser.add_option_group(
         OptionGroup(parser, "User defined properties",
                     "Define properties via -D<key>=<value>. Get defined property via get_property() in module ptest.config."))
