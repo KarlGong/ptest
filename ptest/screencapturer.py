@@ -54,9 +54,10 @@ def take_screen_shot():
             bmp.ConvertToImage().SaveStream(output, wx.BITMAP_TYPE_PNG)
             return output.getvalue()
     else:
+        plogger.warn("The package PIL or wxpython is necessary for taking screenshot, please install it.")
         return
 
     try:
         testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
     except Exception as e:
-        plogger.warn("Failed to take the screenshot: \n%screen\n%screen" % (e.message, traceback.format_exc()))
+        plogger.warn("Failed to take the screenshot:\n%s\n%s" % (e.message, traceback.format_exc()))
