@@ -90,9 +90,10 @@ def _parse_options(option_args):
     parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
                       help="Specify the html report dir.")
     parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="class",
-                      help="Specify the path of test listener class. The listener class should implement class TestListener in ptest.plistener. "
+                      help="Specify the path of test listener class. The listener class should implement class TestListener in ptest.plistener "
                            "The listener path format is: package.module.class "
-                           "NOTE: ptest ONLY searches modules under workspace and sys.path")
+                           "NOTE: 1. ptest ONLY searches modules under workspace and sys.path "
+                           "2. The listener class should be thread safe.")
     parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
                       help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in module ptest.config.")
