@@ -1,6 +1,7 @@
 import logging
 
 import testexecutor
+import config
 
 __author__ = 'karl.gong'
 
@@ -15,9 +16,6 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(formatter)
 pconsole.addHandler(console_handler)
-
-# set pconsole verbose
-pconsole_verbose = False
 
 
 def debug(msg):
@@ -47,7 +45,7 @@ def __log(level, msg):
     running_test_case_fixture = testexecutor.get_property("running_test_case_fixture")
     running_test_case_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
 
-    if pconsole_verbose:
+    if config.get_option("verbose"):
         # output log to pconsole
         message = "[%s] %s" % (running_test_case_fixture.full_name, msg)
         pconsole.log(level, message)

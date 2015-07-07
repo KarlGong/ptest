@@ -11,10 +11,8 @@ import reporter
 import config
 from testsuite import test_suite
 from enumeration import PDecoratorType
-import plogger
 from plogger import pconsole
 import plistener
-
 
 __author__ = 'karl.gong'
 
@@ -209,9 +207,6 @@ def main(args=sys.argv):
     config.load(args)
 
     pconsole.info("Starting ptest...")
-
-    # config nglogger
-    plogger.pconsole_verbose = config.get_option("verbose")
 
     # add workspace to python path
     workspace = os.path.join(os.getcwd(), config.get_option("workspace"))
