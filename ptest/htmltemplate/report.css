@@ -44,8 +44,8 @@ td                       {font-size: 1.3em;}
 .overview-table .logs .debug   {color:#749A06;}
 .overview-table .logs .info   {color:#00A3E8;}
 .overview-table .logs .warning  {color:#ECBA04;}
-.overview-table .logs .error  {color:#CE2400;}
-.overview-table .logs .critical    {color:#FF0000}
+.overview-table .logs .error    {color:#FF0000}
+.overview-table .logs .critical  {color:#CE2400;}
 .overview-table .screenshot {width:20em;}
 /* Hide img with no src */
 img[src=""] {

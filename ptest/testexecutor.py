@@ -41,7 +41,7 @@ class TestExecutor(threading.Thread):
                 except Exception as e:
                     # before method failed
                     is_before_method_failed = True
-                    plogger.warn("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
+                    plogger.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                     screencapturer.take_screen_shot()
                 before_method.end_time = datetime.now()
 
@@ -61,9 +61,9 @@ class TestExecutor(threading.Thread):
                     pconsole.info("%s%s|PASS|" % (test_case_full_name, logger_filler))
                     test_case.status = TestCaseStatus.PASSED
                 except Exception as e:
-                    plogger.warn("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
+                    plogger.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                     screencapturer.take_screen_shot()
-                    pconsole.warning("%s%s|FAIL|" % (test_case_full_name, logger_filler))
+                    pconsole.error("%s%s|FAIL|" % (test_case_full_name, logger_filler))
                     test_case.status = TestCaseStatus.FAILED
                     test_case.failure_message = e.message
                     test_case.failure_type = e.__class__.__name__
@@ -79,7 +79,7 @@ class TestExecutor(threading.Thread):
                     try:
                         after_method.run()
                     except Exception as e:
-                        plogger.warn("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
+                        plogger.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                         screencapturer.take_screen_shot()
                 else:
                     # skip after method
