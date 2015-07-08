@@ -1,6 +1,5 @@
 import logging
 
-import testexecutor
 import config
 
 __author__ = 'karl.gong'
@@ -42,6 +41,8 @@ def critical(msg):
 
 
 def __log(level, msg):
+    import testexecutor
+
     running_test_case_fixture = testexecutor.get_property("running_test_case_fixture")
     running_test_case_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
 
