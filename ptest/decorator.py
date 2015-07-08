@@ -3,10 +3,11 @@ __author__ = 'karl.gong'
 from enumeration import PDecoratorType, TestClassRunMode
 
 
-def Test(enabled=True, description="", tags=[]):
+def Test(enabled=True, always_run=False, tags=[], description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.Test
         func.__enabled__ = enabled
+        func.__always_run__ = always_run
         func.__description__ = description
         if isinstance(tags, basestring):
             tag_list = tags.split(",")
@@ -50,7 +51,7 @@ def TestClass(enabled=True, run_mode="parallel", description=""):
             cls.__run_mode__ = run_mode.lower()
         else:
             raise Exception("Run mode %s is not supported. Please use %s or %s." % (
-            run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
+                run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
         cls.__description__ = description
         cls.__before_method__ = None
         cls.__after_method__ = None

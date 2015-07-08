@@ -243,6 +243,7 @@ class BeforeMethod(TestCaseFixture):
 class Test(TestCaseFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
+        self.always_run = test_fixture_ref.__always_run__
         self.tags = test_fixture_ref.__tags__
 
 
