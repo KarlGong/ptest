@@ -6,7 +6,7 @@ import traceback
 import sys
 from xml.dom import minidom
 
-from testexecutor import TestExecutor
+import testexecutor
 import reporter
 import config
 from testsuite import test_suite
@@ -170,7 +170,7 @@ class TestCaseExcludeTagsFilter:
 def run_test_cases(test_executor_number):
     test_executors = []
     for _ in range(test_executor_number):
-        test_executors.append(TestExecutor())
+        test_executors.append(testexecutor.TestExecutor())
 
     # test suite start
     plistener.test_listener.on_test_suite_start(test_suite)
@@ -254,6 +254,22 @@ def main(args=sys.argv):
     # get test cases
     for test_target in test_targets:
         get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
+
+    # add webdriver instance to test executor to support capturing screenshot for webdriver
+    if "selenium" in sys.modules.keys():
+        from selenium.webdriver.remote.webdriver import WebDriver
+        def new_start_client(self):
+            try:
+                testexecutor.update_properties(browser=self)
+            except AttributeError:
+                pass
+        def new_stop_client(self):
+            try:
+                testexecutor.update_properties(browser=None)
+            except AttributeError:
+                pass
+        WebDriver.start_client = new_start_client
+        WebDriver.stop_client = new_stop_client
 
     # sort the test groups for running
     test_suite.sort_test_classes_for_running()
