@@ -3,11 +3,12 @@ __author__ = 'karl.gong'
 from enumeration import PDecoratorType, TestClassRunMode
 
 
-def Test(enabled=True, always_run=False, tags=[], description=""):
+def Test(enabled=True, always_run=False, tags=[], group="default", description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.Test
         func.__enabled__ = enabled
         func.__always_run__ = always_run
+        func.__group__ = group
         func.__description__ = description
         if isinstance(tags, basestring):
             tag_list = tags.split(",")
@@ -21,21 +22,23 @@ def Test(enabled=True, always_run=False, tags=[], description=""):
     return handle_func
 
 
-def BeforeMethod(enabled=True, description=""):
+def BeforeMethod(enabled=True, group="default", description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeMethod
         func.__enabled__ = enabled
+        func.__group__ = group
         func.__description__ = description
         return func
 
     return handle_func
 
 
-def AfterMethod(enabled=True, always_run=False, description=""):
+def AfterMethod(enabled=True, always_run=False, group="default", description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterMethod
         func.__enabled__ = enabled
         func.__always_run__ = always_run
+        func.__group__ = group
         func.__description__ = description
         return func
 
@@ -53,22 +56,6 @@ def TestClass(enabled=True, run_mode="parallel", description=""):
             raise Exception("Run mode %s is not supported. Please use %s or %s." % (
                 run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
         cls.__description__ = description
-        cls.__before_method__ = None
-        cls.__after_method__ = None
-
-        # reflect the before method and after method
-        for element in dir(cls):
-            attr = getattr(cls, element)
-            try:
-                pd_type = attr.__pd_type__
-                is_enabled = attr.__enabled__
-            except AttributeError:
-                continue
-            if is_enabled:
-                if pd_type == PDecoratorType.BeforeMethod:
-                    cls.__before_method__ = attr
-                elif pd_type == PDecoratorType.AfterMethod:
-                    cls.__after_method__ = attr
         return cls
 
     return tracer

@@ -194,17 +194,25 @@ class TestCase:
         self.stack_trace = ""
         self.skip_message = ""
         self.tags = self.test.tags
+        self.group = self.test.group
         self.description = self.test.description
 
         self.before_method = None
-        before_method_ref = test_case_ref.__self__.__before_method__
-        if before_method_ref:
-            self.before_method = BeforeMethod(self, before_method_ref)
-
         self.after_method = None
-        after_method_ref = test_case_ref.__self__.__after_method__
-        if after_method_ref:
-            self.after_method = AfterMethod(self, after_method_ref)
+        # reflect the before method and after method
+        for element in dir(test_case_ref.__self__):
+            attr = getattr(test_case_ref.__self__, element)
+            try:
+                pd_type = attr.__pd_type__
+                is_enabled = attr.__enabled__
+                group = attr.__group__
+            except AttributeError:
+                continue
+            if is_enabled and self.group == group:
+                if pd_type == PDecoratorType.BeforeMethod:
+                    self.before_method = BeforeMethod(self, attr)
+                elif pd_type == PDecoratorType.AfterMethod:
+                    self.after_method = AfterMethod(self, attr)
 
     @property
     def elapsed_time(self):
@@ -222,6 +230,7 @@ class TestCaseFixture:
         self.screen_shot = None
         self.start_time = None
         self.end_time = None
+        self.group = test_fixture_ref.__group__
         self.description = test_fixture_ref.__description__
         self.fixture_type = fixture_type
 
