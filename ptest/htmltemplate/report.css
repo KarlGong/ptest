@@ -1,44 +1,53 @@
 *                        {padding: 0; margin: 0;}
 a                        {color: #006699;}
 a:visited                {color: #003366;}
-body                     {font-family: Lucida Sans Unicode, Lucida Grande, sans-serif; line-height: 1.8em; font-size: 62.5%; margin: 1.8em 1em;}
-h1                       {font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 2.7em; margin-bottom: 0.6667em;}
-h2                       {font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 1.8em; margin-bottom: 0;}
+body                     {font-family: Menlo,Monaco,Consolas,"Courier New",monospace; line-height: 1.8em; font-size: 62.5%; margin: 1.8em 1em;}
+h1                       {font-weight: bold; font-size: 2.7em; margin-bottom: 0.6667em;}
+h2                       {font-weight: bold; font-size: 1.8em; margin-bottom: 0;}
 p                        {font-size: 1.3em;}
 td                       {font-size: 1.3em;}
 
-.header                  {font-size: 1.4em; font-weight: bold; text-align: left;background-color: #999999; color: #000000}
-.all					 {background-color: #007aff;}
-.passed                  {background-color: #44aa44;}
-.skipped                 {background-color: #ffaa00;}
-.failed                  {background-color: #ff5555;}
-.total-label              {font-weight: bold;}
+.header.suite            {clear: right; height: 1.214em;}
 
-.suite                   {background-color: #999999; font-weight: bold;}
-.test                    {background-color: #eeeeee; padding-left: 2em;}
-.test .all               {background-color: #00b5ff;}
-.test .passed            {background-color: #00ff00;}
-.test .skipped           {background-color: #ffff77;}
-.test .failed            {background-color: #ff0000;}
-.pass-rate                {font-weight: bold; text-align: right;background-color: #44aa44;}
-.duration                {text-align: right;}
-.testcase                   {color: #000000; font-weight: bold;cursor:pointer;}
+#meta                    {font-size: 1.2em; text-align: right; float: right;}
+#system-info              {color: #666666;}
+
+.header                  {font-size: 1.4em; font-weight: bold; text-align: left;background-color: #999999; color: #000000}
 
 .number                  {text-align: right;}
+.overview-table .number   {width: 6em;}
+
 .column-headings          {font-size: 1.2em;}
 .column-headings td      {font-size: 1.1em;}
 .column-headings th       {font-weight: normal;}
 
-.header.suite            {clear: right; height: 1.214em; margin-top: 1px;}
+.test-class                    {background-color: #eeeeee; padding-left: 2em;}
+.test-class .all               {background-color: #00b5ff;}
+.test-class .passed            {background-color: #00ff00;}
+.test-class .skipped           {background-color: #fafa36;}
+.test-class .failed            {background-color: #fc7676;}
+.test-class .pass-rate                {background-color: #ec45f7;}
 
-#meta                    {font-size: 1em; text-align: right; float: right;}
-#system-info              {color: #666666;}
+.suite                   {background-color: #999999; font-weight: bold;}
+.suite .all					 {background-color: #007aff;}
+.suite .passed                  {background-color: #5dc35d;}
+.suite .skipped                 {background-color: #ffaa00;}
+.suite .failed                  {background-color: #ff0000;}
+.suite .pass-rate                {background-color: #c04acd;}
+
+.testcase                   {color: #000000; font-weight: bold;cursor:pointer;}
+.testcase.passed                  {background-color: #44aa44;}
+.testcase.skipped                 {background-color: #ffaa00;}
+.testcase.failed                  {background-color: #ff5555;}
+.testcase .name        {margin-right: 1em;}
+.testcase .tag            {padding-right: 0.4em;padding-left: 0.4em;color: #fff;background-color: #5bc0de;border-color: #46b8da;	border: 0.2em solid transparent;border-radius: 0.4em;}
+.testcase .group       {padding-right: 0.4em;padding-left: 0.4em;color: #fff;background-color: #777;border: 0.2em solid transparent;border-radius: 0.4em}
 
 .overview-table           {width: 100%; margin-top: 1.8em; line-height: 1.7em; border-spacing: 0.1em;}
-.overview-table tr        {height: 1.6em;}
+.overview-table tr        {height: 2em;}
 .overview-table td        {padding: 0 1em;}
 .overview-table th        {padding: 0 .5em;}
-.overview-table .duration {width: 6em;}
+.overview-table .duration {width: 6em;text-align: right;}
 .overview-table .logs       {width:25em;}
 .overview-table .logs .log-level     {font-weight:bold;text-transform:uppercase;color:#777;}
 .overview-table .logs .debug   {color:#749A06;}
@@ -51,7 +60,3 @@ td                       {font-size: 1.3em;}
 img[src=""] {
    display: none;
 }
-
-.overview-table .pass-rate {width: 6em;}
-.overview-table .number   {width: 5em;}
-

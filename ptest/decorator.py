@@ -3,7 +3,7 @@ __author__ = 'karl.gong'
 from enumeration import PDecoratorType, TestClassRunMode
 
 
-def Test(enabled=True, always_run=False, tags=[], group="default", description=""):
+def Test(enabled=True, always_run=False, tags=[], group="DEFAULT", description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.Test
         func.__enabled__ = enabled
@@ -22,7 +22,7 @@ def Test(enabled=True, always_run=False, tags=[], group="default", description="
     return handle_func
 
 
-def BeforeMethod(enabled=True, group="default", description=""):
+def BeforeMethod(enabled=True, group="DEFAULT", description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeMethod
         func.__enabled__ = enabled
@@ -33,7 +33,7 @@ def BeforeMethod(enabled=True, group="default", description=""):
     return handle_func
 
 
-def AfterMethod(enabled=True, always_run=False, group="default", description=""):
+def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description=""):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterMethod
         func.__enabled__ = enabled

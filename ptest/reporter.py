@@ -96,14 +96,14 @@ def _generate_index_page(report_dir):
     system_info = "%s / Python %s / %s" % (platform.node(), platform.python_version(), platform.platform())
     test_class_summaries_content = ""
     test_class_summary_template = """
-    <tr class="test">
-        <td class="test"><a href="test_class_results_{test_class.full_name}.html" target="_blank" title="{test_class.description}">{test_class.full_name}</a></td>
-        <td class="duration">{test_class.elapsed_time}s</td>
+    <tr class="test-class">
+        <td><a href="test_class_results_{test_class.full_name}.html" target="_blank" title="{test_class.description}">{test_class.full_name}</a></td>
+        <td class="number">{test_class.elapsed_time}s</td>
         <td class="all number">{test_class.test_case_status_count[0]}</td>
         <td class="passed number">{test_class.test_case_status_count[1]}</td>
         <td class="failed number">{test_class.test_case_status_count[2]}</td>
         <td class="skipped number">{test_class.test_case_status_count[3]}</td>
-        <td class="pass-rate">{test_class.pass_rate:.1f}%</td>
+        <td class="pass-rate number">{test_class.pass_rate:.1f}%</td>
     </tr>
     """
     for test_class in test_suite.test_classes:
@@ -123,10 +123,17 @@ def _generate_test_class_page(test_class, report_path):
         template_file.close()
 
     test_case_template = """
-        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('toggle-{toggle_id}', 'table-row')">{test_case.name}&nbsp;&nbsp;&nbsp;&nbsp;tags:&nbsp;{test_case.tags}</td></tr>
+        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('toggle-{toggle_id}', 'table-row')">
+        <span class="name">{test_case.name}</span>
+        {test_case_tags}
+        <span class="group" title="group">{test_case.group}</span>
+        </td></tr>
         {before_method_result}
         {test_result}
         {after_method_result}
+    """
+    test_case_tag_template ="""
+        <span class="tag" title="tag">{tag}</span>
     """
     test_case_fixture_template = """
     <tr class="test toggle-{toggle_id}" style="display:none">
@@ -145,6 +152,7 @@ def _generate_test_class_page(test_class, report_path):
     """
     test_cases_content = ""
 
+    # test fixture
     def make_test_case_fixture_content(test_case_fixture):
         if test_case_fixture:
             # screenshot
@@ -166,8 +174,15 @@ def _generate_test_class_page(test_class, report_path):
                                                                      test_case_fixtrue_screenshot_path=test_case_fixture_screen_shot_name)
         return ""
 
+    # test cases
     for test_case in test_class.test_cases:
+        # tags
+        test_case_tags_content = ""
+        for tag in test_case.tags:
+            test_case_tags_content += test_case_tag_template.format(tag=tag)
+        # test case
         test_case_content = test_case_template.format(toggle_id=test_case.name, test_case=test_case,
+                                                      test_case_tags=test_case_tags_content,
                                                       before_method_result=make_test_case_fixture_content(test_case.before_method),
                                                       test_result=make_test_case_fixture_content(test_case.test),
                                                       after_method_result=make_test_case_fixture_content(test_case.after_method))
