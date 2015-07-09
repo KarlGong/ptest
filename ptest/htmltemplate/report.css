@@ -47,6 +47,7 @@ td                       {font-size: 1.3em;}
 .overview-table tr        {height: 2em;}
 .overview-table td        {padding: 0 1em;}
 .overview-table th        {padding: 0 .5em;}
+.overview-table .test-fixture  {background-color: #eeeeee;}
 .overview-table .duration {width: 6em;text-align: right;}
 .overview-table .logs       {width:25em;}
 .overview-table .logs .log-level     {font-weight:bold;text-transform:uppercase;color:#777;}

@@ -136,7 +136,7 @@ def _generate_test_class_page(test_class, report_path):
         <span class="tag" title="tag">{tag}</span>
     """
     test_case_fixture_template = """
-    <tr class="test toggle-{toggle_id}" style="display:none">
+    <tr class="test-fixture toggle-{toggle_id}" style="display:none">
       <td title="{test_case_fixture.description}">@{test_case_fixture.fixture_type}</td>
       <td class="duration">{test_case_fixture.elapsed_time}s</td>
       <td class="logs">{test_case_fixture_logs}</td>
