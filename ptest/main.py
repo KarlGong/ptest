@@ -52,22 +52,22 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
                 raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
 
 
-def __get_test_cases_in_package(package_ref, class_filter_group, method_filter_group):
+def __get_test_cases_in_package(package_ref, test_class_filter_group, test_case_filter_group):
     package_name = package_ref.__name__
     package_path, _ = os.path.split(package_ref.__file__)
     for fn in os.listdir(package_path):
         file_full_name = os.path.join(package_path, fn)
         if os.path.isdir(file_full_name) and "__init__.py" in os.listdir(file_full_name):
-            __get_test_cases_in_package(importlib.import_module(package_name + "." + fn), class_filter_group,
-                                        method_filter_group)
+            __get_test_cases_in_package(importlib.import_module(package_name + "." + fn), test_class_filter_group,
+                                        test_case_filter_group)
         elif os.path.isfile(file_full_name):
             file_name, file_ext = os.path.splitext(fn)
             if fn != "__init__.py" and file_ext == ".py":
-                __get_test_cases_in_module(importlib.import_module(package_name + "." + file_name), class_filter_group,
-                                           method_filter_group)
+                __get_test_cases_in_module(importlib.import_module(package_name + "." + file_name), test_class_filter_group,
+                                           test_case_filter_group)
 
 
-def __get_test_cases_in_module(module_ref, class_filter_group, method_filter_group):
+def __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group):
     test_class_refs = []
     for module_element in dir(module_ref):
         test_class_ref = getattr(module_ref, module_element)
@@ -76,14 +76,14 @@ def __get_test_cases_in_module(module_ref, class_filter_group, method_filter_gro
             is_enabled = test_class_ref.__enabled__
         except AttributeError:
             continue
-        if pd_type == PDecoratorType.TestClass and is_enabled and class_filter_group.filter(test_class_ref):
+        if pd_type == PDecoratorType.TestClass and is_enabled and test_class_filter_group.filter(test_class_ref):
             test_class_refs.append(test_class_ref)
     if len(test_class_refs) != 0:
         for test_class_ref in test_class_refs:
-            __get_test_cases_in_class(test_class_ref, method_filter_group)
+            __get_test_cases_in_class(test_class_ref, test_case_filter_group)
 
 
-def __get_test_cases_in_class(test_class_ref, method_filter_group):
+def __get_test_cases_in_class(test_class_ref, test_case_filter_group):
     test_case_refs = []
     for class_element in dir(test_class_ref):
         test_case_ref = getattr(test_class_ref, class_element)
@@ -92,7 +92,7 @@ def __get_test_cases_in_class(test_class_ref, method_filter_group):
             is_enabled = test_case_ref.__enabled__
         except AttributeError:
             continue
-        if pd_type == PDecoratorType.Test and is_enabled and method_filter_group.filter(test_case_ref):
+        if pd_type == PDecoratorType.Test and is_enabled and test_case_filter_group.filter(test_case_ref):
             test_case_refs.append(getattr(test_class_ref(), class_element))
     if len(test_case_refs) != 0:
         for test_case_ref in test_case_refs:
@@ -129,28 +129,24 @@ class TestClassNameFilter:
     def __init__(self, name):
         self._name = name
 
-    def filter(self, class_ref):
-        if self._name is None or self._name == class_ref.__name__:
-            return True
-        return False
+    def filter(self, test_class_ref):
+        return self._name is None or self._name == test_class_ref.__name__
 
 
 class TestCaseNameFilter:
     def __init__(self, name):
         self._name = name
 
-    def filter(self, method_ref):
-        if self._name is None or self._name == method_ref.__name__:
-            return True
-        return False
+    def filter(self, test_case_ref):
+        return self._name is None or self._name == test_case_ref.__name__
 
 
 class TestCaseIncludeTagsFilter:
     def __init__(self, tags):
         self._tags = tags
 
-    def filter(self, method_ref):
-        return self._tags is None or len([val for val in self._tags if val in method_ref.__tags__]) != 0
+    def filter(self, test_case_ref):
+        return self._tags is None or len([val for val in self._tags if val in test_case_ref.__tags__]) != 0
 
     def __str__(self):
         return "Include Tags: %s" % self._tags
@@ -160,8 +156,8 @@ class TestCaseExcludeTagsFilter:
     def __init__(self, tags):
         self._tags = tags
 
-    def filter(self, method_ref):
-        return self._tags is None or len([val for val in self._tags if val in method_ref.__tags__]) == 0
+    def filter(self, test_case_ref):
+        return self._tags is None or len([val for val in self._tags if val in test_case_ref.__tags__]) == 0
 
     def __str__(self):
         return "Exclude Tags: %s" % self._tags
