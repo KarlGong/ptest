@@ -32,7 +32,8 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportError:
         splitted_test_target = test_target.split(".")
         if len(splitted_test_target) < 2:
-            raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+            pconsole.error("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+            sys.exit()
         try:
             # test target is class
             module_ref = importlib.import_module(".".join(splitted_test_target[:-1]))
@@ -41,7 +42,8 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
         except ImportError:
             splitted_test_target = test_target.split(".")
             if len(splitted_test_target) < 3:
-                raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+                pconsole.error("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+                sys.exit()
             try:
                 # test target is method
                 module_ref = importlib.import_module(".".join(splitted_test_target[:-2]))
@@ -49,7 +51,8 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
                 test_case_filter_group.append_filter(TestCaseNameFilter(splitted_test_target[-1]))
                 __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
             except ImportError:
-                raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+                pconsole.error("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+                sys.exit()
 
 
 def __get_test_cases_in_package(package_ref, test_class_filter_group, test_case_filter_group):
@@ -97,10 +100,6 @@ def __get_test_cases_in_class(test_class_ref, test_case_filter_group):
     if len(test_case_refs) != 0:
         for test_case_ref in test_case_refs:
             test_suite.add_test_case(test_class_ref, test_case_ref)
-
-
-class ImportTestTargetError(Exception):
-    pass
 
 
 class FilterGroup:
@@ -250,6 +249,12 @@ def main(args=sys.argv):
     # get test cases
     for test_target in test_targets:
         get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
+
+    # exit if no tests found
+    if len(test_suite.test_case_names) == 0:
+        pconsole.info("=" * 100)
+        pconsole.error("No tests found. Please check your command line options.")
+        sys.exit()
 
     # add webdriver instance to test executor to support capturing screenshot for webdriver
     if "selenium" in sys.modules.keys():
