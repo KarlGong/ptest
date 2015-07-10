@@ -14,4 +14,4 @@ class TestListener(object):
     def on_test_case_finish(self, test_case):
         pass
 
-test_listener  = TestListener()
+test_listener = TestListener()

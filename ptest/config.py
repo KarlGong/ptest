@@ -78,7 +78,9 @@ def _parse_options(option_args):
     parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
                       help="Select test cases to run by tags, separated by comma.")
     parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
-                      help="Select test cases not to run by tags, separated by comma. These tests are not run even if included with --includetags.")
+                      help="Select test cases not to run by tags, separated by comma. These test cases are not run even if included with --includetags.")
+    parser.add_option("-g", "--includegroups", action="store", dest="include_groups", default=None, metavar="groups",
+                      help="Select test cases to run by groups, separated by comma.")
     parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
     parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
