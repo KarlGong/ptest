@@ -33,8 +33,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportError:
         splitted_test_target = test_target.split(".")
         if len(splitted_test_target) < 2:
-            pconsole.error("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
-            sys.exit()
+            raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
         try:
             # test target is class
             module_ref = importlib.import_module(".".join(splitted_test_target[:-1]))
@@ -43,8 +42,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
         except ImportError:
             splitted_test_target = test_target.split(".")
             if len(splitted_test_target) < 3:
-                pconsole.error("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
-                sys.exit()
+                raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
             try:
                 # test target is method
                 module_ref = importlib.import_module(".".join(splitted_test_target[:-2]))
@@ -52,8 +50,11 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
                 test_case_filter_group.append_filter(TestCaseNameFilter(splitted_test_target[-1]))
                 __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
             except ImportError:
-                pconsole.error("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
-                sys.exit()
+                raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
+
+
+class ImportTestTargetError(Exception):
+    pass
 
 
 def __get_test_cases_in_package(package_ref, test_class_filter_group, test_case_filter_group):
@@ -255,8 +256,12 @@ def main(args=None):
         pconsole.info(" %s" % test_case_filter_group)
 
     # get test cases
-    for test_target in test_targets:
-        get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
+    try:
+        for test_target in test_targets:
+            get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
+    except ImportTestTargetError as e:
+        pconsole.error(e.message)
+        return
 
     # exit if no tests found
     if len(test_suite.test_case_names) == 0:
