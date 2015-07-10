@@ -27,11 +27,8 @@ You can tag test class, test, before method, after method by adding decorator @T
     from ptest.plogger import info
     from ptest import config
 
-    @TestClass(run_mode="singleline") # the test cases in this class will be only executed by one thread
+    @TestClass(run_mode="parallel") # the test cases in this class will be executed by multiple threads
     class PTestClass:
-        def __init__(self):
-            self.expected = 1
-
         @BeforeMethod(description="Prepare test data.")
         def before(self):
             info("setting expected result.")
@@ -46,36 +43,30 @@ You can tag test class, test, before method, after method by adding decorator @T
             assert_none(config.get_property("key")) # assert the property defined via -D<key>=<value> in cmd line
             assert_true(False) # failed
     
-        @Test(enabled=False)
+        @Test(enabled=False) # won't be run
         def test3(self):
-            fail("failed") # won't be run
+            fail("failed")
     
         @AfterMethod(always_run=True, description="Clean up")
         def after(self):
             info("cleaning up")
 
 
-Then start to execute all the testcases in module *mytest.py*.
-Use -w to specify the workspace and -t to specify the target.
-In this case, workspace is *c:\\folder* and target is *mytest*.
+Then start to execute all the testcases in module *mytest.py* with 2 threads.
+Use -w to specify the workspace, -t to specify the target and -n to specify the number of test executors(threads).
+In this case, workspace is *c:\\folder*, target is *mytest* and number of test executors is *2*.
 
 ::
 
-    $ ptest -w c:\folder -t mytest
+    $ ptest -w c:\folder -t mytest -n 2
 
 The target can be package/module/class/method.
 If the target is package/module/class, all the test cases under target will be executed.
-For example, if you want to execute all the testcases under class *MyClass*, the class is in module *mypackage.mymodule*.
+For example, if you only want to execute the test *test1* in this module.
 
 ::
 
-    $ ptest -t mypackage.mymodule.MyClass
-
-If you have multiple targets, just separate them by comma.
-
-::
-
-    $ ptest -t mypackagea.mymodule,mypackageb
+    $ ptest -w c:\folder -t mytest.PTestClass.test1
 
 For more options, please use -h.
 
@@ -83,68 +74,22 @@ For more options, please use -h.
 
     $ ptest -h
 
-Selenium Support
-----------------
-ptest supports capturing screenshots for failed selenium test cases. But you need to make a little change to your code.
-
-Create a python file: *c:\\folder\\seleniumtest.py*
-
-.. code:: python
-
-    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
-    from ptest.assertion import fail
-    from selenium.webdriver import Chrome
-    from ptest import testexecutor
-
-    @TestClass(run_mode="parallel") # the test cases in this class will be executed by multiple threads
-    class SeleniumTestClass:
-        @BeforeMethod()
-        def before(self):
-            self.webdriver = Chrome()
-            # add browser to current testexecutor
-            testexecutor.update_properties(browser=self.webdriver)
-
-        @Test()
-        def test1(self):
-            self.webdriver.get("https://github.com/KarlGong/ptest")
-            fail()
-
-        @Test()
-        def test2(self):
-            self.webdriver.get("https://pypi.python.org/pypi/ptest")
-            fail()
-
-        @AfterMethod(always_run=True)
-        def after(self):
-            self.webdriver.quit()
-            # remove browser from current testexecutor
-            testexecutor.update_properties(browser=None)
-
-Added following line after the browser is initialized.
-
-.. code:: python
-
-    testexecutor.update_properties(browser=self.webdriver)
-
-Added following line after the browser is closed.
-
-.. code:: python
-
-    testexecutor.update_properties(browser=None)
-
-Execute the test cases under module *seleniumtest.py* by 2 threads.
-Use -n to specify the number of test executors(threads).
-
-::
-
-    $ ptest -w c:\folder -t seleniumtest -n 2
-
 Contact me
 ----------
 For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.1.0 (compared to 1.0.4)
+
+- No extra codes are needed to support capturing screenshot for selenium test.
+
+- Add always_run attribute to @Test.
+
+- Add command option --disablescreenshot to disable taking screenshot for failed test fixture.
+
+- Support group in test class.
+
 1.0.4 (compared to 1.0.3)
 
 - Support capture screenshot for no-selenium test.
