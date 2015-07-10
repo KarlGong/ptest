@@ -9,7 +9,9 @@ with open(path.join(here, "README.rst")) as f:
     long_description = f.read()
 
 classifiers = ["License :: OSI Approved :: Apache Software License",
-               "Topic :: Software Development :: Testing"] + [
+               "Topic :: Software Development :: Testing",
+               "Operating System :: Microsoft :: Windows",
+               "Operating System :: MacOS :: MacOS X"] + [
                   ("Programming Language :: Python :: %s" % x) for x in
                   "2.7".split()]
 
@@ -19,9 +21,8 @@ def main():
         name="ptest",
         description="light testing framework for Python",
         long_description=long_description,
-        version="1.0.4",
+        version="1.1.0",
         keywords="test testing framework automation python",
-        platforms=["win32"],
         author="Karl Gong",
         author_email="karl.gong@outlook.com",
         url="https://github.com/KarlGong/ptest",
