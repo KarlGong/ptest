@@ -2,6 +2,7 @@ import importlib
 import os
 import copy
 from datetime import datetime
+import shlex
 import traceback
 import sys
 from xml.dom import minidom
@@ -197,8 +198,15 @@ def get_rerun_targets(xml_file):
     return test_targets
 
 
-def main(args=sys.argv):
-    # load config
+def main(args=None):
+    # load arguments
+    if args is None:
+        args = sys.argv[1:]
+    elif not isinstance(args, (tuple, list)):
+        if not isinstance(args, str):
+            sys.stderr.write("ERROR: args <%s> is not a string or argument list." % (args,))
+            return
+        args = shlex.split(args)
     config.load(args)
 
     pconsole.info("Starting ptest...")
@@ -254,7 +262,7 @@ def main(args=sys.argv):
     if len(test_suite.test_case_names) == 0:
         pconsole.info("=" * 100)
         pconsole.error("No tests found. Please check your command line options.")
-        sys.exit()
+        return
 
     # add webdriver instance to test executor to support capturing screenshot for webdriver
     if "selenium" in sys.modules.keys():
