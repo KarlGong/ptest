@@ -14,6 +14,12 @@ The last stable release is available on PyPI and can be installed with ``pip``.
 
     $ pip install ptest
 
+Pycharm Plugin
+--------------
+A Pycharm plugin for ptest is released.
+Now it is easily to run/debug ptest within the IDE using the standard run configuration.
+Find the latest version on github: https://github.com/KarlGong/ptest-pycharm-plugin
+
 Best Practice
 -------------
 Firstly, create a python file: *c:\\folder\\mytest.py*
@@ -80,6 +86,12 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.2.0 (compared 1.1.1)
+
+- Support run/debug in Pycharm via a ptest plugin.
+
+- Support filter test cases by group
+
 1.1.0 (compared to 1.0.4)
 
 - No extra codes are needed to support capturing screenshot for selenium test.
