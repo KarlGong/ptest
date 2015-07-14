@@ -20,7 +20,7 @@ class FilterGroup:
         filter_strs = []
         for ft in self.__filters:
             filter_strs.append(str(ft))
-        return " ".join(filter_strs)
+        return "\n ".join(filter_strs)
 
 
 class TestClassNameFilter:
