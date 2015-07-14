@@ -233,7 +233,7 @@ def main(args=None):
     # sort the test groups for running
     test_suite.sort_test_classes_for_running()
     pconsole.info("=" * 100)
-    pconsole.info("Start to run following tests:")
+    pconsole.info("Start to run following %s test(s):" % len(test_suite.test_case_names))
     pconsole.info("-" * 30)
     for test_name in test_suite.test_case_names:
         pconsole.info(" %s" % test_name)
