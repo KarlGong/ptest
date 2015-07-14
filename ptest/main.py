@@ -152,33 +152,33 @@ def main(args=None):
         args = shlex.split(args)
     config.load(args)
 
-    pconsole.info("Starting ptest...")
+    pconsole.write_line("Starting ptest...")
 
     # add workspace to python path
     workspace = os.path.join(os.getcwd(), config.get_option("workspace"))
     sys.path.insert(0, workspace)
-    pconsole.info("Workspace:")
-    pconsole.info(" %s" % os.path.abspath(workspace))
+    pconsole.write_line("Workspace:")
+    pconsole.write_line(" %s" % os.path.abspath(workspace))
 
     # get test targets
     test_targets_str = config.get_option("test_targets")
     if test_targets_str:
         test_targets = test_targets_str.split(",")
-        pconsole.info("Test targets:")
+        pconsole.write_line("Test targets:")
         for test_target in test_targets:
-            pconsole.info(" %s" % test_target)
+            pconsole.write_line(" %s" % test_target)
     else:
         # rerun failed/skipped test cases
         xunit_xml = os.path.join(workspace, config.get_option("run_failed"))
-        pconsole.info("Rerun failed/skipped test cases in xunit xml:")
-        pconsole.info(" %s" % xunit_xml)
+        pconsole.write_line("Rerun failed/skipped test cases in xunit xml:")
+        pconsole.write_line(" %s" % xunit_xml)
         test_targets = get_rerun_targets(xunit_xml)
 
     # test listener
     listener_path = config.get_option("listener")
     if listener_path:
-        pconsole.info("Test listener:")
-        pconsole.info(" %s" % listener_path)
+        pconsole.write_line("Test listener:")
+        pconsole.write_line(" %s" % listener_path)
         splitted_listener_path = listener_path.split(".")
         listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
         listener_class = getattr(listener_module, splitted_listener_path[-1])
@@ -197,21 +197,21 @@ def main(args=None):
     if include_groups:
         test_case_filter_group.append_filter(TestCaseIncludeGroupsFilter(include_groups.split(",")))
     if include_tags or exclude_tags or include_groups:
-        pconsole.info("=" * 100)
-        pconsole.info(" %s" % test_case_filter_group)
+        pconsole.write_line("=" * 100)
+        pconsole.write_line(" %s" % test_case_filter_group)
 
     # get test cases
     try:
         for test_target in test_targets:
             get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportTestTargetError as e:
-        pconsole.error(e.message)
+        pconsole.write_line(e.message)
         return
 
     # exit if no tests found
     if len(test_suite.test_case_names) == 0:
-        pconsole.info("=" * 100)
-        pconsole.error("No tests found. Please check your command line options.")
+        pconsole.write_line("=" * 100)
+        pconsole.write_line("No tests found. Please check your command line options.")
         return
 
     # add webdriver instance to test executor to support capturing screenshot for webdriver
@@ -232,28 +232,28 @@ def main(args=None):
 
     # sort the test groups for running
     test_suite.sort_test_classes_for_running()
-    pconsole.info("=" * 100)
-    pconsole.info("Start to run following %s test(s):" % len(test_suite.test_case_names))
-    pconsole.info("-" * 30)
+    pconsole.write_line("=" * 100)
+    pconsole.write_line("Start to run following %s test(s):" % len(test_suite.test_case_names))
+    pconsole.write_line("-" * 30)
     for test_name in test_suite.test_case_names:
-        pconsole.info(" %s" % test_name)
-    pconsole.info("=" * 100)
+        pconsole.write_line(" %s" % test_name)
+    pconsole.write_line("=" * 100)
 
     # run test cases
     run_test_cases(int(config.get_option("test_executor_number")))
 
     # log the test results
     test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, _ = test_suite.test_case_status_count
-    pconsole.info("")
-    pconsole.info("=" * 100)
-    pconsole.info("Test finished in %.2fs." % test_suite.elapsed_time)
-    pconsole.info("Total: %s, passed: %s, failed: %s, skipped: %s. Pass rate: %.1f%%." % (
+    pconsole.write_line("")
+    pconsole.write_line("=" * 100)
+    pconsole.write_line("Test finished in %.2fs." % test_suite.elapsed_time)
+    pconsole.write_line("Total: %s, passed: %s, failed: %s, skipped: %s. Pass rate: %.1f%%." % (
         test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, test_suite.pass_rate))
 
     # generate the test report
     output_path = os.path.join(workspace, config.get_option("output_dir"))
-    pconsole.info("")
-    pconsole.info("=" * 100)
+    pconsole.write_line("")
+    pconsole.write_line("=" * 100)
     test_suite.sort_test_classes_for_report()
     reporter.clean_report_dir(output_path)
     reporter.generate_xunit_xml(os.path.join(output_path, config.get_option("xunit_xml")))

@@ -3,10 +3,9 @@ import threading
 import traceback
 
 import plistener
-import plogger
 import screencapturer
 from enumeration import PDecoratorType, TestCaseStatus
-from plogger import pconsole
+from plogger import pconsole, preporter
 from testsuite import test_suite, NoTestCaseAvailableForThisThread
 
 __author__ = 'karl.gong'
@@ -42,7 +41,7 @@ class TestExecutor(threading.Thread):
                 except Exception as e:
                     # before method failed
                     is_before_method_passed = False
-                    plogger.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
+                    preporter.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                     screencapturer.take_screen_shot()
                 before_method.end_time = datetime.now()
 
@@ -54,20 +53,20 @@ class TestExecutor(threading.Thread):
                 try:
                     test.run()
                 except Exception as e:
-                    plogger.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
+                    preporter.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                     screencapturer.take_screen_shot()
-                    pconsole.error("%s%s|FAIL|" % (test_case_full_name, logger_filler))
+                    pconsole.write_line("%s%s|FAIL|" % (test_case_full_name, logger_filler))
                     test_case.status = TestCaseStatus.FAILED
                     test_case.failure_message = e.message
                     test_case.failure_type = e.__class__.__name__
                     test_case.stack_trace = traceback.format_exc()
                 else:
-                    pconsole.info("%s%s|PASS|" % (test_case_full_name, logger_filler))
+                    pconsole.write_line("%s%s|PASS|" % (test_case_full_name, logger_filler))
                     test_case.status = TestCaseStatus.PASSED
             else:
                 # skip test
-                plogger.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
-                pconsole.warning("%s%s|SKIP|" % (test_case_full_name, logger_filler))
+                preporter.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
+                pconsole.write_line("%s%s|SKIP|" % (test_case_full_name, logger_filler))
                 test_case.status = TestCaseStatus.SKIPPED
                 test_case.skip_message = "@%s failed, so skipped." % PDecoratorType.BeforeMethod
             test.end_time = datetime.now()
@@ -81,11 +80,11 @@ class TestExecutor(threading.Thread):
                     try:
                         after_method.run()
                     except Exception as e:
-                        plogger.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
+                        preporter.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                         screencapturer.take_screen_shot()
                 else:
                     # skip after method
-                    plogger.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
+                    preporter.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
                 after_method.end_time = datetime.now()
             test_case.end_time = datetime.now()
             plistener.test_listener.on_test_case_finish(test_case)
