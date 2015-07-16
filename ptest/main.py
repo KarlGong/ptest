@@ -170,7 +170,7 @@ def main(args=None):
     else:
         # rerun failed/skipped test cases
         xunit_xml = os.path.join(workspace, config.get_option("run_failed"))
-        pconsole.write_line("Rerun failed/skipped test cases in xunit xml:")
+        pconsole.write_line("Run failed/skipped test cases in xunit xml:")
         pconsole.write_line(" %s" % xunit_xml)
         test_targets = get_rerun_targets(xunit_xml)
 
