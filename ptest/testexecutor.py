@@ -55,18 +55,18 @@ class TestExecutor(threading.Thread):
                 except Exception as e:
                     preporter.error("Failed with following message:\n%s\n%s" % (e.message, traceback.format_exc()))
                     screencapturer.take_screen_shot()
-                    pconsole.write_line("%s%s|\x1b[31mFAIL\x1b[0m|" % (test_case_full_name, logger_filler))
+                    pconsole.write_line("%s%s|FAIL|" % (test_case_full_name, logger_filler))
                     test_case.status = TestCaseStatus.FAILED
                     test_case.failure_message = e.message
                     test_case.failure_type = e.__class__.__name__
                     test_case.stack_trace = traceback.format_exc()
                 else:
-                    pconsole.write_line("%s%s|\x1b[32mPASS\x1b[0m|" % (test_case_full_name, logger_filler))
+                    pconsole.write_line("%s%s|PASS|" % (test_case_full_name, logger_filler))
                     test_case.status = TestCaseStatus.PASSED
             else:
                 # skip test
                 preporter.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
-                pconsole.write_line("%s%s|\x1b[33mSKIP\x1b[0m|" % (test_case_full_name, logger_filler))
+                pconsole.write_line("%s%s|SKIP|" % (test_case_full_name, logger_filler))
                 test_case.status = TestCaseStatus.SKIPPED
                 test_case.skip_message = "@%s failed, so skipped." % PDecoratorType.BeforeMethod
             test.end_time = datetime.now()
