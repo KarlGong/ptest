@@ -29,7 +29,7 @@ class TestExecutor(threading.Thread):
             test = test_case.test
             after_method = test_case.after_method
 
-            plistener.test_listener.on_test_case_start(test_case)
+            plistener.test_listeners.on_test_case_start(test_case)
             test_case.start_time = datetime.now()
             is_before_method_passed = True
             # before method
@@ -87,7 +87,7 @@ class TestExecutor(threading.Thread):
                     preporter.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
                 after_method.end_time = datetime.now()
             test_case.end_time = datetime.now()
-            plistener.test_listener.on_test_case_finish(test_case)
+            plistener.test_listeners.on_test_case_finish(test_case)
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)

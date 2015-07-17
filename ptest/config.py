@@ -70,7 +70,7 @@ def _parse_options(option_args):
     parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.2.0",
                           description="ptest is a light testing framework for Python.")
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
-                      help="Specify the workspace dir. Default value is current dir.")
+                      help="Specify the workspace dir. Default value is current working directory.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
@@ -91,8 +91,9 @@ def _parse_options(option_args):
                       metavar="file", help="Specify the xunit xml path.")
     parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
                       help="Specify the html report dir.")
-    parser.add_option("-l", "--listener", action="store", dest="listener", default=None, metavar="class",
-                      help="Specify the path of test listener class. The listener class should implement class TestListener in ptest.plistener "
+    parser.add_option("-l", "--listeners", action="store", dest="test_listeners", default=None, metavar="class",
+                      help="Specify the path of test listener classes, separated by comma. "
+                           "The listener class should implement class TestListener in ptest.plistener "
                            "The listener path format is: package.module.class "
                            "NOTE: 1. ptest ONLY searches modules under workspace and sys.path "
                            "2. The listener class should be thread safe.")
@@ -108,7 +109,7 @@ def _parse_options(option_args):
                     "Define properties via -D<key>=<value>. Get defined property via get_property() in module ptest.config."))
     options, unknown_args = parser.parse_args(option_args)
     if options.test_targets and options.run_failed:
-        parser.error("Options -t(--test_targets) and -R(--runfailed) are mutually exclusive.")
+        parser.error("Options -t(--targets) and -R(--runfailed) are mutually exclusive.")
     if (options.test_targets is None) and (options.run_failed is None):
-        parser.error("You must specified one of the following options: -t(--test_target), -R(--run_failed).")
+        parser.error("You must specified one of the following options: -t(--targets), -R(--runfailed).")
     _options.update(options.__dict__)

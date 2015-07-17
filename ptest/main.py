@@ -112,7 +112,7 @@ def run_test_cases(test_executor_number):
         test_executors.append(testexecutor.TestExecutor())
 
     # test suite start
-    plistener.test_listener.on_test_suite_start(test_suite)
+    plistener.test_listeners.on_test_suite_start(test_suite)
     test_suite.start_time = datetime.now()
 
     for test_executor in test_executors:
@@ -123,7 +123,7 @@ def run_test_cases(test_executor_number):
 
     # test suite finish
     test_suite.end_time = datetime.now()
-    plistener.test_listener.on_test_suite_finish(test_suite)
+    plistener.test_listeners.on_test_suite_finish(test_suite)
 
 
 def get_rerun_targets(xml_file):
@@ -174,15 +174,16 @@ def main(args=None):
         pconsole.write_line(" %s" % os.path.abspath(xunit_xml))
         test_targets = get_rerun_targets(xunit_xml)
 
-    # test listener
-    listener_path = config.get_option("listener")
-    if listener_path:
-        pconsole.write_line("Test listener:")
-        pconsole.write_line(" %s" % listener_path)
-        splitted_listener_path = listener_path.split(".")
-        listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
-        listener_class = getattr(listener_module, splitted_listener_path[-1])
-        plistener.test_listener = listener_class()
+    # add test listeners
+    listener_paths = config.get_option("test_listeners")
+    if listener_paths:
+        pconsole.write_line("Test listeners:")
+        for listener_path in listener_paths.split(","):
+            pconsole.write_line(" %s" % listener_path)
+            splitted_listener_path = listener_path.split(".")
+            listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
+            listener_class = getattr(listener_module, splitted_listener_path[-1])
+            plistener.test_listeners.append(listener_class())
 
     # test class and test case filter
     include_tags = config.get_option("include_tags")
