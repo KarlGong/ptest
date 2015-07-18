@@ -18,7 +18,7 @@ Pycharm Plugin
 --------------
 A Pycharm plugin for ptest is released.
 Now it is easily to run/debug ptest within the IDE using the standard run configuration.
-Find the latest version on github: https://github.com/KarlGong/ptest-pycharm-plugin
+Find the latest version on github: https://github.com/KarlGong/ptest-pycharm-plugin or JetBrains: https://plugins.jetbrains.com/plugin/7860
 
 Best Practice
 -------------
@@ -29,33 +29,32 @@ You can tag test class, test, before method, after method by adding decorator @T
 .. code:: python
 
     from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
-    from ptest.assertion import assert_equals, assert_true, fail, assert_none
-    from ptest.plogger import info
+    from ptest.assertion import assert_equals, fail, assert_not_none
+    from ptest.plogger import preporter
     from ptest import config
 
-    @TestClass(run_mode="parallel") # the test cases in this class will be executed by multiple threads
+    @TestClass(run_mode="parallel")  # the test cases in this class will be executed by multiple threads
     class PTestClass:
         @BeforeMethod(description="Prepare test data.")
         def before(self):
-            info("setting expected result.")
+            preporter.info("setting expected result.")
             self.expected = 10
-    
+
         @Test(tags=["regression", "smoke"])
         def test1(self):
-            assert_equals(10, self.expected) # pass
-    
+            assert_equals(10, self.expected)  # pass
+
         @Test(tags="smoke, nightly")
         def test2(self):
-            assert_none(config.get_property("key")) # assert the property defined via -D<key>=<value> in cmd line
-            assert_true(False) # failed
-    
-        @Test(enabled=False) # won't be run
+            assert_not_none(config.get_property("key"))  # assert the property defined via -D<key>=<value> in cmd line
+
+        @Test(enabled=False)  # won't be run
         def test3(self):
             fail("failed")
-    
+
         @AfterMethod(always_run=True, description="Clean up")
         def after(self):
-            info("cleaning up")
+            preporter.info("cleaning up")
 
 
 Then start to execute all the testcases in module *mytest.py* with 2 threads.
@@ -86,6 +85,10 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.2.1 (compared 1.2.0)
+
+- Support multiple test listeners
+
 1.2.0 (compared 1.1.1)
 
 - Support run/debug in Pycharm via a ptest plugin.
