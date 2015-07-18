@@ -1,3 +1,7 @@
+import os
+import urlparse
+import urllib
+import inspect
 import threading
 
 from enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType
@@ -196,6 +200,7 @@ class TestCase:
         self.tags = self.test.tags
         self.group = self.test.group
         self.description = self.test.description
+        self.location = self.test.location
 
         self.before_method = None
         self.after_method = None
@@ -233,6 +238,10 @@ class TestCaseFixture:
         self.group = test_fixture_ref.__group__
         self.description = test_fixture_ref.__description__
         self.fixture_type = fixture_type
+
+        file_path = os.path.abspath(inspect.getfile(test_fixture_ref))
+        _, line_no = inspect.getsourcelines(test_fixture_ref)
+        self.location = urlparse.urljoin("file:", "%s:%s" % (urllib.unquote(urllib.pathname2url(file_path)), line_no))
 
     def run(self):
         self.__test_fixture_ref.__call__()
