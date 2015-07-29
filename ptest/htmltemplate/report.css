@@ -1,6 +1,4 @@
 *                        {padding: 0; margin: 0;}
-a                        {color: #006699;}
-a:visited                {color: #003366;}
 body                     {font-family: Menlo,Monaco,Consolas,"Courier New",monospace; line-height: 1.8em; font-size: 62.5%; margin: 1.8em 1em;}
 h1                       {font-weight: bold; font-size: 2.7em; margin-bottom: 0.6667em;}
 h2                       {font-weight: bold; font-size: 1.8em; margin-bottom: 0;}
@@ -22,23 +20,30 @@ td                       {font-size: 1.3em;}
 .column-headings th       {font-weight: normal;}
 
 .test-class                    {background-color: #eeeeee; padding-left: 2em;}
-.test-class .all               {background-color: #00b5ff;}
-.test-class .passed            {background-color: #00ff00;}
-.test-class .skipped           {background-color: #fafa36;}
-.test-class .failed            {background-color: #fc7676;}
+.test-class .name          {color: #006699;cursor: pointer;}
+.test-class .all               {background-color: #00b5ff;cursor: pointer;}
+.test-class .passed            {background-color: #00ff00;cursor: pointer;}
+.test-class .failed            {background-color: #fc7676;cursor: pointer;}
+.test-class .skipped           {background-color: #fafa36;cursor: pointer;}
 .test-class .pass-rate                {background-color: #ec45f7;}
 
 .suite                   {background-color: #999999; font-weight: bold;}
 .suite .all					 {background-color: #007aff;}
 .suite .passed                  {background-color: #5dc35d;}
-.suite .skipped                 {background-color: #ffaa00;}
 .suite .failed                  {background-color: #ff0000;}
+.suite .skipped                 {background-color: #ffaa00;}
 .suite .pass-rate                {background-color: #c04acd;}
+
+.testcase-status-number     {cursor: pointer;font-size: 1.2em;margin-right: 0.4em;padding-right: 0.4em;padding-left: 0.4em;color: #fff;border-color: #46b8da;border: 0.2em solid transparent;border-radius: 0.4em;}
+.testcase-status-number.all                {background-color: #5bc0de;}
+.testcase-status-number.passed         {background-color: #44aa44;}
+.testcase-status-number.failed           {background-color: #ff5555;}
+.testcase-status-number.skipped       {background-color: #ffaa00;}
 
 .testcase                   {color: #000000; font-weight: bold;cursor:pointer;}
 .testcase.passed                  {background-color: #44aa44;}
-.testcase.skipped                 {background-color: #ffaa00;}
-.testcase.failed                  {background-color: #ff5555;}
+.testcase.failed                    {background-color: #ff5555;}
+.testcase.skipped                {background-color: #ffaa00;}
 .testcase .name        {float: left;margin-top: 0.2em;margin-right: 0.5em;}
 .testcase .tag            {float: left;margin-left: 0.7em;padding-right: 0.4em;padding-left: 0.4em;color: #fff;background-color: #5bc0de;border-color: #46b8da;	border: 0.2em solid transparent;border-radius: 0.4em;}
 .testcase .group       {float: right;margin-right: 0.5em;padding-right: 0.4em;padding-left: 0.4em;color: #fff;background-color: #777;border: 0.2em solid transparent;border-radius: 0.4em}

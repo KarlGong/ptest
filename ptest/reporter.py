@@ -97,12 +97,12 @@ def _generate_index_page(report_dir):
     test_class_summaries_content = ""
     test_class_summary_template = """
     <tr class="test-class">
-        <td><a href="test_class_results_{test_class.full_name}.html" target="_blank" title="{test_class.description}">{test_class.full_name}</a></td>
+        <td class="name" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html')" title="{test_class.description}">{test_class.full_name}</td>
         <td class="number">{test_class.elapsed_time}s</td>
-        <td class="all number">{test_class.test_case_status_count[0]}</td>
-        <td class="passed number">{test_class.test_case_status_count[1]}</td>
-        <td class="failed number">{test_class.test_case_status_count[2]}</td>
-        <td class="skipped number">{test_class.test_case_status_count[3]}</td>
+        <td class="all number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#all')">{test_class.test_case_status_count[0]}</td>
+        <td class="passed number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#passed')">{test_class.test_case_status_count[1]}</td>
+        <td class="failed number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#failed')">{test_class.test_case_status_count[2]}</td>
+        <td class="skipped number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#skipped')">{test_class.test_case_status_count[3]}</td>
         <td class="pass-rate number">{test_class.pass_rate:.1f}%</td>
     </tr>
     """
@@ -123,7 +123,7 @@ def _generate_test_class_page(test_class, report_path):
         template_file.close()
 
     test_case_template = """
-        <tr><td colspan="4" title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('toggle-{toggle_id}', 'table-row')">
+        <tr title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('toggle-{toggle_id}', 'table-row')"><td colspan="4">
         <span class="name">{test_case.name}</span>
         {test_case_tags}
         <span class="group" title="group">{test_case.group}</span>
