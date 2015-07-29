@@ -15,11 +15,44 @@ def get_option(option):
         return None
 
 
-def get_property(key):
+def get_property(key, default=None):
     try:
         return _properties[key]
     except KeyError:
-        return None
+        return default
+
+
+def get_int_property(key, default=None):
+    try:
+        return int(_properties[key])
+    except KeyError:
+        return default
+
+
+def get_float_property(key, default=None):
+    try:
+        return float(_properties[key])
+    except KeyError:
+        return default
+
+
+def get_boolean_property(key, default=None):
+    try:
+        value = _properties[key]
+        if value.lower() == "true":
+            return True
+        elif value.lower() == "false":
+            return False
+        raise ValueError("could not convert string to boolean: %s" % value)
+    except KeyError:
+        return default
+
+
+def get_list_property(key, default=None, sep=","):
+    try:
+        return _properties[key].split(sep)
+    except KeyError:
+        return default
 
 
 def load(args):
