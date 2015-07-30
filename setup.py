@@ -21,7 +21,7 @@ def main():
         name="ptest",
         description="light testing framework for Python",
         long_description=long_description,
-        version="1.2.1",
+        version="1.2.2",
         keywords="test testing framework automation python",
         author="Karl Gong",
         author_email="karl.gong@outlook.com",

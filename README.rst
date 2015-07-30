@@ -85,15 +85,21 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.2.2 (compared 1.2.1)
+
+- Support default value for config.get_property().
+
+- Add filter for test case status in html report.
+
 1.2.1 (compared 1.2.0)
 
-- Support multiple test listeners
+- Support multiple test listeners.
 
 1.2.0 (compared 1.1.1)
 
 - Support run/debug in Pycharm via a ptest plugin.
 
-- Support filter test cases by group
+- Support filter test cases by group.
 
 1.1.0 (compared to 1.0.4)
 
