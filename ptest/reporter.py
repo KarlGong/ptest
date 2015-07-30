@@ -128,6 +128,11 @@ def _generate_test_class_page(test_class, report_path):
         {test_case_tags}
         <span class="group" title="group">{test_case.group}</span>
         </td></tr>
+        <tr class="column-headings toggle-{toggle_id}" style="display:none">
+        <td>Test Fixture</td>
+        <th>Duration</th>
+        <th>Logs</th>
+        <th>Screenshot</th></tr>
         {before_method_result}
         {test_result}
         {after_method_result}
