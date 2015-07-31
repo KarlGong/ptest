@@ -1,11 +1,14 @@
 import os
-import urlparse
-import urllib
+try:
+    from urlparse import urljoin
+    from urllib import unquote, pathname2url
+except ImportError:
+    from urllib.parse import urljoin, unquote
+    from urllib.request import pathname2url
 import inspect
 import threading
 
-from enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType
-import testexecutor
+from ptest.enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType
 
 __author__ = 'karl.gong'
 
@@ -90,6 +93,7 @@ class TestSuite:
 
     def pop_test_case(self):
         self.__lock.acquire()
+        from ptest import testexecutor
         current_thread_name = testexecutor.get_name()
         try:
             for test_class in self.test_classes:
@@ -241,7 +245,7 @@ class TestCaseFixture:
 
         file_path = os.path.abspath(inspect.getfile(test_fixture_ref))
         _, line_no = inspect.getsourcelines(test_fixture_ref)
-        self.location = urlparse.urljoin("file:", "%s:%s" % (urllib.unquote(urllib.pathname2url(file_path)), line_no))
+        self.location = urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
 
     def run(self):
         self.__test_fixture_ref.__call__()

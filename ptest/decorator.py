@@ -1,6 +1,6 @@
 __author__ = 'karl.gong'
 
-from enumeration import PDecoratorType, TestClassRunMode
+from ptest.enumeration import PDecoratorType, TestClassRunMode
 
 
 def Test(enabled=True, always_run=False, tags=[], group="DEFAULT", description=""):
@@ -10,7 +10,7 @@ def Test(enabled=True, always_run=False, tags=[], group="DEFAULT", description="
         func.__always_run__ = always_run
         func.__group__ = group
         func.__description__ = description
-        if isinstance(tags, basestring):
+        if isinstance(tags, str):
             tag_list = tags.split(",")
         elif isinstance(tags, list) or isinstance(tags, tuple):
             tag_list = tags

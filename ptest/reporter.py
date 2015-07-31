@@ -5,9 +5,9 @@ import shutil
 import traceback
 from xml.dom import minidom
 
-from plogger import pconsole
-from testsuite import test_suite
-from enumeration import TestCaseStatus
+from ptest.plogger import pconsole
+from ptest.testsuite import test_suite
+from ptest.enumeration import TestCaseStatus
 
 
 __author__ = 'karl.gong'

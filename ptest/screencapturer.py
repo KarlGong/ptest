@@ -1,9 +1,8 @@
 import traceback
-import StringIO
+from io import StringIO
 
-import testexecutor
-from plogger import preporter
-import config
+from ptest.plogger import preporter
+from ptest import config
 
 try:
     from PIL import ImageGrab
@@ -26,6 +25,7 @@ def take_screen_shot():
     if config.get_option("disable_screenshot"):
         return
 
+    from ptest import testexecutor
     active_browser = testexecutor.get_property("browser")
 
     if active_browser is not None:
@@ -39,7 +39,7 @@ def take_screen_shot():
             return active_browser.get_screenshot_as_png()
     elif PIL_installed:
         def capture_screen():
-            output = StringIO.StringIO()
+            output = StringIO()
             ImageGrab.grab().save(output, format="png")
             return output.getvalue()
     elif wxpython_installed:
@@ -50,7 +50,7 @@ def take_screen_shot():
             bmp = wx.EmptyBitmap(width, height)
             mem = wx.MemoryDC(bmp)
             mem.Blit(0, 0, width, height, screen, 0, 0)
-            output = StringIO.StringIO()
+            output = StringIO()
             bmp.ConvertToImage().SaveStream(output, wx.BITMAP_TYPE_PNG)
             return output.getvalue()
     else:

@@ -2,11 +2,11 @@ from datetime import datetime
 import threading
 import traceback
 
-import plistener
-import screencapturer
-from enumeration import PDecoratorType, TestCaseStatus
-from plogger import pconsole, preporter
-from testsuite import test_suite, NoTestCaseAvailableForThisThread
+from ptest import plistener
+from ptest import screencapturer
+from ptest.enumeration import PDecoratorType, TestCaseStatus
+from ptest.plogger import pconsole, preporter
+from ptest.testsuite import test_suite, NoTestCaseAvailableForThisThread
 
 __author__ = 'karl.gong'
 

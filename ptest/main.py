@@ -7,15 +7,15 @@ import traceback
 import sys
 from xml.dom import minidom
 
-from testfilter import FilterGroup, TestClassNameFilter, TestCaseNameFilter, TestCaseIncludeTagsFilter, \
+from ptest.testfilter import FilterGroup, TestClassNameFilter, TestCaseNameFilter, TestCaseIncludeTagsFilter, \
     TestCaseExcludeTagsFilter, TestCaseIncludeGroupsFilter
-import testexecutor
-import reporter
-import config
-from testsuite import test_suite
-from enumeration import PDecoratorType
-from plogger import pconsole
-import plistener
+from ptest import testexecutor
+from ptest import reporter
+from ptest import config
+from ptest.testsuite import test_suite
+from ptest.enumeration import PDecoratorType
+from ptest.plogger import pconsole
+from ptest import plistener
 
 __author__ = 'karl.gong'
 

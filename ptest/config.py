@@ -67,7 +67,7 @@ def _load_properties_from_file():
     if property_file is not None:
         file_object = open(os.path.join(os.getcwd(), get_option("workspace"), property_file))
         try:
-            property_regex_str = ur"^([^;#].*?)=(.*?)$"
+            property_regex_str = r"^([^;#].*?)=(.*?)$"
             property_regex = re.compile(property_regex_str)
             for line in file_object:
                 property_match = property_regex.search(line)
@@ -80,7 +80,7 @@ def _load_properties_from_file():
 def __load_args(args):
     property_args = []
     option_args = []
-    property_regex_str = ur"^-D(.*?)=(.*?)$"  # the format of property definition must be -D<key>=<value>
+    property_regex_str = r"^-D(.*?)=(.*?)$"  # the format of property definition must be -D<key>=<value>
     property_regex = re.compile(property_regex_str)
     for arg in args:
         property_match = property_regex.search(arg)
@@ -92,7 +92,7 @@ def __load_args(args):
 
 
 def _parse_properties(property_args):
-    property_regex_str = ur"^-D(.*?)=(.*?)$"  # the format of property definition must be -D<key>=<value>
+    property_regex_str = r"^-D(.*?)=(.*?)$"  # the format of property definition must be -D<key>=<value>
     property_regex = re.compile(property_regex_str)
     for arg in property_args:
         property_match = property_regex.search(arg)

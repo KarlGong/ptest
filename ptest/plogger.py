@@ -1,6 +1,6 @@
 import logging
 import sys
-import config
+from ptest import config
 
 __author__ = 'karl.gong'
 
