@@ -216,8 +216,11 @@ def main(args=None):
         return
 
     # add webdriver instance to test executor to support capturing screenshot for webdriver
-    if "selenium" in sys.modules.keys():
+    try:
         from selenium.webdriver.remote.webdriver import WebDriver
+    except ImportError:
+        pass
+    else:
         def new_start_client(self):
             try:
                 testexecutor.update_properties(browser=self)
