@@ -7,15 +7,15 @@ import traceback
 import sys
 from xml.dom import minidom
 
-from testfilter import FilterGroup, TestClassNameFilter, TestCaseNameFilter, TestCaseIncludeTagsFilter, \
+from .testfilter import FilterGroup, TestClassNameFilter, TestCaseNameFilter, TestCaseIncludeTagsFilter, \
     TestCaseExcludeTagsFilter, TestCaseIncludeGroupsFilter
-import testexecutor
-import reporter
-import config
-from testsuite import test_suite
-from enumeration import PDecoratorType
-from plogger import pconsole
-import plistener
+from . import testexecutor
+from . import reporter
+from . import config
+from .testsuite import test_suite
+from .enumeration import PDecoratorType
+from .plogger import pconsole
+from . import plistener
 
 __author__ = 'karl.gong'
 
@@ -147,7 +147,7 @@ def main(args=None):
         args = sys.argv[1:]
     elif not isinstance(args, (tuple, list)):
         if not isinstance(args, str):
-            sys.stderr.write("ERROR: args <%s> is not a string or argument list." % (args,))
+            sys.stderr.write("ERROR: args <%s> is not a string or argument list." % args)
             return
         args = shlex.split(args)
     config.load(args)
@@ -206,7 +206,7 @@ def main(args=None):
         for test_target in test_targets:
             get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportTestTargetError as e:
-        pconsole.write_line(e.message)
+        pconsole.write_line(e.args[0])
         return
 
     # exit if no tests found

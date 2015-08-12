@@ -1,6 +1,6 @@
 import logging
 import sys
-import config
+from . import config
 
 __author__ = 'karl.gong'
 
@@ -39,7 +39,7 @@ class PReporter:
         self.__log(logging.CRITICAL, msg)
 
     def __log(self, level, msg):
-        import testexecutor
+        from . import testexecutor
 
         running_test_case_fixture = testexecutor.get_property("running_test_case_fixture")
         running_test_case_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))

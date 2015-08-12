@@ -1,9 +1,8 @@
 import traceback
-import StringIO
+from io import BytesIO
 
-import testexecutor
-from plogger import preporter
-import config
+from .plogger import preporter
+from . import config
 
 __author__ = 'karl.gong'
 
@@ -12,6 +11,7 @@ def take_screen_shot():
     if config.get_option("disable_screenshot"):
         return
 
+    from . import testexecutor
     active_browser = testexecutor.get_property("browser")
 
     if active_browser is not None:
@@ -25,14 +25,14 @@ def take_screen_shot():
             return active_browser.get_screenshot_as_png()
     else:
         def capture_screen():
-            output = StringIO.StringIO()
+            output = BytesIO()
             mss().save(output=output, screen=-1)  # -1 means all monitors
             return output.getvalue()
 
     try:
         testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
     except Exception as e:
-        preporter.warn("Failed to take the screenshot:\n%s\n%s" % (e.message, traceback.format_exc()))
+        preporter.warn("Failed to take the screenshot:\n%s\n%s" % (e.args[0], traceback.format_exc()))
 
 
 # ----------------------------------------------------------------------

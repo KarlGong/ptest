@@ -5,9 +5,9 @@ import shutil
 import traceback
 from xml.dom import minidom
 
-from plogger import pconsole
-from testsuite import test_suite
-from enumeration import TestCaseStatus
+from .plogger import pconsole
+from .testsuite import test_suite
+from .enumeration import TestCaseStatus
 
 
 __author__ = 'karl.gong'
@@ -19,7 +19,7 @@ def clean_report_dir(report_path):
         try:
             shutil.rmtree(report_path)
         except Exception as e:
-            pconsole.write_line("Failed to clean old reports. %s\n%s" % (e.message, traceback.format_exc()))
+            pconsole.write_line("Failed to clean old reports. %s\n%s" % (e.args[0], traceback.format_exc()))
 
 
 def generate_xunit_xml(xml_file):
@@ -61,11 +61,11 @@ def generate_xunit_xml(xml_file):
             doc.writexml(f, "\t", "\t", "\n", "utf-8")
             pconsole.write_line("xunit report is generated at %s" % os.path.abspath(xml_file))
         except IOError as ioe1:
-            pconsole.write_line("Failed to generate xunit report. %s\n%s" % (ioe1.message, traceback.format_exc()))
+            pconsole.write_line("Failed to generate xunit report. %s\n%s" % (ioe1.args[0], traceback.format_exc()))
         finally:
             f.close()
     except IOError as ioe2:
-        pconsole.write_line("Failed to generate xunit report. %s\n%s" % (ioe2.message, traceback.format_exc()))
+        pconsole.write_line("Failed to generate xunit report. %s\n%s" % (ioe2.args[0], traceback.format_exc()))
 
 
 def generate_html_report(report_dir):
@@ -82,7 +82,7 @@ def generate_html_report(report_dir):
             _generate_test_class_page(test_class, report_dir)
         pconsole.write_line("html report is generated at %s" % os.path.abspath(report_dir))
     except Exception as e:
-        pconsole.write_line("Failed to generate Html report. %s\n%s" % (e.message, traceback.format_exc()))
+        pconsole.write_line("Failed to generate Html report. %s\n%s" % (e.args[0], traceback.format_exc()))
 
 
 def _generate_index_page(report_dir):

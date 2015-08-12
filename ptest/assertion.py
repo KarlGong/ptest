@@ -32,15 +32,16 @@ def assert_not_equals(actual, not_expected, msg=""):
 
 
 def assert_list_equals(actual_list, expected_list, msg=""):
-    if cmp(actual_list, expected_list) != 0:
+    if len(actual_list) != len(expected_list) or [element for i, element in enumerate(actual_list) if
+                                                  not element == expected_list[i]]:
         __raise_error("%s Expected list: <%s>, Actual list: <%s>." % (msg, expected_list, actual_list))
 
 
 def assert_list_elements_equal(actual_list, expected_list, msg=""):
-    actual_sorted = sorted(actual_list)
-    expected_sorted = sorted(expected_list)
-    if cmp(actual_sorted, expected_sorted) != 0:
-        __raise_error("%s Expected elements: <%s>, Actual elements: <%s>." % (msg, expected_list, actual_list))
+    actual_set = set(actual_list)
+    expected_set = set(expected_list)
+    if len(actual_set) != len(expected_set) or [element for element in actual_set if not element in expected_set]:
+        __raise_error("%s Expected elements: <%s>, Actual elements: <%s>." % (msg, actual_set, expected_set))
 
 
 def assert_set_contains(superset, subset, msg=""):
