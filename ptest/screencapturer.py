@@ -26,7 +26,7 @@ def take_screen_shot():
     else:
         def capture_screen():
             output = StringIO.StringIO()
-            ImageGrab.grab().save(output, format="png")
+            mss().save(output=output, screen=-1)  # -1 means all monitors
             return output.getvalue()
 
     try:
@@ -35,7 +35,9 @@ def take_screen_shot():
         preporter.warn("Failed to take the screenshot:\n%s\n%s" % (e.message, traceback.format_exc()))
 
 
-# mss module
+# ----------------------------------------------------------------------
+# --- [ cross-platform multiple screenshots module ] -------------
+# ----------------------------------------------------------------------
 '''
     Copyright (c) 2013-2015, Mickael 'Tiger-222' Schoentgen
 
@@ -52,7 +54,6 @@ from zlib import compress, crc32
 
 
 class ScreenshotError(Exception):
-    ''' Error handling class. '''
     pass
 
 
@@ -85,22 +86,13 @@ class MSS(object):
     def get_pixels(self, monitor):
         raise NotImplementedError('MSS: subclasses need to implement this!')
 
-    def save(self,
-             output=,
-             screen=0,
-             callback=lambda *x: True):
-        # Monitors screen shots!
+    def save(self, output, screen=0):
         for i, monitor in enumerate(self.enum_display_monitors(screen)):
             if screen <= 0 or (screen > 0 and i + 1 == screen):
-                fname = output
-                if '%d' in output:
-                    fname = output.replace('%d', str(i + 1))
-                callback(fname)
                 self.save_img(data=self.get_pixels(monitor),
                               width=monitor[b'width'],
                               height=monitor[b'height'],
-                              output=fname)
-                yield fname
+                              output=output)
 
     def save_img(self, data, width, height, output):
         zcrc32 = crc32
@@ -129,20 +121,15 @@ class MSS(object):
         iend[3] = pack(b'>I', zcrc32(iend[1]) & 0xffffffff)
         iend[0] = pack(b'>I', len(iend[2]))
 
-        with open(output, 'wb') as fileh:
-            fileh.write(
-                magic + b''.join(ihdr) + b''.join(idat) + b''.join(iend))
-            return
-        err = 'MSS: error writing data to "{0}".'.format(output)
-        raise ScreenshotError(err)
+        try:
+            output.write(magic + b''.join(ihdr) + b''.join(idat) + b''.join(iend))
+        except:
+            err = 'MSS: error writing data to "{0}".'.format(output)
+            raise ScreenshotError(err)
 
 
 class MSSMac(MSS):
     def enum_display_monitors(self, screen=0):
-        ''' Get positions of one or more monitors.
-            Returns a dict with minimal requirements (see MSS class).
-        '''
-
         if screen == -1:
             rect = CGRectInfinite
             yield ({
@@ -182,6 +169,7 @@ class MSSMac(MSS):
         return self.image
 
     def save_img(self, data, width, height, output):
+        # todo: implement on MAC
         url = NSURL.fileURLWithPath_(output)
         dest = CGImageDestinationCreateWithURL(url, kUTTypePNG, 1, None)
         if not dest:
