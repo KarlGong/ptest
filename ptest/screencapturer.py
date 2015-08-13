@@ -58,7 +58,7 @@ class ScreenshotError(Exception):
 
 
 if system() == 'Darwin':
-    from Quartz import *
+    import Quartz
     from LaunchServices import kUTTypePNG
 elif system() == 'Windows':
     from ctypes import c_void_p, create_string_buffer, sizeof, \
@@ -131,7 +131,7 @@ class MSS(object):
 class MSSMac(MSS):
     def enum_display_monitors(self, screen=0):
         if screen == -1:
-            rect = CGRectInfinite
+            rect = Quartz.CGRectInfinite
             yield ({
                 b'left': int(rect.origin.x),
                 b'top': int(rect.origin.y),
@@ -141,12 +141,12 @@ class MSSMac(MSS):
         else:
             max_displays = 32  # Could be augmented, if needed ...
             rotations = {0.0: 'normal', 90.0: 'right', -90.0: 'left'}
-            _, ids, _ = CGGetActiveDisplayList(max_displays, None, None)
+            _, ids, _ = Quartz.CGGetActiveDisplayList(max_displays, None, None)
             for display in ids:
-                rect = CGRectStandardize(CGDisplayBounds(display))
+                rect = Quartz.CGRectStandardize(Quartz.CGDisplayBounds(display))
                 left, top = rect.origin.x, rect.origin.y
                 width, height = rect.size.width, rect.size.height
-                rot = CGDisplayRotation(display)
+                rot = Quartz.CGDisplayRotation(display)
                 if rotations[rot] in ['left', 'right']:
                     width, height = height, width
                 yield ({
@@ -159,26 +159,28 @@ class MSSMac(MSS):
     def get_pixels(self, monitor):
         width, height = monitor[b'width'], monitor[b'height']
         left, top = monitor[b'left'], monitor[b'top']
-        rect = CGRect((left, top), (width, height))
-        options = kCGWindowListOptionOnScreenOnly
-        winid = kCGNullWindowID
-        default = kCGWindowImageDefault
-        self.image = CGWindowListCreateImage(rect, options, winid, default)
+        rect = Quartz.CGRect((left, top), (width, height))
+        options = Quartz.kCGWindowListOptionOnScreenOnly
+        winid = Quartz.kCGNullWindowID
+        default = Quartz.kCGWindowImageDefault
+        self.image = Quartz.CGWindowListCreateImage(rect, options, winid, default)
         if not self.image:
             raise ScreenshotError('MSS: CGWindowListCreateImage() failed.')
         return self.image
 
     def save_img(self, data, width, height, output):
-        # todo: implement on MAC
-        url = NSURL.fileURLWithPath_(output)
-        dest = CGImageDestinationCreateWithURL(url, kUTTypePNG, 1, None)
+        cf_data = Quartz.CFDataCreateMutable(Quartz.kCFAllocatorDefault, 0)
+        dest = Quartz.CGImageDestinationCreateWithData(cf_data, kUTTypePNG, 1, None)
         if not dest:
             err = 'MSS: CGImageDestinationCreateWithURL() failed.'
             raise ScreenshotError(err)
 
-        CGImageDestinationAddImage(dest, data, None)
-        if not CGImageDestinationFinalize(dest):
+        Quartz.CGImageDestinationAddImage(dest, data, None)
+        if not Quartz.CGImageDestinationFinalize(dest):
             raise ScreenshotError('MSS: CGImageDestinationFinalize() failed.')
+
+        cf_data_bytes = Quartz.CFDataGetBytes(cf_data, Quartz.CFRangeMake(0, Quartz.CFDataGetLength(cf_data)), None)
+        output.write(cf_data_bytes)
 
 
 class MSSWindows(MSS):
