@@ -13,7 +13,7 @@ classifiers = ["License :: OSI Approved :: Apache Software License",
                "Operating System :: Microsoft :: Windows",
                "Operating System :: MacOS :: MacOS X"] + [
                   ("Programming Language :: Python :: %s" % x) for x in
-                  "2.7".split()]
+                  "2.7 3.4".split()]
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
         name="ptest",
         description="light testing framework for Python",
         long_description=long_description,
-        version="1.2.2",
+        version="1.3.0",
         keywords="test testing framework automation python",
         author="Karl Gong",
         author_email="karl.gong@outlook.com",

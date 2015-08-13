@@ -85,6 +85,12 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.3.0 (compared 1.2.2)
+
+- Support py3.
+
+- No extra package is needed to capture screenshot.
+
 1.2.2 (compared 1.2.1)
 
 - Support default value for config.get_property().
