@@ -56,7 +56,8 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
 
 
 class ImportTestTargetError(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message
 
 
 def __get_test_cases_in_package(package_ref, test_class_filter_group, test_case_filter_group):
@@ -206,7 +207,7 @@ def main(args=None):
         for test_target in test_targets:
             get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportTestTargetError as e:
-        pconsole.write_line(e.args[0])
+        pconsole.write_line(e.message)
         return
 
     # exit if no tests found

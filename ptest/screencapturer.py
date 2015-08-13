@@ -32,7 +32,7 @@ def take_screen_shot():
     try:
         testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
     except Exception as e:
-        preporter.warn("Failed to take the screenshot:\n%s\n%s" % (e.args[0], traceback.format_exc()))
+        preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
 
 
 # ----------------------------------------------------------------------
