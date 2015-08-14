@@ -1,7 +1,7 @@
 =====
 ptest
 =====
-ptest is a light testing framework for Python.
+ptest is a light test runner for Python.
 Using decorator to tag test classes and test cases, executing test cases by command line, and generating clear report.
 
 Find the latest version on github: https://github.com/KarlGong/ptest or PyPI: https://pypi.python.org/pypi/ptest
