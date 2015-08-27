@@ -1,4 +1,5 @@
 import os
+
 try:
     from urlparse import urljoin
     from urllib import unquote, pathname2url
@@ -247,8 +248,16 @@ class TestCaseFixture:
         _, line_no = inspect.getsourcelines(test_fixture_ref)
         self.location = urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
 
+        self.__arguments_count = self.__test_fixture_ref.func_code.co_argcount
+        if self.__arguments_count not in [1, 2]:
+            raise TypeError("arguments number of %s.%s() is not acceptable. Please give 1 or 2 arguments.." % (
+                self.test_case.test_class.full_name, self.__test_fixture_ref.__name__))
+
     def run(self):
-        self.__test_fixture_ref.__call__()
+        if self.__arguments_count == 1:
+            self.__test_fixture_ref.__call__()
+        elif self.__arguments_count == 2:
+            self.__test_fixture_ref.__call__(self.test_case)
 
     @property
     def elapsed_time(self):
