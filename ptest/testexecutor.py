@@ -1,6 +1,7 @@
-from datetime import datetime
 import threading
 import traceback
+
+from datetime import datetime
 
 from . import plistener
 from . import screencapturer
@@ -29,6 +30,7 @@ class TestExecutor(threading.Thread):
             test = test_case.test
             after_method = test_case.after_method
 
+            self.clear_properties()
             plistener.test_listeners.on_test_case_start(test_case)
             test_case.start_time = datetime.now()
             is_before_method_passed = True
@@ -92,6 +94,9 @@ class TestExecutor(threading.Thread):
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)
 
+    def clear_properties(self):
+        self.__properties.clear()
+
     def get_property(self, key):
         try:
             return self.__properties[key]
@@ -101,6 +106,10 @@ class TestExecutor(threading.Thread):
 
 def update_properties(**kwargs):
     threading.currentThread().update_properties(**kwargs)
+
+
+def clear_properties():
+    threading.current_thread().clear_properties()
 
 
 def get_property(key):
