@@ -250,7 +250,7 @@ class TestCaseFixture:
 
         self.__arguments_count = self.__test_fixture_ref.func_code.co_argcount
         if self.__arguments_count not in [1, 2]:
-            raise TypeError("arguments number of %s.%s() is not acceptable. Please give 1 or 2 arguments.." % (
+            raise TypeError("arguments number of %s.%s() is not acceptable. Please give 1 or 2 arguments." % (
                 self.test_case.test_class.full_name, self.__test_fixture_ref.__name__))
 
     def run(self):
