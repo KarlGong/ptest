@@ -19,10 +19,10 @@ classifiers = ["License :: OSI Approved :: Apache Software License",
 def main():
     setup(
         name="ptest",
-        description="light testing framework for Python",
+        description="light test runner for Python",
         long_description=long_description,
-        version="1.3.0",
-        keywords="test testing framework automation python",
+        version="1.3.1",
+        keywords="test testing framework automation python runner",
         author="Karl Gong",
         author_email="karl.gong@outlook.com",
         url="https://github.com/KarlGong/ptest",
