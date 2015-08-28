@@ -248,7 +248,7 @@ class TestCaseFixture:
         _, line_no = inspect.getsourcelines(test_fixture_ref)
         self.location = urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
 
-        self.__arguments_count = self.__test_fixture_ref.func_code.co_argcount
+        self.__arguments_count = len(inspect.getargspec(self.__test_fixture_ref)[0])
         if self.__arguments_count not in [1, 2]:
             raise TypeError("arguments number of %s.%s() is not acceptable. Please give 1 or 2 arguments." % (
                 self.test_case.test_class.full_name, self.__test_fixture_ref.__name__))
