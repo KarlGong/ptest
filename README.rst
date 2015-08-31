@@ -79,6 +79,8 @@ For more options, please use -h.
 
     $ ptest -h
 
+For more examples, please refer to the ``examples`` folder in source distribution.
+
 Contact me
 ----------
 For information and suggestions you can contact me at karl.gong@outlook.com
