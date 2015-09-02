@@ -6,35 +6,6 @@ from . import config
 
 __author__ = 'karl.gong'
 
-
-def take_screen_shot():
-    if config.get_option("disable_screenshot"):
-        return
-
-    from . import testexecutor
-    active_browser = testexecutor.get_property("browser")
-
-    if active_browser is not None:
-        while True:
-            try:
-                active_browser.switch_to.alert.dismiss()
-            except Exception:
-                break
-
-        def capture_screen():
-            return active_browser.get_screenshot_as_png()
-    else:
-        def capture_screen():
-            output = BytesIO()
-            mss().save(output=output, screen=-1)  # -1 means all monitors
-            return output.getvalue()
-
-    try:
-        testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
-    except Exception as e:
-        preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
-
-
 # ----------------------------------------------------------------------
 # --- [ cross-platform multiple screenshots module ] -------------
 # ----------------------------------------------------------------------
@@ -58,8 +29,12 @@ class ScreenshotError(Exception):
 
 
 if system() == 'Darwin':
-    import Quartz
-    from LaunchServices import kUTTypePNG
+    try:
+        import Quartz
+        from LaunchServices import kUTTypePNG
+        pyobjc_installed = True
+    except ImportError:
+        pyobjc_installed = False
 elif system() == 'Windows':
     from ctypes import c_void_p, create_string_buffer, sizeof, \
         windll, Structure, POINTER, WINFUNCTYPE
@@ -297,3 +272,38 @@ def mss(*args, **kwargs):
     }[system()]
 
     return mss_class(*args, **kwargs)
+
+
+# ----------------------------------------------------------------------
+# ------- [ take screenshot for webdriver or desktop ] -------------
+# ----------------------------------------------------------------------
+def take_screen_shot():
+    if config.get_option("disable_screenshot"):
+        return
+
+    from . import testexecutor
+    active_browser = testexecutor.get_property("browser")
+
+    if active_browser is not None:
+        while True:
+            try:
+                active_browser.switch_to.alert.dismiss()
+            except Exception:
+                break
+
+        def capture_screen():
+            return active_browser.get_screenshot_as_png()
+    else:
+        if system() == 'Darwin' and not pyobjc_installed:
+            preporter.warn("The package pyobjc is necessary for taking screenshot for desktop, please install it.")
+            return
+
+        def capture_screen():
+            output = BytesIO()
+            mss().save(output=output, screen=-1)  # -1 means all monitors
+            return output.getvalue()
+
+    try:
+        testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
+    except Exception as e:
+        preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
