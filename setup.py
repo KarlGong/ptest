@@ -4,9 +4,9 @@ import sys
 from setuptools import setup
 
 
-here = path.abspath(path.dirname(__file__))
+current_dir = path.abspath(path.dirname(__file__))
 # Get the long description from the relevant file
-with open(path.join(here, "README.rst")) as f:
+with open(path.join(current_dir, "README.rst")) as f:
     long_description = f.read()
 
 classifiers = ["License :: OSI Approved :: Apache Software License",
