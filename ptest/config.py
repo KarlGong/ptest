@@ -1,5 +1,6 @@
 from optparse import OptionParser, OptionGroup
 import os
+import platform
 import re
 
 __author__ = 'karl.gong'
@@ -100,7 +101,7 @@ def _parse_properties(property_args):
 
 
 def _parse_options(option_args):
-    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.3.1",
+    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.3.1 for Python " + platform.python_version(),
                           description="ptest is a light test runner for Python.")
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
                       help="Specify the workspace dir. Default value is current working directory.")
