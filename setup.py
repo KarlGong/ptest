@@ -1,4 +1,5 @@
 from os import path
+import sys
 
 from setuptools import setup
 
@@ -27,7 +28,11 @@ def main():
         author_email="karl.gong@outlook.com",
         url="https://github.com/KarlGong/ptest",
         license="Apache",
-        entry_points={"console_scripts": ["ptest=ptest.main:main", ], },
+        entry_points={
+            "console_scripts": [
+                "ptest=ptest.main:main",
+            ],
+        },
         classifiers=classifiers,
         packages=["ptest"],
         package_data={"ptest": ["htmltemplate/*.*"]},
