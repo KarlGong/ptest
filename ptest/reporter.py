@@ -1,14 +1,15 @@
-from datetime import datetime
 import os
 import platform
 import shutil
 import traceback
+
 from xml.dom import minidom
+
+from datetime import datetime
 
 from .plogger import pconsole
 from .testsuite import test_suite
 from .enumeration import TestCaseStatus
-
 
 __author__ = 'karl.gong'
 
@@ -18,7 +19,7 @@ def clean_report_dir(report_path):
         pconsole.write_line("Cleaning old reports...")
         try:
             shutil.rmtree(report_path)
-        except Exception as e:
+        except Exception:
             pconsole.write_line("Failed to clean old reports.\n%s" % traceback.format_exc())
 
 
@@ -55,17 +56,14 @@ def generate_xunit_xml(xml_file):
                 failure_ele.setAttribute("type", test_case.failure_type)
                 failure_ele.appendChild(doc.createTextNode(test_case.stack_trace))
 
+    f = open(xml_file, "w")
     try:
-        f = open(xml_file, "w")
-        try:
-            doc.writexml(f, "\t", "\t", "\n", "utf-8")
-            pconsole.write_line("xunit report is generated at %s" % os.path.abspath(xml_file))
-        except Exception as e:
-            pconsole.write_line("Failed to generate xunit report.\n%s" % traceback.format_exc())
-        finally:
-            f.close()
-    except IOError as ioe:
+        doc.writexml(f, "\t", "\t", "\n", "utf-8")
+        pconsole.write_line("xunit report is generated at %s" % os.path.abspath(xml_file))
+    except Exception:
         pconsole.write_line("Failed to generate xunit report.\n%s" % traceback.format_exc())
+    finally:
+        f.close()
 
 
 def generate_html_report(report_dir):
@@ -81,7 +79,7 @@ def generate_html_report(report_dir):
         for test_class in test_suite.test_classes:
             _generate_test_class_page(test_class, report_dir)
         pconsole.write_line("html report is generated at %s" % os.path.abspath(report_dir))
-    except Exception as e:
+    except Exception:
         pconsole.write_line("Failed to generate Html report.\n%s" % traceback.format_exc())
 
 
@@ -137,7 +135,7 @@ def _generate_test_class_page(test_class, report_path):
         {test_result}
         {after_method_result}
     """
-    test_case_tag_template ="""
+    test_case_tag_template = """
         <span class="tag" title="tag">{tag}</span>
     """
     test_case_fixture_template = """
@@ -205,5 +203,3 @@ def _write_to_file(file_content, file_name, mode="w"):
         f.write(file_content)
     finally:
         f.close()
-
-
