@@ -7,7 +7,7 @@ from . import config
 __author__ = 'karl.gong'
 
 # ----------------------------------------------------------------------
-# --- [ cross-platform multiple screenshots module ] -------------
+# -------- [ cross-platform multiple screenshots module ] --------------
 # ----------------------------------------------------------------------
 '''
     Copyright (c) 2013-2015, Mickael 'Tiger-222' Schoentgen
@@ -275,9 +275,9 @@ def mss(*args, **kwargs):
 
 
 # ----------------------------------------------------------------------
-# ------- [ take screenshot for webdriver or desktop ] -------------
+# ----------- [ take screenshot for webdriver or desktop ] -------------
 # ----------------------------------------------------------------------
-def take_screen_shot():
+def take_screenshot():
     if config.get_option("disable_screenshot"):
         return
 
@@ -304,6 +304,8 @@ def take_screen_shot():
             return output.getvalue()
 
     try:
-        testexecutor.get_property("running_test_case_fixture").screen_shot = capture_screen()
-    except Exception as e:
+        screenshot = capture_screen()
+    except Exception:
         preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
+
+    testexecutor.get_property("running_test_case_fixture").has_screenshot = True

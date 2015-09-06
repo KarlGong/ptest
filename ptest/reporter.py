@@ -144,8 +144,8 @@ def _generate_test_class_page(test_class, report_path):
       <td class="duration">{test_case_fixture.elapsed_time}s</td>
       <td class="logs">{test_case_fixture_logs}</td>
       <th class="screenshot">
-        <a href="{test_case_fixtrue_screenshot_path}" target="_blank">
-          <img src="{test_case_fixtrue_screenshot_path}" style="width:200px;border:0;">
+        <a href="{test_case_fixtrue_screenshot_name}" target="_blank">
+          <img src="{test_case_fixtrue_screenshot_name}" style="width:200px;border:0;">
         </a>
        </th></tr>
     """
@@ -159,11 +159,11 @@ def _generate_test_class_page(test_class, report_path):
     def make_test_case_fixture_content(test_case_fixture):
         if test_case_fixture:
             # screenshot
-            test_case_fixture_screen_shot_name = ""
-            if test_case_fixture.screen_shot:
-                test_case_fixture_screen_shot_name = test_case_fixture.full_name + ".png"
-                _write_to_file(test_case_fixture.screen_shot,
-                               os.path.join(report_path, test_case_fixture_screen_shot_name), mode="wb")
+            test_case_fixture_screenshot_name = ""
+            if test_case_fixture.screenshot:
+                test_case_fixture_screenshot_name = test_case_fixture.full_name + ".png"
+                _write_to_file(test_case_fixture.screenshot,
+                               os.path.join(report_path, test_case_fixture_screenshot_name), mode="wb")
             # logs
             test_case_fixture_log_content_list = []
             for level_name, msg in test_case_fixture.logs:
@@ -174,7 +174,7 @@ def _generate_test_class_page(test_class, report_path):
             return test_case_fixture_template.format(toggle_id=test_case_fixture.test_case.name,
                                                                      test_case_fixture=test_case_fixture,
                                                                      test_case_fixture_logs=test_case_fixture_logs_content,
-                                                                     test_case_fixtrue_screenshot_path=test_case_fixture_screen_shot_name)
+                                                                     test_case_fixtrue_screenshot_name=test_case_fixture_screenshot_name)
         return ""
 
     # test cases

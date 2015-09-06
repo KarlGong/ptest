@@ -104,7 +104,7 @@ def _parse_options(option_args):
     parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.3.1 for Python " + platform.python_version(),
                           description="ptest is a light test runner for Python.")
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
-                      help="Specify the workspace dir. Default value is current working directory.")
+                      help="Specify the workspace dir (relative to working directory). Default value is current working directory.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
@@ -118,13 +118,13 @@ def _parse_options(option_args):
     parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
     parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
-                      help="Specify the xunit xml path and run the failed test cases in it.")
+                      help="Specify the xunit xml path (relative to workspace) and run the failed test cases in it.")
     parser.add_option("-o", "--outputdir", action="store", dest="output_dir", default="test-output", metavar="dir",
-                      help="Specify the output dir.")
+                      help="Specify the output dir (relative to workspace).")
     parser.add_option("-x", "--xunitxml", action="store", dest="xunit_xml", default="xunit-results.xml",
-                      metavar="file", help="Specify the xunit xml path.")
+                      metavar="file", help="Specify the xunit xml path (relative to output dir).")
     parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
-                      help="Specify the html report dir.")
+                      help="Specify the html report dir (relative to output dir).")
     parser.add_option("-l", "--listeners", action="store", dest="test_listeners", default=None, metavar="class",
                       help="Specify the path of test listener classes, separated by comma. "
                            "The listener class should implement class TestListener in ptest.plistener "
@@ -132,10 +132,13 @@ def _parse_options(option_args):
                            "NOTE: 1. ptest ONLY searches modules under workspace and sys.path "
                            "2. The listener class should be thread safe.")
     parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
-                      help="Read properties from file. The properties in property file will be overwritten by user defined properties in cmd line. "
+                      help="Read properties from file (relative to workspace). "
+                           "The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in module ptest.config.")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
+    parser.add_option("--temp", action="store", dest="temp", default="ptest-temp", metavar="dir",
+                      help="Specify the temp dir (relative to workspace).")
     parser.add_option("--disablescreenshot", action="store_true", dest="disable_screenshot", default=False,
                       help="Disable taking screenshot for failed test fixtures.")
     parser.add_option_group(
@@ -146,4 +149,13 @@ def _parse_options(option_args):
         parser.error("Options -t(--targets) and -R(--runfailed) are mutually exclusive.")
     if (options.test_targets is None) and (options.run_failed is None):
         parser.error("You must specified one of the following options: -t(--targets), -R(--runfailed).")
+
+    options.workspace = os.path.abspath(os.path.join(os.getcwd(), options.workspace))
+    options.run_failed = os.path.abspath(os.path.join(options.workspace, options.run_failed))
+    options.output_dir = os.path.abspath(os.path.join(options.workspace, options.output_dir))
+    options.xunit_xml = os.path.abspath(os.path.join(options.output_dir, options.xunit_xml))
+    options.report_dir = os.path.abspath(os.path.join(options.output_dir, options.report_dir))
+    options.property_file = os.path.abspath(os.path.join(options.workspace, options.property_file))
+    options.temp = os.path.abspath(os.path.join(options.workspace, options.temp))
+
     _options.update(options.__dict__)
