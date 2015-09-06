@@ -156,10 +156,10 @@ def main(args=None):
     pconsole.write_line("Starting ptest...")
 
     # add workspace to python path
-    workspace = os.path.join(os.getcwd(), config.get_option("workspace"))
+    workspace = config.get_option("workspace")
     sys.path.insert(0, workspace)
     pconsole.write_line("Workspace:")
-    pconsole.write_line(" %s" % os.path.abspath(workspace))
+    pconsole.write_line(" %s" % workspace)
 
     # get test targets
     test_targets_str = config.get_option("test_targets")
@@ -170,9 +170,9 @@ def main(args=None):
             pconsole.write_line(" %s" % test_target)
     else:
         # rerun failed/skipped test cases
-        xunit_xml = os.path.join(workspace, config.get_option("run_failed"))
+        xunit_xml = config.get_option("run_failed")
         pconsole.write_line("Run failed/skipped test cases in xunit xml:")
-        pconsole.write_line(" %s" % os.path.abspath(xunit_xml))
+        pconsole.write_line(" %s" % xunit_xml)
         test_targets = get_rerun_targets(xunit_xml)
 
     # add test listeners
@@ -256,10 +256,9 @@ def main(args=None):
         test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, test_suite.pass_rate))
 
     # generate the test report
-    output_path = os.path.join(workspace, config.get_option("output_dir"))
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
     test_suite.sort_test_classes_for_report()
-    reporter.clean_report_dir(output_path)
-    reporter.generate_xunit_xml(os.path.join(output_path, config.get_option("xunit_xml")))
-    reporter.generate_html_report(os.path.join(output_path, config.get_option("report_dir")))
+    reporter.clean_report_dir(config.get_option("output_dir"))
+    reporter.generate_xunit_xml(config.get_option("xunit_xml"))
+    reporter.generate_html_report(config.get_option("report_dir"))

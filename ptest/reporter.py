@@ -2,9 +2,7 @@ import os
 import platform
 import shutil
 import traceback
-
 from xml.dom import minidom
-
 from datetime import datetime
 
 from .plogger import pconsole
@@ -12,6 +10,8 @@ from .testsuite import test_suite
 from .enumeration import TestCaseStatus
 
 __author__ = 'karl.gong'
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def clean_report_dir(report_path):
@@ -59,7 +59,7 @@ def generate_xunit_xml(xml_file):
     f = open(xml_file, "w")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
-        pconsole.write_line("xunit report is generated at %s" % os.path.abspath(xml_file))
+        pconsole.write_line("xunit report is generated at %s" % xml_file)
     except Exception:
         pconsole.write_line("Failed to generate xunit report.\n%s" % traceback.format_exc())
     finally:
@@ -69,7 +69,6 @@ def generate_xunit_xml(xml_file):
 def generate_html_report(report_dir):
     pconsole.write_line("Generating Html report...")
     os.makedirs(report_dir)
-    current_dir = os.path.dirname(os.path.abspath(__file__))
     css_file = os.path.join(current_dir, "htmltemplate", "report.css")
     js_file = os.path.join(current_dir, "htmltemplate", "amcharts.js")
     shutil.copy(css_file, report_dir)
@@ -78,13 +77,12 @@ def generate_html_report(report_dir):
         _generate_index_page(report_dir)
         for test_class in test_suite.test_classes:
             _generate_test_class_page(test_class, report_dir)
-        pconsole.write_line("html report is generated at %s" % os.path.abspath(report_dir))
+        pconsole.write_line("html report is generated at %s" % report_dir)
     except Exception:
         pconsole.write_line("Failed to generate Html report.\n%s" % traceback.format_exc())
 
 
 def _generate_index_page(report_dir):
-    current_dir = os.path.dirname(os.path.abspath(__file__))
     template_file = open(os.path.join(current_dir, "htmltemplate", "index.html"))
     try:
         index_page_template = template_file.read()
@@ -113,7 +111,6 @@ def _generate_index_page(report_dir):
 
 
 def _generate_test_class_page(test_class, report_path):
-    current_dir = os.path.dirname(os.path.abspath(__file__))
     template_file = open(os.path.join(current_dir, "htmltemplate", "test_class_results.html"))
     try:
         test_class_page_template = template_file.read()

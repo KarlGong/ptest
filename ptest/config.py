@@ -66,7 +66,7 @@ def load(args):
 def _load_properties_from_file():
     property_file = get_option("property_file")
     if property_file is not None:
-        file_object = open(os.path.join(os.getcwd(), get_option("workspace"), property_file))
+        file_object = open(property_file)
         try:
             property_regex_str = r"^([^;#].*?)=(.*?)$"
             property_regex = re.compile(property_regex_str)
@@ -150,12 +150,13 @@ def _parse_options(option_args):
     if (options.test_targets is None) and (options.run_failed is None):
         parser.error("You must specified one of the following options: -t(--targets), -R(--runfailed).")
 
+    # Set full path for options.
     options.workspace = os.path.abspath(os.path.join(os.getcwd(), options.workspace))
-    options.run_failed = os.path.abspath(os.path.join(options.workspace, options.run_failed))
+    options.run_failed = None if options.run_failed is None else os.path.abspath(os.path.join(options.workspace, options.run_failed))
     options.output_dir = os.path.abspath(os.path.join(options.workspace, options.output_dir))
     options.xunit_xml = os.path.abspath(os.path.join(options.output_dir, options.xunit_xml))
     options.report_dir = os.path.abspath(os.path.join(options.output_dir, options.report_dir))
-    options.property_file = os.path.abspath(os.path.join(options.workspace, options.property_file))
+    options.property_file = None if options.property_file is None else os.path.abspath(os.path.join(options.workspace, options.property_file))
     options.temp = os.path.abspath(os.path.join(options.workspace, options.temp))
 
     _options.update(options.__dict__)
