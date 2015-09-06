@@ -6,6 +6,7 @@ import shlex
 import traceback
 import sys
 from xml.dom import minidom
+import shutil
 
 from .testfilter import FilterGroup, TestClassNameFilter, TestCaseNameFilter, TestCaseIncludeTagsFilter, \
     TestCaseExcludeTagsFilter, TestCaseIncludeGroupsFilter
@@ -64,11 +65,11 @@ def __get_test_cases_in_package(package_ref, test_class_filter_group, test_case_
     package_name = package_ref.__name__
     package_path, _ = os.path.split(package_ref.__file__)
     for fn in os.listdir(package_path):
-        file_full_name = os.path.join(package_path, fn)
-        if os.path.isdir(file_full_name) and "__init__.py" in os.listdir(file_full_name):
+        file_full_path = os.path.join(package_path, fn)
+        if os.path.isdir(file_full_path) and "__init__.py" in os.listdir(file_full_path):
             __get_test_cases_in_package(importlib.import_module(package_name + "." + fn), test_class_filter_group,
                                         test_case_filter_group)
-        elif os.path.isfile(file_full_name):
+        elif os.path.isfile(file_full_path):
             file_name, file_ext = os.path.splitext(fn)
             if fn != "__init__.py" and file_ext == ".py":
                 __get_test_cases_in_module(importlib.import_module(package_name + "." + file_name), test_class_filter_group,
@@ -244,6 +245,17 @@ def main(args=None):
         pconsole.write_line(" %s" % test_name)
     pconsole.write_line("=" * 100)
 
+    # clean/create temp dir
+    temp_dir = config.get_option("temp")
+    if os.path.exists(temp_dir):
+        for root, dirs, files in os.walk(temp_dir, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+    else:
+        os.makedirs(temp_dir)
+
     # run test cases
     run_test_cases(int(config.get_option("test_executor_number")))
 
@@ -259,6 +271,9 @@ def main(args=None):
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
     test_suite.sort_test_classes_for_report()
-    reporter.clean_report_dir(config.get_option("output_dir"))
+    reporter.clean_output_dir(config.get_option("output_dir"))
     reporter.generate_xunit_xml(config.get_option("xunit_xml"))
     reporter.generate_html_report(config.get_option("report_dir"))
+
+    # clean temp dir
+    shutil.rmtree(temp_dir)

@@ -150,7 +150,7 @@ def _parse_options(option_args):
     if (options.test_targets is None) and (options.run_failed is None):
         parser.error("You must specified one of the following options: -t(--targets), -R(--runfailed).")
 
-    # Set full path for options.
+    # convert to full path for options
     options.workspace = os.path.abspath(os.path.join(os.getcwd(), options.workspace))
     options.run_failed = None if options.run_failed is None else os.path.abspath(os.path.join(options.workspace, options.run_failed))
     options.output_dir = os.path.abspath(os.path.join(options.workspace, options.output_dir))

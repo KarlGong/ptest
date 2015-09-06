@@ -5,6 +5,7 @@ import traceback
 from xml.dom import minidom
 from datetime import datetime
 
+from . import config
 from .plogger import pconsole
 from .testsuite import test_suite
 from .enumeration import TestCaseStatus
@@ -14,18 +15,24 @@ __author__ = 'karl.gong'
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def clean_report_dir(report_path):
-    if os.path.exists(report_path):
+def clean_output_dir(output_dir):
+    if os.path.exists(output_dir):
         pconsole.write_line("Cleaning old reports...")
         try:
-            shutil.rmtree(report_path)
+            for root, dirs, files in os.walk(output_dir, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
         except Exception:
             pconsole.write_line("Failed to clean old reports.\n%s" % traceback.format_exc())
 
 
 def generate_xunit_xml(xml_file):
     pconsole.write_line("Generating xunit report...")
-    os.makedirs(os.path.dirname(xml_file))
+    xml_file_dir = os.path.dirname(xml_file)
+    if not os.path.exists(xml_file_dir):
+        os.makedirs(xml_file_dir)
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
@@ -68,11 +75,21 @@ def generate_xunit_xml(xml_file):
 
 def generate_html_report(report_dir):
     pconsole.write_line("Generating Html report...")
-    os.makedirs(report_dir)
+    if not os.path.exists(report_dir):
+        os.makedirs(report_dir)
+    # copy css and js files
     css_file = os.path.join(current_dir, "htmltemplate", "report.css")
     js_file = os.path.join(current_dir, "htmltemplate", "amcharts.js")
     shutil.copy(css_file, report_dir)
     shutil.copy(js_file, report_dir)
+    # copy screenshot from temp dir
+    temp_dir = config.get_option("temp")
+    for fn in os.listdir(temp_dir):
+        file_full_path = os.path.join(temp_dir, fn)
+        _, file_ext = os.path.splitext(fn)
+        if os.path.isfile(file_full_path) and file_ext == ".png":
+            shutil.copy(file_full_path, report_dir)
+    # generate html files
     try:
         _generate_index_page(report_dir)
         for test_class in test_suite.test_classes:
@@ -141,8 +158,8 @@ def _generate_test_class_page(test_class, report_path):
       <td class="duration">{test_case_fixture.elapsed_time}s</td>
       <td class="logs">{test_case_fixture_logs}</td>
       <th class="screenshot">
-        <a href="{test_case_fixtrue_screenshot_name}" target="_blank">
-          <img src="{test_case_fixtrue_screenshot_name}" style="width:200px;border:0;">
+        <a href="{test_case_fixture_screenshot_path}" target="_blank">
+          <img src="{test_case_fixture_screenshot_path}" style="width:200px;border:0;">
         </a>
        </th></tr>
     """
@@ -156,11 +173,7 @@ def _generate_test_class_page(test_class, report_path):
     def make_test_case_fixture_content(test_case_fixture):
         if test_case_fixture:
             # screenshot
-            test_case_fixture_screenshot_name = ""
-            if test_case_fixture.screenshot:
-                test_case_fixture_screenshot_name = test_case_fixture.full_name + ".png"
-                _write_to_file(test_case_fixture.screenshot,
-                               os.path.join(report_path, test_case_fixture_screenshot_name), mode="wb")
+            test_case_fixture_screenshot_name = "" if test_case_fixture.screenshot is None else test_case_fixture.screenshot
             # logs
             test_case_fixture_log_content_list = []
             for level_name, msg in test_case_fixture.logs:
@@ -171,7 +184,7 @@ def _generate_test_class_page(test_class, report_path):
             return test_case_fixture_template.format(toggle_id=test_case_fixture.test_case.name,
                                                                      test_case_fixture=test_case_fixture,
                                                                      test_case_fixture_logs=test_case_fixture_logs_content,
-                                                                     test_case_fixtrue_screenshot_name=test_case_fixture_screenshot_name)
+                                                                     test_case_fixture_screenshot_path=test_case_fixture_screenshot_name)
         return ""
 
     # test cases

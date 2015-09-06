@@ -237,8 +237,7 @@ class TestCaseFixture:
         self.full_name = "%s@%s" % (test_case.full_name, fixture_type)
         self.test_case = test_case
         self.logs = []
-        self.has_screenshot = False
-        self.screenshot_name = self.full_name + ".png"
+        self.screenshot = None
         self.start_time = None
         self.end_time = None
         self.group = test_fixture_ref.__group__

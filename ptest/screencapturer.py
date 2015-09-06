@@ -1,3 +1,4 @@
+import os
 import traceback
 from io import BytesIO
 
@@ -295,7 +296,7 @@ def take_screenshot():
             return active_browser.get_screenshot_as_png()
     else:
         if system() == 'Darwin' and not pyobjc_installed:
-            preporter.warn("The package pyobjc is necessary for taking screenshot for desktop, please install it.")
+            preporter.warn("The package pyobjc is necessary for taking screenshot of desktop, please install it.")
             return
 
         def capture_screen():
@@ -307,5 +308,12 @@ def take_screenshot():
         screenshot = capture_screen()
     except Exception:
         preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
+        return
 
-    testexecutor.get_property("running_test_case_fixture").has_screenshot = True
+    test_fixture = testexecutor.get_property("running_test_case_fixture")
+    test_fixture.screenshot = test_fixture.full_name + ".png"
+    f = open(os.path.join(config.get_option("temp"), test_fixture.screenshot), mode="wb")
+    try:
+        f.write(screenshot)
+    finally:
+        f.close()
