@@ -87,29 +87,35 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
-1.3.1 (compared 1.3.0)
+1.3.2 (compared to 1.3.1)
+
+- Add cmd line entry points for py3.
+
+- All temp data will be stored in temp folder.
+
+1.3.1 (compared to 1.3.0)
 
 - Add examples folder.
 
 - Support declare additional arguments in test methods.
 
-1.3.0 (compared 1.2.2)
+1.3.0 (compared to 1.2.2)
 
 - Support py3.
 
 - No extra package is needed to capture screenshot.
 
-1.2.2 (compared 1.2.1)
+1.2.2 (compared to 1.2.1)
 
 - Support default value for config.get_property().
 
 - Add filter for test case status in html report.
 
-1.2.1 (compared 1.2.0)
+1.2.1 (compared to 1.2.0)
 
 - Support multiple test listeners.
 
-1.2.0 (compared 1.1.1)
+1.2.0 (compared to 1.1.1)
 
 - Support run/debug in Pycharm via a ptest plugin.
 
