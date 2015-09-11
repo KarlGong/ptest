@@ -263,7 +263,7 @@ class TestFixture:
                 from .plogger import preporter
                 from . import screencapturer
                 self.status = TestFixtureStatus.FAILED
-                preporter.error("Failed with following message:\nTimed out executing this test fixture.")
+                preporter.error("Failed with following message:\nTimed out executing this test fixture in %ss." % self.timeout)
                 screencapturer.take_screenshot()
                 kill_thread(test_fixture_executor)
         else:
