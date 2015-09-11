@@ -41,12 +41,12 @@ class PReporter:
     def __log(self, level, msg):
         from . import testexecutor
 
-        running_test_case_fixture = testexecutor.get_property("running_test_case_fixture")
-        running_test_case_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
+        running_test_fixture = testexecutor.get_property("running_test_fixture")
+        running_test_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
 
         if config.get_option("verbose"):
             # output to pconsole
-            message = "[%s] %s" % (running_test_case_fixture.full_name, msg)
+            message = "[%s] %s" % (running_test_fixture.full_name, msg)
             pconsole.write_line(message)
 
 

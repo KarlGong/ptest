@@ -3,43 +3,24 @@ __author__ = 'karl.gong'
 from .enumeration import PDecoratorType, TestClassRunMode
 
 
-def Test(enabled=True, always_run=False, tags=[], group="DEFAULT", description=""):
+def BeforeSuite(enabled=True, description="", timeout=0):
     def handle_func(func):
-        func.__pd_type__ = PDecoratorType.Test
+        func.__pd_type__ = PDecoratorType.BeforeSuite
         func.__enabled__ = enabled
-        func.__always_run__ = always_run
-        func.__group__ = group
         func.__description__ = description
-        if isinstance(tags, str):
-            tag_list = tags.split(",")
-        elif isinstance(tags, list) or isinstance(tags, tuple):
-            tag_list = tags
-        else:
-            raise Exception("Tags type %s is not supported. Please use string or list." % type(tags))
-        func.__tags__ = sorted([str(tag.strip()) for tag in tag_list if tag.strip()])
+        func.__timeout__ = timeout
         return func
 
     return handle_func
 
 
-def BeforeMethod(enabled=True, group="DEFAULT", description=""):
+def AfterSuite(enabled=True, always_run=False, description="", timeout=0):
     def handle_func(func):
-        func.__pd_type__ = PDecoratorType.BeforeMethod
-        func.__enabled__ = enabled
-        func.__group__ = group
-        func.__description__ = description
-        return func
-
-    return handle_func
-
-
-def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description=""):
-    def handle_func(func):
-        func.__pd_type__ = PDecoratorType.AfterMethod
+        func.__pd_type__ = PDecoratorType.AfterSuite
         func.__enabled__ = enabled
         func.__always_run__ = always_run
-        func.__group__ = group
         func.__description__ = description
+        func.__timeout__ = timeout
         return func
 
     return handle_func
@@ -59,3 +40,72 @@ def TestClass(enabled=True, run_mode="parallel", description=""):
         return cls
 
     return tracer
+
+
+def BeforeClass(enabled=True, group="DEFAULT", description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.BeforeClass
+        func.__enabled__ = enabled
+        func.__group__ = group
+        func.__description__ = description
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func
+
+
+def AfterClass(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterClass
+        func.__enabled__ = enabled
+        func.__always_run__ = always_run
+        func.__group__ = group
+        func.__description__ = description
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func
+
+
+def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.Test
+        func.__enabled__ = enabled
+        func.__group__ = group
+        func.__description__ = description
+        if isinstance(tags, str):
+            tag_list = tags.split(",")
+        elif isinstance(tags, list) or isinstance(tags, tuple):
+            tag_list = tags
+        else:
+            raise Exception("Tags type %s is not supported. Please use string or list." % type(tags))
+        func.__tags__ = sorted([str(tag.strip()) for tag in tag_list if tag.strip()])
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func
+
+
+def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.BeforeMethod
+        func.__enabled__ = enabled
+        func.__group__ = group
+        func.__description__ = description
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func
+
+
+def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterMethod
+        func.__enabled__ = enabled
+        func.__always_run__ = always_run
+        func.__group__ = group
+        func.__description__ = description
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func

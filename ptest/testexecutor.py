@@ -1,3 +1,4 @@
+import ctypes
 import threading
 import traceback
 
@@ -5,11 +6,45 @@ from datetime import datetime
 
 from . import plistener
 from . import screencapturer
-from .enumeration import PDecoratorType, TestCaseStatus
+from .enumeration import PDecoratorType, TestCaseStatus, TestFixtureStatus
 from .plogger import pconsole, preporter
 from .testsuite import test_suite, NoTestCaseAvailableForThisThread
 
 __author__ = 'karl.gong'
+
+
+class TestFixtureExecutor(threading.Thread):
+    def __init__(self, test_fixture):
+        threading.Thread.__init__(self)
+        self.test_fixture = test_fixture
+        self.__properties = {}
+
+    def run(self):
+        self.test_fixture.status = TestFixtureStatus.RUNNING
+        self.update_properties(running_test_fixture=self.test_fixture)
+        try:
+            if self.test_fixture.arguments_count == 1:
+                self.test_fixture.test_fixture_ref.__call__()
+            elif self.test_fixture.arguments_count == 2:
+                self.test_fixture.test_fixture_ref.__call__(self.test_fixture.context)
+        except Exception:
+            self.test_fixture.status = TestFixtureStatus.FAILED
+            preporter.error("Failed with following message:\n%s" % traceback.format_exc())
+            screencapturer.take_screenshot()
+        else:
+            self.test_fixture.status = TestFixtureStatus.PASSED
+
+    def update_properties(self, **kwargs):
+        self.__properties.update(kwargs)
+
+    def clear_properties(self):
+        self.__properties.clear()
+
+    def get_property(self, key):
+        try:
+            return self.__properties[key]
+        except KeyError:
+            return None
 
 
 class TestExecutor(threading.Thread):
@@ -36,7 +71,7 @@ class TestExecutor(threading.Thread):
             is_before_method_passed = True
             # before method
             if before_method:
-                self.update_properties(running_test_case_fixture=before_method)
+                self.update_properties(running_test_fixture=before_method)
                 before_method.start_time = datetime.now()
                 try:
                     before_method.run()
@@ -48,9 +83,9 @@ class TestExecutor(threading.Thread):
                 before_method.end_time = datetime.now()
 
             # test
-            self.update_properties(running_test_case_fixture=test)
+            self.update_properties(running_test_fixture=test)
             test.start_time = datetime.now()
-            if is_before_method_passed or test.always_run:
+            if is_before_method_passed:
                 # run test
                 try:
                     test.run()
@@ -75,7 +110,7 @@ class TestExecutor(threading.Thread):
 
             # after method
             if after_method:
-                self.update_properties(running_test_case_fixture=after_method)
+                self.update_properties(running_test_fixture=after_method)
                 after_method.start_time = datetime.now()
                 if is_before_method_passed or after_method.always_run:
                     # run after method
@@ -118,3 +153,20 @@ def get_property(key):
 
 def get_name():
     return threading.currentThread().getName()
+
+
+def kill_thread(thread):
+    """Terminates a python thread from another thread.
+
+    :param thread: a threading.Thread instance
+    """
+    exc = ctypes.py_object(SystemExit)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+        ctypes.c_long(thread.ident), exc)
+    if res == 0:
+        raise ValueError("nonexistent thread id")
+    elif res > 1:
+        # """if it returns a number greater than one, you're in trouble,
+        # and you should call it again with exc=NULL to revert the effect"""
+        ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
+        raise SystemError("PyThreadState_SetAsyncExc failed")

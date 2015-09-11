@@ -7,11 +7,21 @@ class TestClassRunMode:
 
 
 class PDecoratorType:
+    BeforeSuite = "BeforeSuite"
+    AfterSuite = "AfterSuite"
+    TestClass = "TestClass"
+    BeforeClass = "BeforeClass"
+    AfterClass = "AfterClass"
     Test = "Test"
     BeforeMethod = "BeforeMethod"
     AfterMethod = "AfterMethod"
-    TestClass = "TestClass"
 
+class TestFixtureStatus:
+    NOT_RUN = "not_run"
+    RUNNING = "running"
+    PASSED = "passed"
+    SKIPPED = "skipped"
+    FAILED = "failed"
 
 class TestCaseStatus:
     NOT_RUN = "not_run"

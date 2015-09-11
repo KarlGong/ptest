@@ -9,7 +9,7 @@ except ImportError:
 import inspect
 import threading
 
-from .enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType
+from .enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType, TestFixtureStatus
 
 __author__ = 'karl.gong'
 
@@ -231,33 +231,44 @@ class TestCase:
         return seconds
 
 
-class TestCaseFixture:
-    def __init__(self, test_case, test_fixture_ref, fixture_type):
-        self.__test_fixture_ref = test_fixture_ref
-        self.full_name = "%s@%s" % (test_case.full_name, fixture_type)
-        self.test_case = test_case
-        self.logs = []
-        self.screenshot = None
+class TestFixture:
+    def __init__(self, context, test_fixture_ref, fixture_type):
+        self.context = context
+        self.test_fixture_ref = test_fixture_ref
+        self.fixture_type = fixture_type
+        self.status = TestFixtureStatus.NOT_RUN
         self.start_time = None
         self.end_time = None
-        self.group = test_fixture_ref.__group__
+        self.logs = []
+        self.screenshot = None
         self.description = test_fixture_ref.__description__
-        self.fixture_type = fixture_type
+        self.timeout = test_fixture_ref.__timeout__
 
         file_path = os.path.abspath(inspect.getfile(test_fixture_ref))
         _, line_no = inspect.getsourcelines(test_fixture_ref)
         self.location = urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
 
-        self.__arguments_count = len(inspect.getargspec(self.__test_fixture_ref)[0])
-        if self.__arguments_count not in [1, 2]:
-            raise TypeError("arguments number of %s.%s() is not acceptable. Please give 1 or 2 arguments." % (
-                self.test_case.test_class.full_name, self.__test_fixture_ref.__name__))
+        self.arguments_count = len(inspect.getargspec(self.test_fixture_ref)[0])
+        if self.arguments_count not in [1, 2]:
+            raise TypeError(
+                "arguments number of %s() is not acceptable. Please give 1 or 2 arguments." % self.test_fixture_ref.__name__)
 
     def run(self):
-        if self.__arguments_count == 1:
-            self.__test_fixture_ref.__call__()
-        elif self.__arguments_count == 2:
-            self.__test_fixture_ref.__call__(self.test_case)
+        from .testexecutor import TestFixtureExecutor, kill_thread
+        test_fixture_executor = TestFixtureExecutor(self)
+        test_fixture_executor.start()
+        if self.timeout > 0:
+            test_fixture_executor.join(self.timeout)
+            if test_fixture_executor.isAlive():
+                from .plogger import preporter
+                from . import screencapturer
+                self.status = TestFixtureStatus.FAILED
+                preporter.error("Failed with following message:\nTimed out executing this test fixture.")
+                screencapturer.take_screenshot()
+                kill_thread(test_fixture_executor)
+        else:
+            test_fixture_executor.join()
+
 
     @property
     def elapsed_time(self):
@@ -266,22 +277,62 @@ class TestCaseFixture:
         return seconds
 
 
-class BeforeMethod(TestCaseFixture):
-    def __init__(self, test_case, test_fixture_ref):
-        TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.BeforeMethod)
+class BeforeSuite(TestFixture):
+    def __init__(self, test_suite, test_fixture_ref):
+        TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.BeforeSuite)
+        self.full_name = "@%s" % self.fixture_type
+        self.test_suite = self.context
 
 
-class Test(TestCaseFixture):
-    def __init__(self, test_case, test_fixture_ref):
-        TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
+class AfterSuite(TestFixture):
+    def __init__(self, test_suite, test_fixture_ref):
+        TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.AfterSuite)
+        self.full_name = "@%s" % self.fixture_type
+        self.test_suite = self.context
         self.always_run = test_fixture_ref.__always_run__
+
+
+class BeforeClass(TestFixture):
+    def __init__(self, test_class, test_fixture_ref):
+        TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.BeforeClass)
+        self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
+        self.test_class = self.context
+        self.group = test_fixture_ref.__group__
+
+
+class AfterClass(TestFixture):
+    def __init__(self, test_class, test_fixture_ref):
+        TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.AfterClass)
+        self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
+        self.test_class = self.context
+        self.always_run = test_fixture_ref.__always_run__
+        self.group = test_fixture_ref.__group__
+
+
+class Test(TestFixture):
+    def __init__(self, test_case, test_fixture_ref):
+        TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
+        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+        self.test_case = self.context
         self.tags = test_fixture_ref.__tags__
+        self.group = test_fixture_ref.__group__
 
 
-class AfterMethod(TestCaseFixture):
+class BeforeMethod(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
-        TestCaseFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.AfterMethod)
+        TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.BeforeMethod)
+        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+        self.test_case = self.context
+        self.group = test_fixture_ref.__group__
+
+
+class AfterMethod(TestFixture):
+    def __init__(self, test_case, test_fixture_ref):
+        TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.AfterMethod)
+        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+        self.test_case = self.context
         self.always_run = test_fixture_ref.__always_run__
+        self.group = test_fixture_ref.__group__
 
 
 test_suite = TestSuite()
