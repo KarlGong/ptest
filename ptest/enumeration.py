@@ -12,6 +12,8 @@ class PDecoratorType:
     TestClass = "TestClass"
     BeforeClass = "BeforeClass"
     AfterClass = "AfterClass"
+    BeforeGroup = "BeforeGroup"
+    AfterGroup = "AfterGroup"
     Test = "Test"
     BeforeMethod = "BeforeMethod"
     AfterMethod = "AfterMethod"
@@ -23,9 +25,4 @@ class TestFixtureStatus:
     SKIPPED = "skipped"
     FAILED = "failed"
 
-class TestCaseStatus:
-    NOT_RUN = "not_run"
-    RUNNING = "running"
-    PASSED = "passed"
-    SKIPPED = "skipped"
-    FAILED = "failed"
+TestCaseStatus = TestFixtureStatus

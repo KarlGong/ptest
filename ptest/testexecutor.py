@@ -1,14 +1,14 @@
 import ctypes
+from datetime import datetime
 import threading
 import traceback
 
-from datetime import datetime
-
-from . import plistener
+from .plistener import test_listeners
 from . import screencapturer
 from .enumeration import PDecoratorType, TestCaseStatus, TestFixtureStatus
 from .plogger import pconsole, preporter
-from .testsuite import test_suite, NoTestCaseAvailableForThisThread
+from .testsuite import test_suite, NoTestFixtureAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
+    AfterGroup, Test, BeforeMethod, AfterMethod
 
 __author__ = 'karl.gong'
 
@@ -27,9 +27,12 @@ class TestFixtureExecutor(threading.Thread):
                 self.test_fixture.test_fixture_ref.__call__()
             elif self.test_fixture.arguments_count == 2:
                 self.test_fixture.test_fixture_ref.__call__(self.test_fixture.context)
-        except Exception:
+        except Exception as e:
             self.test_fixture.status = TestFixtureStatus.FAILED
-            preporter.error("Failed with following message:\n%s" % traceback.format_exc())
+            self.test_fixture.failure_message = "\n".join([str(arg) for arg in e.args])
+            self.test_fixture.failure_type = e.__class__.__name__
+            self.test_fixture.stack_trace = traceback.format_exc()
+            preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
             screencapturer.take_screenshot()
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
@@ -55,76 +58,124 @@ class TestExecutor(threading.Thread):
     def run(self):
         while True:
             try:
-                test_case = test_suite.pop_test_case()
-            except NoTestCaseAvailableForThisThread:
+                test_fixture = test_suite.pop_test_fixture()
+            except NoTestFixtureAvailableForThisThread:
                 break
-            test_case_full_name = test_case.full_name
-            logger_filler = "-" * (100 - len(test_case_full_name) - 6)
 
-            before_method = test_case.before_method
-            test = test_case.test
-            after_method = test_case.after_method
+            def warn_and_mark_skipped(pdecorator_type):
+                preporter.warn("%s failed, so skipped." % pdecorator_type)
+                test_fixture.skip_message = "%s failed, so skipped." % pdecorator_type
+                test_fixture.status = TestFixtureStatus.SKIPPED
+
+            self.update_properties(running_test_fixture=test_fixture)
+
+            before_suite = test_fixture.test_suite.before_suite
+            is_before_suite_failed = before_suite and before_suite.status == TestFixtureStatus.FAILED
+
+            if isinstance(test_fixture, BeforeClass):
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                else:
+                    test_fixture.run()
+                continue
+
+            before_class = test_fixture.test_class.before_class
+            is_before_class_failed = before_class and before_class.status == TestFixtureStatus.FAILED
+
+            if isinstance(test_fixture, AfterClass):
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                elif is_before_class_failed and not test_fixture.always_run:
+                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                else:
+                    test_fixture.run()
+                continue
+
+            if isinstance(test_fixture, BeforeGroup):
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                elif is_before_class_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                else:
+                    test_fixture.run()
+                continue
+
+            before_group = test_fixture.test_group.before_group
+            is_before_group_failed = before_group and before_group.status == TestFixtureStatus.FAILED
+
+            if isinstance(test_fixture, AfterGroup):
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                elif is_before_class_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                elif is_before_group_failed and not test_fixture.always_run:
+                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
+                else:
+                    test_fixture.run()
+                continue
+
+            if isinstance(test_fixture, BeforeMethod):
+                test_listeners.on_test_case_start(test_fixture.test_case)
+                test_fixture.test_case.start_time = datetime.now()
+
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                elif is_before_class_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                elif is_before_group_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
+                else:
+                    test_fixture.run()
+                continue
+
+            before_method = test_fixture.test_case.before_method
+            is_before_method_failed = before_method and before_method.status == TestFixtureStatus.FAILED
+
+            if isinstance(test_fixture, AfterMethod):
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                elif is_before_class_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                elif is_before_group_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
+                elif is_before_method_failed and not test_fixture.always_run:
+                    warn_and_mark_skipped(PDecoratorType.BeforeMethod)
+                else:
+                    test_fixture.run()
+
+                test_fixture.test_case.end_time = datetime.now()
+                test_listeners.on_test_case_finish(test_fixture.test_case)
+                continue
+
+            if isinstance(test_fixture, Test):
+                if test_fixture.test_case.before_method is None:
+                    test_listeners.on_test_case_start(test_fixture.test_case)
+                    test_fixture.test_case.start_time = datetime.now()
+
+                if is_before_suite_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
+                elif is_before_class_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                elif is_before_group_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
+                elif is_before_method_failed:
+                    warn_and_mark_skipped(PDecoratorType.BeforeMethod)
+                else:
+                    test_fixture.run()
+                test_case = test_fixture.test_case
+                logger_filler = "-" * (100 - len(test_case.full_name) - 6)
+                if test_case.status == TestCaseStatus.PASSED:
+                    pconsole.write_line("%s%s|PASS|" % (test_case.full_name, logger_filler))
+                elif test_case.status == TestCaseStatus.FAILED:
+                    pconsole.write_line("%s%s|FAIL|" % (test_case.full_name, logger_filler))
+                elif test_case.status == TestCaseStatus.SKIPPED:
+                    pconsole.write_line("%s%s|SKIP|" % (test_case.full_name, logger_filler))
+
+                if test_fixture.test_case.after_method is None:
+                    test_fixture.test_case.end_time = datetime.now()
+                    test_listeners.on_test_case_finish(test_fixture.test_case)
 
             self.clear_properties()
-            plistener.test_listeners.on_test_case_start(test_case)
-            test_case.start_time = datetime.now()
-            is_before_method_passed = True
-            # before method
-            if before_method:
-                self.update_properties(running_test_fixture=before_method)
-                before_method.start_time = datetime.now()
-                try:
-                    before_method.run()
-                except Exception as e:
-                    # before method failed
-                    is_before_method_passed = False
-                    preporter.error("Failed with following message:\n%s" % traceback.format_exc())
-                    screencapturer.take_screenshot()
-                before_method.end_time = datetime.now()
-
-            # test
-            self.update_properties(running_test_fixture=test)
-            test.start_time = datetime.now()
-            if is_before_method_passed:
-                # run test
-                try:
-                    test.run()
-                except Exception as e:
-                    preporter.error("Failed with following message:\n%s" % traceback.format_exc())
-                    screencapturer.take_screenshot()
-                    pconsole.write_line("%s%s|FAIL|" % (test_case_full_name, logger_filler))
-                    test_case.status = TestCaseStatus.FAILED
-                    test_case.failure_message = "\n".join([str(arg) for arg in e.args])
-                    test_case.failure_type = e.__class__.__name__
-                    test_case.stack_trace = traceback.format_exc()
-                else:
-                    pconsole.write_line("%s%s|PASS|" % (test_case_full_name, logger_filler))
-                    test_case.status = TestCaseStatus.PASSED
-            else:
-                # skip test
-                preporter.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
-                pconsole.write_line("%s%s|SKIP|" % (test_case_full_name, logger_filler))
-                test_case.status = TestCaseStatus.SKIPPED
-                test_case.skip_message = "@%s failed, so skipped." % PDecoratorType.BeforeMethod
-            test.end_time = datetime.now()
-
-            # after method
-            if after_method:
-                self.update_properties(running_test_fixture=after_method)
-                after_method.start_time = datetime.now()
-                if is_before_method_passed or after_method.always_run:
-                    # run after method
-                    try:
-                        after_method.run()
-                    except Exception as e:
-                        preporter.error("Failed with following message:\n%s" % traceback.format_exc())
-                        screencapturer.take_screenshot()
-                else:
-                    # skip after method
-                    preporter.warn("@%s failed, so skipped." % PDecoratorType.BeforeMethod)
-                after_method.end_time = datetime.now()
-            test_case.end_time = datetime.now()
-            plistener.test_listeners.on_test_case_finish(test_case)
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)

@@ -42,9 +42,31 @@ def TestClass(enabled=True, run_mode="parallel", description=""):
     return tracer
 
 
-def BeforeClass(enabled=True, group="DEFAULT", description="", timeout=0):
+def BeforeClass(enabled=True, description="", timeout=0):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeClass
+        func.__enabled__ = enabled
+        func.__description__ = description
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func
+
+
+def AfterClass(enabled=True, always_run=False, description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterClass
+        func.__enabled__ = enabled
+        func.__always_run__ = always_run
+        func.__description__ = description
+        func.__timeout__ = timeout
+        return func
+
+    return handle_func
+
+def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0):
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterClass
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
@@ -54,7 +76,7 @@ def BeforeClass(enabled=True, group="DEFAULT", description="", timeout=0):
     return handle_func
 
 
-def AfterClass(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
+def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterClass
         func.__enabled__ = enabled
