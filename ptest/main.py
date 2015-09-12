@@ -21,7 +21,7 @@ from . import plistener
 __author__ = 'karl.gong'
 
 
-def get_test_cases(test_target, test_class_filter_group, test_case_filter_group):
+def find_test_cases(test_target, test_class_filter_group, test_case_filter_group):
     # make deep copies for filter group
     test_class_filter_group = copy.deepcopy(test_class_filter_group)
     test_case_filter_group = copy.deepcopy(test_case_filter_group)
@@ -29,10 +29,10 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
         module_ref = importlib.import_module(test_target)
         if "__init__.py" in module_ref.__file__:
             # test target is package
-            __get_test_cases_in_package(module_ref, test_class_filter_group, test_case_filter_group)
+            __find_test_cases_in_package(module_ref, test_class_filter_group, test_case_filter_group)
         else:
             # test target is module
-            __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
+            __find_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
     except ImportError:
         splitted_test_target = test_target.split(".")
         if len(splitted_test_target) < 2:
@@ -41,7 +41,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
             # test target is class
             module_ref = importlib.import_module(".".join(splitted_test_target[:-1]))
             test_class_filter_group.append_filter(TestClassNameFilter(splitted_test_target[-1]))
-            __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
+            __find_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
         except ImportError:
             splitted_test_target = test_target.split(".")
             if len(splitted_test_target) < 3:
@@ -51,7 +51,7 @@ def get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
                 module_ref = importlib.import_module(".".join(splitted_test_target[:-2]))
                 test_class_filter_group.append_filter(TestClassNameFilter(splitted_test_target[-2]))
                 test_case_filter_group.append_filter(TestCaseNameFilter(splitted_test_target[-1]))
-                __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
+                __find_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group)
             except ImportError:
                 raise ImportTestTargetError("Cannot import test target: %s\n%s" % (test_target, traceback.format_exc()))
 
@@ -61,22 +61,22 @@ class ImportTestTargetError(Exception):
         self.message = message
 
 
-def __get_test_cases_in_package(package_ref, test_class_filter_group, test_case_filter_group):
+def __find_test_cases_in_package(package_ref, test_class_filter_group, test_case_filter_group):
     package_name = package_ref.__name__
     package_path, _ = os.path.split(package_ref.__file__)
     for fn in os.listdir(package_path):
         file_full_path = os.path.join(package_path, fn)
         if os.path.isdir(file_full_path) and "__init__.py" in os.listdir(file_full_path):
-            __get_test_cases_in_package(importlib.import_module(package_name + "." + fn), test_class_filter_group,
+            __find_test_cases_in_package(importlib.import_module(package_name + "." + fn), test_class_filter_group,
                                         test_case_filter_group)
         elif os.path.isfile(file_full_path):
             file_name, file_ext = os.path.splitext(fn)
             if fn != "__init__.py" and file_ext == ".py":
-                __get_test_cases_in_module(importlib.import_module(package_name + "." + file_name), test_class_filter_group,
+                __find_test_cases_in_module(importlib.import_module(package_name + "." + file_name), test_class_filter_group,
                                            test_case_filter_group)
 
 
-def __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group):
+def __find_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group):
     test_class_refs = []
     for module_element in dir(module_ref):
         test_class_ref = getattr(module_ref, module_element)
@@ -89,10 +89,10 @@ def __get_test_cases_in_module(module_ref, test_class_filter_group, test_case_fi
             test_class_refs.append(test_class_ref)
     if len(test_class_refs) != 0:
         for test_class_ref in test_class_refs:
-            __get_test_cases_in_class(test_class_ref, test_case_filter_group)
+            __find_test_cases_in_class(test_class_ref, test_case_filter_group)
 
 
-def __get_test_cases_in_class(test_class_ref, test_case_filter_group):
+def __find_test_cases_in_class(test_class_ref, test_case_filter_group):
     test_case_refs = []
     for class_element in dir(test_class_ref):
         test_case_ref = getattr(test_class_ref, class_element)
@@ -114,8 +114,6 @@ def run_test_cases(test_executor_number):
         test_executors.append(testexecutor.TestExecutor())
 
     # test suite start
-    test_suite.init_test_fixture()
-
     for test_executor in test_executors:
         test_executor.start()
 
@@ -198,16 +196,19 @@ def main(args=None):
         pconsole.write_line("=" * 100)
         pconsole.write_line(" %s" % test_case_filter_group)
 
-    # get test cases
+    # find test cases
     try:
         for test_target in test_targets:
-            get_test_cases(test_target, test_class_filter_group, test_case_filter_group)
+            find_test_cases(test_target, test_class_filter_group, test_case_filter_group)
     except ImportTestTargetError as e:
         pconsole.write_line(e.message)
         return
+    else:
+        test_cases = test_suite.test_cases
+        test_suite.init_test_fixture()
 
     # exit if no tests found
-    if len(test_suite.test_case_names) == 0:
+    if len(test_cases) == 0:
         pconsole.write_line("=" * 100)
         pconsole.write_line("No tests found. Please check your command line options.")
         return
@@ -234,13 +235,13 @@ def main(args=None):
     # sort the test groups for running
     test_suite.sort_test_classes_for_running()
     pconsole.write_line("=" * 100)
-    pconsole.write_line("Start to run following %s test(s):" % len(test_suite.test_case_names))
+    pconsole.write_line("Start to run following %s test(s):" % len(test_cases))
     pconsole.write_line("-" * 30)
-    for test_name in test_suite.test_case_names:
-        pconsole.write_line(" %s" % test_name)
+    for test_case in test_cases:
+        pconsole.write_line(" %s" % test_case.full_name)
     pconsole.write_line("=" * 100)
 
-    # clean/create temp dir
+    # clean and create temp dir
     temp_dir = config.get_option("temp")
     if os.path.exists(temp_dir):
         for root, dirs, files in os.walk(temp_dir, topdown=False):

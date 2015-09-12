@@ -99,16 +99,16 @@ class TestSuite:
         return float(passed) * 100 / total
 
     @property
-    def test_case_names(self):
+    def test_cases(self):
         """
-            The test case name list.
+            The test case list.
         """
-        test_case_names = []
+        test_case_list = []
         for test_class in self.test_classes:
             for test_group in test_class.test_groups:
                 for test_case in test_group.test_cases:
-                    test_case_names.append(test_case.full_name)
-        return test_case_names
+                    test_case_list.append(test_case)
+        return test_case_list
 
     def sort_test_classes_for_running(self):
         """
