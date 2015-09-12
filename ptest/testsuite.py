@@ -74,6 +74,16 @@ class TestSuite:
             test_group.add_test_case(test_case_ref)
 
     @property
+    def test_cases(self):
+        """
+            The test case list.
+        """
+        test_case_list = []
+        for test_class in self.test_classes:
+            test_case_list = test_case_list + test_class.test_cases
+        return test_case_list
+
+    @property
     def elapsed_time(self):
         time_delta = self.end_time - self.start_time
         seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
@@ -97,18 +107,6 @@ class TestSuite:
         if total == 0:
             return 0
         return float(passed) * 100 / total
-
-    @property
-    def test_cases(self):
-        """
-            The test case list.
-        """
-        test_case_list = []
-        for test_class in self.test_classes:
-            for test_group in test_class.test_groups:
-                for test_case in test_group.test_cases:
-                    test_case_list.append(test_case)
-        return test_case_list
 
     def sort_test_classes_for_running(self):
         """
@@ -215,6 +213,16 @@ class TestClass:
         test_group = TestGroup(name, self, test_class_ref)
         self.test_groups.append(test_group)
         return test_group
+
+    @property
+    def test_cases(self):
+        """
+            The test case list.
+        """
+        test_case_list = []
+        for test_group in self.test_groups:
+            test_case_list = test_case_list + test_group.test_cases
+        return test_case_list
 
     @property
     def elapsed_time(self):

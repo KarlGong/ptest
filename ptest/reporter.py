@@ -37,7 +37,7 @@ def generate_xunit_xml(xml_file):
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
     test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, _ = test_suite.test_case_status_count
-    test_suite_ele.setAttribute("name", "ptest")
+    test_suite_ele.setAttribute("name", test_suite.name)
     test_suite_ele.setAttribute("tests", str(test_suite_total))
     test_suite_ele.setAttribute("failures", str(test_suite_failed))
     test_suite_ele.setAttribute("skips", str(test_suite_skipped))
@@ -45,23 +45,22 @@ def generate_xunit_xml(xml_file):
     test_suite_ele.setAttribute("time", "%.3f" % test_suite.elapsed_time)
     test_suite_ele.setAttribute("timestamp", str(test_suite.start_time))
 
-    for test_class in test_suite.test_classes:
-        for test_case in test_class.test_cases:
-            test_case_ele = doc.createElement("testcase")
-            test_suite_ele.appendChild(test_case_ele)
-            test_case_ele.setAttribute("name", test_case.name)
-            test_case_ele.setAttribute("classname", test_class.full_name)
-            test_case_ele.setAttribute("time", "%.3f" % test_case.elapsed_time)
-            if test_case.status == TestCaseStatus.SKIPPED:
-                skipped_ele = doc.createElement("skipped")
-                test_case_ele.appendChild(skipped_ele)
-                skipped_ele.setAttribute("message", test_case.skip_message)
-            elif test_case.status == TestCaseStatus.FAILED:
-                failure_ele = doc.createElement("failure")
-                test_case_ele.appendChild(failure_ele)
-                failure_ele.setAttribute("message", test_case.failure_message)
-                failure_ele.setAttribute("type", test_case.failure_type)
-                failure_ele.appendChild(doc.createTextNode(test_case.stack_trace))
+    for test_case in test_suite.test_cases:
+        test_case_ele = doc.createElement("testcase")
+        test_suite_ele.appendChild(test_case_ele)
+        test_case_ele.setAttribute("name", test_case.name)
+        test_case_ele.setAttribute("classname", test_case.test_class.full_name)
+        test_case_ele.setAttribute("time", "%.3f" % test_case.elapsed_time)
+        if test_case.status == TestCaseStatus.SKIPPED:
+            skipped_ele = doc.createElement("skipped")
+            test_case_ele.appendChild(skipped_ele)
+            skipped_ele.setAttribute("message", test_case.skip_message)
+        elif test_case.status == TestCaseStatus.FAILED:
+            failure_ele = doc.createElement("failure")
+            test_case_ele.appendChild(failure_ele)
+            failure_ele.setAttribute("message", test_case.failure_message)
+            failure_ele.setAttribute("type", test_case.failure_type)
+            failure_ele.appendChild(doc.createTextNode(test_case.stack_trace))
 
     f = open(xml_file, "w")
     try:
@@ -171,7 +170,7 @@ def _generate_test_class_page(test_class, report_path):
 
     # test fixture
     def make_test_case_fixture_content(test_case_fixture):
-        if test_case_fixture:
+        if not test_case_fixture.is_empty:
             # screenshot
             test_case_fixture_screenshot_name = "" if test_case_fixture.screenshot is None else test_case_fixture.screenshot
             # logs
