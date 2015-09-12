@@ -114,26 +114,13 @@ def run_test_cases(test_executor_number):
         test_executors.append(testexecutor.TestExecutor())
 
     # test suite start
-    plistener.test_listeners.on_test_suite_start(test_suite)
-    test_suite.start_time = datetime.now()
     test_suite.init_test_fixture()
-
-    before_suite = test_suite.before_suite
-    if before_suite:
-        before_suite.run()
 
     for test_executor in test_executors:
         test_executor.start()
 
     for test_executor in test_executors:
         test_executor.join()
-
-    # test suite finish
-    after_suite = test_suite.after_suite
-    if after_suite and (before_suite.status != TestFixtureStatus.FAILED or after_suite.always_run):
-        after_suite.run()
-    test_suite.end_time = datetime.now()
-    plistener.test_listeners.on_test_suite_finish(test_suite)
 
 
 def get_rerun_targets(xml_file):

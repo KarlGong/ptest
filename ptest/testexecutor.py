@@ -1,14 +1,15 @@
 import ctypes
+import time
 from datetime import datetime
 import threading
 import traceback
 
 from .plistener import test_listeners
 from . import screencapturer
-from .enumeration import PDecoratorType, TestCaseStatus, TestFixtureStatus
+from .enumeration import TestCaseStatus, TestFixtureStatus
 from .plogger import pconsole, preporter
-from .testsuite import test_suite, NoTestFixtureAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
-    AfterGroup, Test, BeforeMethod, AfterMethod
+from .testsuite import test_suite, NoTestUnitAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
+    AfterGroup, TestCase, BeforeMethod, BeforeSuite, AfterSuite
 
 __author__ = 'karl.gong'
 
@@ -18,9 +19,9 @@ class TestFixtureExecutor(threading.Thread):
         threading.Thread.__init__(self)
         self.test_fixture = test_fixture
         self.__properties = {}
+        self.setDaemon(True)
 
     def run(self):
-        self.test_fixture.status = TestFixtureStatus.RUNNING
         self.update_properties(running_test_fixture=self.test_fixture)
         try:
             if self.test_fixture.arguments_count == 1:
@@ -36,6 +37,7 @@ class TestFixtureExecutor(threading.Thread):
             screencapturer.take_screenshot()
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
+        self.clear_properties()
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)
@@ -58,111 +60,33 @@ class TestExecutor(threading.Thread):
     def run(self):
         while True:
             try:
-                test_fixture = test_suite.pop_test_fixture()
-            except NoTestFixtureAvailableForThisThread:
+                test_unit = test_suite.pop_test_unit()
+            except NoTestUnitAvailableForThisThread:
                 break
 
-            def warn_and_mark_skipped(pdecorator_type):
-                preporter.warn("%s failed, so skipped." % pdecorator_type)
-                test_fixture.skip_message = "%s failed, so skipped." % pdecorator_type
-                test_fixture.status = TestFixtureStatus.SKIPPED
-
-            self.update_properties(running_test_fixture=test_fixture)
-
-            before_suite = test_fixture.test_suite.before_suite
-            is_before_suite_failed = before_suite and before_suite.status == TestFixtureStatus.FAILED
-
-            if isinstance(test_fixture, BeforeClass):
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                else:
-                    test_fixture.run()
+            if test_unit is None:
+                time.sleep(1)
                 continue
 
-            before_class = test_fixture.test_class.before_class
-            is_before_class_failed = before_class and before_class.status == TestFixtureStatus.FAILED
+            if isinstance(test_unit, TestCase):
+                test_case = test_unit
+                test_listeners.on_test_case_start(test_case)
+                test_case.start_time = datetime.now()
 
-            if isinstance(test_fixture, AfterClass):
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                elif is_before_class_failed and not test_fixture.always_run:
-                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                before_method = test_case.before_method
+                failed_setup_fixture = test_case.get_failed_setup_fixture()
+                if not failed_setup_fixture:
+                    before_method.run()
                 else:
-                    test_fixture.run()
-                continue
+                    before_method.skip(failed_setup_fixture)
 
-            if isinstance(test_fixture, BeforeGroup):
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                elif is_before_class_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
+                test = test_case.test
+                failed_setup_fixture = test_case.get_failed_setup_fixture()
+                if not failed_setup_fixture:
+                    test.run()
                 else:
-                    test_fixture.run()
-                continue
+                    test.skip(failed_setup_fixture)
 
-            before_group = test_fixture.test_group.before_group
-            is_before_group_failed = before_group and before_group.status == TestFixtureStatus.FAILED
-
-            if isinstance(test_fixture, AfterGroup):
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                elif is_before_class_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
-                elif is_before_group_failed and not test_fixture.always_run:
-                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
-                else:
-                    test_fixture.run()
-                continue
-
-            if isinstance(test_fixture, BeforeMethod):
-                test_listeners.on_test_case_start(test_fixture.test_case)
-                test_fixture.test_case.start_time = datetime.now()
-
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                elif is_before_class_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
-                elif is_before_group_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
-                else:
-                    test_fixture.run()
-                continue
-
-            before_method = test_fixture.test_case.before_method
-            is_before_method_failed = before_method and before_method.status == TestFixtureStatus.FAILED
-
-            if isinstance(test_fixture, AfterMethod):
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                elif is_before_class_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
-                elif is_before_group_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
-                elif is_before_method_failed and not test_fixture.always_run:
-                    warn_and_mark_skipped(PDecoratorType.BeforeMethod)
-                else:
-                    test_fixture.run()
-
-                test_fixture.test_case.end_time = datetime.now()
-                test_listeners.on_test_case_finish(test_fixture.test_case)
-                continue
-
-            if isinstance(test_fixture, Test):
-                if test_fixture.test_case.before_method is None:
-                    test_listeners.on_test_case_start(test_fixture.test_case)
-                    test_fixture.test_case.start_time = datetime.now()
-
-                if is_before_suite_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeSuite)
-                elif is_before_class_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeClass)
-                elif is_before_group_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeGroup)
-                elif is_before_method_failed:
-                    warn_and_mark_skipped(PDecoratorType.BeforeMethod)
-                else:
-                    test_fixture.run()
-                test_case = test_fixture.test_case
                 logger_filler = "-" * (100 - len(test_case.full_name) - 6)
                 if test_case.status == TestCaseStatus.PASSED:
                     pconsole.write_line("%s%s|PASS|" % (test_case.full_name, logger_filler))
@@ -171,11 +95,73 @@ class TestExecutor(threading.Thread):
                 elif test_case.status == TestCaseStatus.SKIPPED:
                     pconsole.write_line("%s%s|SKIP|" % (test_case.full_name, logger_filler))
 
-                if test_fixture.test_case.after_method is None:
-                    test_fixture.test_case.end_time = datetime.now()
-                    test_listeners.on_test_case_finish(test_fixture.test_case)
+                after_method = test_case.after_method
+                failed_setup_fixture = test_case.get_failed_setup_fixture()
+                if not failed_setup_fixture or (
+                    isinstance(failed_setup_fixture, BeforeMethod) and after_method.always_run):
+                    after_method.run()
+                else:
+                    after_method.skip(failed_setup_fixture)
 
-            self.clear_properties()
+                test_case.end_time = datetime.now()
+                test_case.is_finished = True
+                test_listeners.on_test_case_finish(test_case)
+
+            elif isinstance(test_unit, BeforeSuite):
+                test_listeners.on_test_suite_start(test_unit.test_suite)
+                test_unit.test_suite.start_time = datetime.now()
+                test_unit.run()
+                test_unit.test_suite.is_running_setup_fixture = False
+
+            elif isinstance(test_unit, AfterSuite):
+                failed_setup_fixture = test_unit.test_suite.get_failed_setup_fixture()
+                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeSuite) and test_unit.always_run):
+                    test_unit.run()
+                else:
+                    test_unit.skip(failed_setup_fixture)
+                test_unit.test_suite.end_time = datetime.now()
+                test_unit.test_suite.is_finished = True
+                test_listeners.on_test_suite_finish(test_unit.test_suite)
+
+            elif isinstance(test_unit, BeforeClass):
+                test_listeners.on_test_class_start(test_unit.test_class)
+                test_unit.test_class.start_time = datetime.now()
+                failed_setup_fixture = test_unit.test_class.get_failed_setup_fixture()
+                if not failed_setup_fixture:
+                    test_unit.run()
+                else:
+                    test_unit.skip(failed_setup_fixture)
+                test_unit.test_class.is_running_setup_fixture = False
+
+            elif isinstance(test_unit, AfterClass):
+                failed_setup_fixture = test_unit.test_class.get_failed_setup_fixture()
+                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeClass) and test_unit.always_run):
+                    test_unit.run()
+                else:
+                    test_unit.skip(failed_setup_fixture)
+                test_unit.test_class.end_time = datetime.now()
+                test_unit.test_class.is_finished = True
+                test_listeners.on_test_class_finish(test_unit.test_class)
+
+            elif isinstance(test_unit, BeforeGroup):
+                test_listeners.on_test_group_start(test_unit.test_group)
+                test_unit.test_group.start_time = datetime.now()
+                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
+                if not failed_setup_fixture:
+                    test_unit.run()
+                else:
+                    test_unit.skip(failed_setup_fixture)
+                test_unit.test_group.is_running_setup_fixture = False
+
+            elif isinstance(test_unit, AfterGroup):
+                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
+                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeGroup) and test_unit.always_run):
+                    test_unit.run()
+                else:
+                    test_unit.skip(failed_setup_fixture)
+                test_unit.test_group.end_time = datetime.now()
+                test_unit.test_group.is_finished = True
+                test_listeners.on_test_group_finish(test_unit.test_group)
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)
@@ -207,7 +193,7 @@ def get_name():
 
 
 def kill_thread(thread):
-    """Terminates a python thread from another thread.
+    """Kill a python thread from another thread.
 
     :param thread: a threading.Thread instance
     """

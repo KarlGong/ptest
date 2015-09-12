@@ -22,9 +22,12 @@ class TestSuite:
         self.test_classes = []
         self.start_time = None
         self.end_time = None
+        self.is_popped = False
+        self.is_finished = False
+        self.is_running_setup_fixture = False
         self.name = name
-        self.before_suite = None
-        self.after_suite = None
+        self.before_suite = BeforeSuite(self, None)
+        self.after_suite = AfterSuite(self, None)
         self.__lock = threading.Lock()
 
     def init_test_fixture(self):
@@ -42,6 +45,11 @@ class TestSuite:
                         self.before_suite = BeforeSuite(self, attr)
                     elif pd_type == PDecoratorType.AfterSuite:
                         self.after_suite = AfterSuite(self, attr)
+
+    def get_failed_setup_fixture(self):
+        if self.before_suite.status == TestFixtureStatus.FAILED:
+            return self.before_suite
+        return None
 
     def get_test_class(self, full_name):
         for test_class in self.test_classes:
@@ -115,28 +123,45 @@ class TestSuite:
         """
         self.test_classes = sorted(self.test_classes, key=lambda item: item.full_name)
 
-    def pop_test_fixture(self):
+    def pop_test_unit(self):
         from . import testexecutor
         current_thread_name = testexecutor.get_name()
         self.__lock.acquire()
         try:
+            if not self.before_suite.is_popped:
+                self.before_suite.is_popped = True
+                self.is_running_setup_fixture = True
+                return self.before_suite
+
+            if not self.before_suite.is_finished:
+                return None
+
             for test_class in self.test_classes:
-                if test_class.popped:
+                if test_class.is_popped or test_class.is_running_setup_fixture:
                     continue
                 if test_class.run_mode == TestClassRunMode.SingleLine:
                     if test_class.run_thread == current_thread_name:
-                        return test_class.pop_test_fixture()
+                        return test_class.pop_test_unit()
                     elif test_class.run_thread is None:
                         test_class.run_thread = current_thread_name
-                        return test_class.pop_test_fixture()
+                        return test_class.pop_test_unit()
                 else:
-                    return test_class.pop_test_fixture()
-            raise NoTestFixtureAvailableForThisThread
+                    return test_class.pop_test_unit()
+
+            for test_class in self.test_classes:
+                if not test_class.is_finished:
+                    return None
+
+            if not self.after_suite.is_popped:
+                self.after_suite.is_popped = True
+                self.is_popped = True
+                return self.after_suite
+
+            raise NoTestUnitAvailableForThisThread
         finally:
             self.__lock.release()
 
-
-class NoTestFixtureAvailableForThisThread(Exception):
+class NoTestUnitAvailableForThisThread(Exception):
     pass
 
 
@@ -147,13 +172,17 @@ class TestClass:
         self.test_groups = []
         self.name = test_class_ref.__class__.__name__
         self.full_name = test_class_ref.__full_name__
-        self.popped = False
+        self.start_time = None
+        self.end_time = None
+        self.is_popped = False
+        self.is_finished = False
+        self.is_running_setup_fixture = False
         self.run_thread = None
         self.run_mode = test_class_ref.__run_mode__
         self.description = test_class_ref.__description__
 
-        self.before_class = None
-        self.after_class = None
+        self.before_class = BeforeClass(self, None)
+        self.after_class = AfterClass(self, None)
         # reflect the before class and after class
         for element in dir(test_class_ref):
             attr = getattr(test_class_ref, element)
@@ -168,6 +197,14 @@ class TestClass:
                 elif pd_type == PDecoratorType.AfterClass:
                     self.after_class = AfterClass(self, attr)
 
+    def get_failed_setup_fixture(self):
+        setup_fixture =  self.test_suite.get_failed_setup_fixture()
+        if setup_fixture:
+            return setup_fixture
+        if self.before_class.status == TestFixtureStatus.FAILED:
+            return self.before_class
+        return None
+
     def get_test_group(self, name):
         for test_group in self.test_groups:
             if test_group.name == name:
@@ -178,14 +215,6 @@ class TestClass:
         test_group = TestGroup(name, self, test_class_ref)
         self.test_groups.append(test_group)
         return test_group
-
-    @property
-    def start_time(self):
-        return min([test_group.start_time for test_group in self.test_groups])
-
-    @property
-    def end_time(self):
-        return max([test_group.end_time for test_group in self.test_groups])
 
     @property
     def elapsed_time(self):
@@ -212,18 +241,27 @@ class TestClass:
             return 0
         return float(passed) * 100 / total
 
-    def pop_test_fixture(self):
-        if self.before_class and not self.after_class.popped:
-            self.before_class.popped = True
+    def pop_test_unit(self):
+        if not self.before_class.is_popped:
+            self.before_class.is_popped = True
+            self.is_running_setup_fixture = True
             return self.before_class
+
+        if not self.before_class.is_finished:
+            return None
+
         for test_group in self.test_groups:
-            if not test_group.popped:
-                if not self.after_class and test_group is self.test_groups[-1]:
-                    self.popped = True
-                return test_group.pop_test_fixture()
-        if self.after_class and not self.after_class.popped:
-            self.after_class.popped = True
-            self.popped = True
+            if test_group.is_popped or test_group.is_running_setup_fixture:
+                continue
+            return test_group.pop_test_unit()
+
+        for test_group in self.test_groups:
+            if not test_group.is_finished:
+                return None
+
+        if not self.after_class.is_popped:
+            self.after_class.is_popped = True
+            self.is_popped = True
             return self.after_class
 
 
@@ -235,10 +273,14 @@ class TestGroup:
         self.test_cases = []
         self.name = name
         self.full_name = "%s(%s)" % (test_class.full_name, name)
-        self.popped = False
+        self.start_time = None
+        self.end_time = None
+        self.is_popped = False
+        self.is_finished = False
+        self.is_running_setup_fixture = False
 
-        self.before_group = None
-        self.after_group = None
+        self.before_group = BeforeGroup(self, None)
+        self.after_group = AfterGroup(self, None)
         # reflect the before group and after group
         for element in dir(test_class_ref):
             attr = getattr(test_class_ref, element)
@@ -254,6 +296,14 @@ class TestGroup:
                 elif pd_type == PDecoratorType.AfterGroup:
                     self.after_group = AfterGroup(self, attr)
 
+    def get_failed_setup_fixture(self):
+        setup_fixture =  self.test_class.get_failed_setup_fixture()
+        if setup_fixture:
+            return setup_fixture
+        if self.before_group.status == TestFixtureStatus.FAILED:
+            return self.before_group
+        return None
+
     def get_test_case(self, name):
         for test_case in self.test_cases:
             if test_case.name == name:
@@ -264,18 +314,6 @@ class TestGroup:
         test_case = TestCase(self, test_case_ref)
         self.test_cases.append(test_case)
         return test_case
-
-    @property
-    def start_time(self):
-        if self.before_group:
-            return self.before_group.start_time
-        return min([test_case.start_time for test_case in self.test_cases])
-
-    @property
-    def end_time(self):
-        if self.after_group:
-            return self.after_group.end_time
-        return max([test_case.end_time for test_case in self.test_cases])
 
     @property
     def elapsed_time(self):
@@ -306,18 +344,27 @@ class TestGroup:
             return 0
         return float(passed) * 100 / total
 
-    def pop_test_fixture(self):
-        if self.before_group and not self.before_group.popped:
-            self.before_group.popped = True
+    def pop_test_unit(self):
+        if not self.before_group.is_popped:
+            self.before_group.is_popped = True
+            self.is_running_setup_fixture = True
             return self.before_group
+
+        if not self.before_group.is_finished:
+            return None
+
         for test_case in self.test_cases:
-            if not test_case.popped:
-                if not self.after_group and test_case is self.test_cases[-1]:
-                    self.popped = True
-                return test_case.pop_test_fixture()
-        if self.after_group and not self.after_group.popped:
-            self.after_group.popped = True
-            self.popped = True
+            if not test_case.is_popped:
+                test_case.is_popped = True
+                return test_case
+
+        for test_case in self.test_cases:
+            if not test_case.is_finished:
+                return None
+
+        if not self.after_group.is_popped:
+            self.after_group.is_popped = True
+            self.is_popped = True
             return self.after_group
 
 
@@ -331,7 +378,8 @@ class TestCase:
         self.full_name = "%s.%s" % (self.test_group.test_class.full_name, self.name)
         self.start_time = None
         self.end_time = None
-        self.popped = False
+        self.is_popped = False
+        self.is_finished = False
 
         self.test = Test(self, test_case_ref)
 
@@ -340,8 +388,8 @@ class TestCase:
         self.description = self.test.description
         self.location = self.test.location
 
-        self.before_method = None
-        self.after_method = None
+        self.before_method = BeforeMethod(self, None)
+        self.after_method = AfterMethod(self, None)
         # reflect the before method and after method
         for element in dir(test_case_ref.__self__):
             attr = getattr(test_case_ref.__self__, element)
@@ -356,6 +404,14 @@ class TestCase:
                     self.before_method = BeforeMethod(self, attr)
                 elif pd_type == PDecoratorType.AfterMethod:
                     self.after_method = AfterMethod(self, attr)
+
+    def get_failed_setup_fixture(self):
+        setup_fixture =  self.test_group.get_failed_setup_fixture()
+        if setup_fixture:
+            return setup_fixture
+        if self.before_method.status == TestFixtureStatus.FAILED:
+            return self.before_method
+        return None
 
     @property
     def failure_message(self):
@@ -379,32 +435,24 @@ class TestCase:
 
     @property
     def elapsed_time(self):
-        time_delta = self.end_time - self.start_time
-        seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-        return seconds
-
-    def pop_test_fixture(self):
-        if self.before_method and not self.before_method.popped:
-            self.before_method.popped = True
-            return self.before_method
-        elif not self.test.popped:
-            self.test.popped = True
-            if not self.after_method:
-                self.popped = True
-            return self.test
-        elif self.after_method and not self.after_method.popped:
-            self.after_method.popped = True
-            self.popped = True
-            return self.after_method
-
+        return self.test.elapsed_time
 
 class TestFixture:
     def __init__(self, context, test_fixture_ref, fixture_type):
+        if test_fixture_ref is None:
+            self.context = context
+            self.is_empty = True
+            self.is_popped = False
+            self.is_finished = False
+            self.status = TestFixtureStatus.NOT_RUN
+            return
         self.context = context
         self.test_fixture_ref = test_fixture_ref
         self.fixture_type = fixture_type
         self.status = TestFixtureStatus.NOT_RUN
-        self.popped = False
+        self.is_empty = False
+        self.is_popped = False
+        self.is_finished = False
         self.failure_message = ""
         self.failure_type = ""
         self.stack_trace = ""
@@ -426,9 +474,16 @@ class TestFixture:
                 "arguments number of %s() is not acceptable. Please give 1 or 2 arguments." % self.test_fixture_ref.__name__)
 
     def run(self):
-        from .testexecutor import TestFixtureExecutor, kill_thread
-        test_fixture_executor = TestFixtureExecutor(self)
+        if self.is_empty:
+            self.is_finished = True
+            self.status = TestFixtureStatus.PASSED
+            return
+
+        from . import testexecutor
+        test_fixture_executor = testexecutor.TestFixtureExecutor(self)
         self.start_time = datetime.now()
+        self.status = TestFixtureStatus.RUNNING
+        testexecutor.update_properties(running_test_fixture=self)
         test_fixture_executor.start()
         if self.timeout > 0:
             test_fixture_executor.join(self.timeout)
@@ -442,9 +497,28 @@ class TestFixture:
                 preporter.error(
                     "Failed with following message:\n" + self.failure_message)
                 screencapturer.take_screenshot()
-                kill_thread(test_fixture_executor)
+                testexecutor.kill_thread(test_fixture_executor)
         else:
             test_fixture_executor.join()
+        testexecutor.clear_properties()
+        self.is_finished = True
+        self.end_time = datetime.now()
+
+    def skip(self, caused_test_fixture):
+        if self.is_empty:
+            self.is_finished = True
+            self.status = TestFixtureStatus.SKIPPED
+            return
+
+        from . import testexecutor
+        from .plogger import preporter
+        self.start_time = datetime.now()
+        testexecutor.update_properties(running_test_fixture=self)
+        self.status = TestFixtureStatus.SKIPPED
+        self.skip_message = "%s failed, so skipped." % caused_test_fixture.fixture_type
+        preporter.warn("%s failed, so skipped." % caused_test_fixture.fixture_type)
+        testexecutor.clear_properties()
+        self.is_finished = True
         self.end_time = datetime.now()
 
     @property
@@ -457,54 +531,63 @@ class TestFixture:
 class BeforeSuite(TestFixture):
     def __init__(self, test_suite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.BeforeSuite)
-        self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
         self.test_suite = self.context
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
 
 
 class AfterSuite(TestFixture):
     def __init__(self, test_suite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.AfterSuite)
-        self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
         self.test_suite = self.context
-        self.always_run = test_fixture_ref.__always_run__
+        self.always_run = False
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
+            self.always_run = test_fixture_ref.__always_run__
 
 
 class BeforeClass(TestFixture):
     def __init__(self, test_class, test_fixture_ref):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.BeforeClass)
-        self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
 
 
 class AfterClass(TestFixture):
     def __init__(self, test_class, test_fixture_ref):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.AfterClass)
-        self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
-        self.always_run = test_fixture_ref.__always_run__
+        self.always_run = False
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
+            self.always_run = test_fixture_ref.__always_run__
 
 
 class BeforeGroup(TestFixture):
     def __init__(self, test_group, test_fixture_ref):
-        TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.BeforeClass)
-        self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
+        TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.BeforeGroup)
         self.test_group = self.context
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
-        self.group = test_fixture_ref.__group__
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
+            self.group = test_fixture_ref.__group__
 
 
 class AfterGroup(TestFixture):
     def __init__(self, test_group, test_fixture_ref):
-        TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.AfterClass)
-        self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
+        TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.AfterGroup)
         self.test_group = self.context
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
-        self.always_run = test_fixture_ref.__always_run__
-        self.group = test_fixture_ref.__group__
+        self.always_run = False
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
+            self.always_run = test_fixture_ref.__always_run__
+            self.group = test_fixture_ref.__group__
 
 
 class Test(TestFixture):
@@ -522,24 +605,27 @@ class Test(TestFixture):
 class BeforeMethod(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.BeforeMethod)
-        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
         self.test_case = self.context
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
         self.test_suite = self.test_case.test_suite
-        self.group = test_fixture_ref.__group__
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+            self.group = test_fixture_ref.__group__
 
 
 class AfterMethod(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.AfterMethod)
-        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
         self.test_case = self.context
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
         self.test_suite = self.test_case.test_suite
-        self.always_run = test_fixture_ref.__always_run__
-        self.group = test_fixture_ref.__group__
+        self.always_run = False
+        if not self.is_empty:
+            self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+            self.always_run = test_fixture_ref.__always_run__
+            self.group = test_fixture_ref.__group__
 
 
 test_suite = TestSuite("DefaultSuite")

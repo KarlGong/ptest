@@ -66,7 +66,7 @@ def AfterClass(enabled=True, always_run=False, description="", timeout=0):
 
 def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0):
     def handle_func(func):
-        func.__pd_type__ = PDecoratorType.AfterClass
+        func.__pd_type__ = PDecoratorType.BeforeGroup
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
@@ -78,7 +78,7 @@ def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0):
 
 def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
     def handle_func(func):
-        func.__pd_type__ = PDecoratorType.AfterClass
+        func.__pd_type__ = PDecoratorType.AfterGroup
         func.__enabled__ = enabled
         func.__always_run__ = always_run
         func.__group__ = group
