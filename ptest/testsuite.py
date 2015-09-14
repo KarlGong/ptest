@@ -18,19 +18,54 @@ __author__ = 'karl.gong'
 SECOND_MICROSECOND_CONVERSION_FACTOR = 1000000.0
 
 
-class TestSuite:
-    def __init__(self, name):
-        self.test_classes = []
+class TestContainer:
+    def __init__(self):
         self.start_time = None
         self.end_time = None
+        self.test_cases = []
+
+    @property
+    def elapsed_time(self):
+        time_delta = self.end_time - self.start_time
+        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
+
+    @property
+    def test_case_status_count(self):
+        total, passed, failed, skipped, not_run = 0, 0, 0, 0, 0
+        for test_case in self.test_cases:
+            total += 1
+            status = test_case.status
+            if status == TestCaseStatus.PASSED:
+                passed += 1
+            elif status == TestCaseStatus.FAILED:
+                failed += 1
+            elif status == TestCaseStatus.SKIPPED:
+                skipped += 1
+            elif status == TestCaseStatus.NOT_RUN:
+                not_run += 1
+        return total, passed, failed, skipped, not_run
+
+    @property
+    def pass_rate(self):
+        total, passed, _, _, _ = self.test_case_status_count
+        if total == 0:
+            return 0
+        return float(passed) * 100 / total
+
+
+class TestSuite(TestContainer):
+    def __init__(self, name):
+        TestContainer.__init__(self)
+        self.test_classes = []
         self.name = name
+        self.full_name = name
         self.before_suite = BeforeSuite(self, None)
         self.after_suite = AfterSuite(self, None)
         self.__lock = threading.Lock()
 
     def init_test_fixture(self):
+        # reflect the before suite and after suite
         for test_class in self.test_classes:
-            # reflect the before class and after class
             for element in dir(test_class.test_class_ref):
                 attr = getattr(test_class.test_class_ref, element)
                 try:
@@ -55,55 +90,21 @@ class TestSuite:
                 return test_class
         return None
 
-    def add_test_class(self, test_class_ref):
-        test_class = TestClass(self, test_class_ref)
-        self.test_classes.append(test_class)
-        return test_class
-
     def add_test_case(self, test_class_ref, test_case_ref):
         test_class = self.get_test_class(test_class_ref.__full_name__)
         if test_class is None:
-            test_class = self.add_test_class(test_class_ref)
+            test_class = TestClass(self, test_class_ref)
+            self.test_classes.append(test_class)
         test_group = test_class.get_test_group(test_case_ref.__group__)
         if test_group is None:
-            test_group = test_class.add_test_group(test_case_ref.__group__, test_class_ref)
+            test_group = TestGroup(test_class, test_case_ref.__group__, test_class_ref)
+            test_class.test_groups.append(test_group)
         test_case = test_group.get_test_case(test_case_ref.__name__)
         if test_case is None:
-            test_group.add_test_case(test_case_ref)
-
-    @property
-    def test_cases(self):
-        """
-            The test case list.
-        """
-        test_case_list = []
-        for test_class in self.test_classes:
-            test_case_list = test_case_list + test_class.test_cases
-        return test_case_list
-
-    @property
-    def elapsed_time(self):
-        time_delta = self.end_time - self.start_time
-        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-
-    @property
-    def test_case_status_count(self):
-        total, passed, failed, skipped, not_run = 0, 0, 0, 0, 0
-        for test_class in self.test_classes:
-            t, p, f, s, n = test_class.test_case_status_count
-            total += t
-            passed += p
-            failed += f
-            skipped += s
-            not_run += n
-        return total, passed, failed, skipped, not_run
-
-    @property
-    def pass_rate(self):
-        total, passed, _, _, _ = self.test_case_status_count
-        if total == 0:
-            return 0
-        return float(passed) * 100 / total
+            test_case = TestCase(test_group, test_case_ref)
+            test_group.test_cases.append(test_case)
+            test_class.test_cases.append(test_case)
+            self.test_cases.append(test_case)
 
     def sort_test_classes_for_running(self):
         """
@@ -178,15 +179,14 @@ class NoTestUnitAvailableForThisThread(Exception):
     pass
 
 
-class TestClass:
+class TestClass(TestContainer):
     def __init__(self, test_suite, test_class_ref):
+        TestContainer.__init__(self)
         self.test_suite = test_suite
         self.test_class_ref = test_class_ref
         self.test_groups = []
         self.name = test_class_ref.__class__.__name__
         self.full_name = test_class_ref.__full_name__
-        self.start_time = None
-        self.end_time = None
         self.run_thread = None
         self.run_mode = test_class_ref.__run_mode__
         self.description = test_class_ref.__description__
@@ -220,45 +220,6 @@ class TestClass:
             if test_group.name == name:
                 return test_group
         return None
-
-    def add_test_group(self, name, test_class_ref):
-        test_group = TestGroup(name, self, test_class_ref)
-        self.test_groups.append(test_group)
-        return test_group
-
-    @property
-    def test_cases(self):
-        """
-            The test case list.
-        """
-        test_case_list = []
-        for test_group in self.test_groups:
-            test_case_list = test_case_list + test_group.test_cases
-        return test_case_list
-
-    @property
-    def elapsed_time(self):
-        time_delta = self.end_time - self.start_time
-        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-
-    @property
-    def test_case_status_count(self):
-        total, passed, failed, skipped, not_run = 0, 0, 0, 0, 0
-        for test_group in self.test_groups:
-            t, p, f, s, n = test_group.test_case_status_count
-            total += t
-            passed += p
-            failed += f
-            skipped += s
-            not_run += n
-        return total, passed, failed, skipped, not_run
-
-    @property
-    def pass_rate(self):
-        total, passed, _, _, _ = self.test_case_status_count
-        if total == 0:
-            return 0
-        return float(passed) * 100 / total
 
     @property
     def pop_status(self):
@@ -295,16 +256,15 @@ class TestClass:
             return self.after_class
 
 
-class TestGroup:
-    def __init__(self, name, test_class, test_class_ref):
+class TestGroup(TestContainer):
+    def __init__(self, test_class, name, test_class_ref):
+        TestContainer.__init__(self)
         self.test_class = test_class
         self.test_suite = self.test_class.test_suite
         self.test_class_ref = test_class_ref
         self.test_cases = []
         self.name = name
         self.full_name = "%s(%s)" % (test_class.full_name, name)
-        self.start_time = None
-        self.end_time = None
 
         self.before_group = BeforeGroup(self, None)
         self.after_group = AfterGroup(self, None)
@@ -336,39 +296,6 @@ class TestGroup:
             if test_case.name == name:
                 return test_case
         return None
-
-    def add_test_case(self, test_case_ref):
-        test_case = TestCase(self, test_case_ref)
-        self.test_cases.append(test_case)
-        return test_case
-
-    @property
-    def elapsed_time(self):
-        time_delta = self.end_time - self.start_time
-        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-
-    @property
-    def test_case_status_count(self):
-        total, passed, failed, skipped, not_run = 0, 0, 0, 0, 0
-        for test_case in self.test_cases:
-            total += 1
-            status = test_case.status
-            if status == TestCaseStatus.PASSED:
-                passed += 1
-            elif status == TestCaseStatus.FAILED:
-                failed += 1
-            elif status == TestCaseStatus.SKIPPED:
-                skipped += 1
-            elif status == TestCaseStatus.NOT_RUN:
-                not_run += 1
-        return total, passed, failed, skipped, not_run
-
-    @property
-    def pass_rate(self):
-        total, passed, _, _, _ = self.test_case_status_count
-        if total == 0:
-            return 0
-        return float(passed) * 100 / total
 
     @property
     def pop_status(self):
@@ -487,6 +414,7 @@ class TestFixture:
         self.context = context
         self.test_fixture_ref = test_fixture_ref
         self.fixture_type = fixture_type
+        self.name = test_fixture_ref.__name__
         self.status = TestFixtureStatus.NOT_RUN
         self.is_empty = False
         self.pop_status = PopStatus.UNPOPPED
