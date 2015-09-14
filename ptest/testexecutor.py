@@ -6,7 +6,7 @@ import traceback
 
 from .plistener import test_listeners
 from . import screencapturer
-from .enumeration import TestCaseStatus, TestFixtureStatus
+from .enumeration import TestCaseStatus, TestFixtureStatus, PopStatus
 from .plogger import pconsole, preporter
 from .testsuite import test_suite, NoTestUnitAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
     AfterGroup, TestCase, BeforeMethod, BeforeSuite, AfterSuite
@@ -104,14 +104,13 @@ class TestExecutor(threading.Thread):
                     after_method.skip(failed_setup_fixture)
 
                 test_case.end_time = datetime.now()
-                test_case.is_finished = True
+                test_case.pop_status = PopStatus.FINISHED
                 test_listeners.on_test_case_finish(test_case)
 
             elif isinstance(test_unit, BeforeSuite):
                 test_listeners.on_test_suite_start(test_unit.test_suite)
                 test_unit.test_suite.start_time = datetime.now()
                 test_unit.run()
-                test_unit.test_suite.is_running_setup_fixture = False
 
             elif isinstance(test_unit, AfterSuite):
                 failed_setup_fixture = test_unit.test_suite.get_failed_setup_fixture()
@@ -120,7 +119,6 @@ class TestExecutor(threading.Thread):
                 else:
                     test_unit.skip(failed_setup_fixture)
                 test_unit.test_suite.end_time = datetime.now()
-                test_unit.test_suite.is_finished = True
                 test_listeners.on_test_suite_finish(test_unit.test_suite)
 
             elif isinstance(test_unit, BeforeClass):
@@ -131,7 +129,6 @@ class TestExecutor(threading.Thread):
                     test_unit.run()
                 else:
                     test_unit.skip(failed_setup_fixture)
-                test_unit.test_class.is_running_setup_fixture = False
 
             elif isinstance(test_unit, AfterClass):
                 failed_setup_fixture = test_unit.test_class.get_failed_setup_fixture()
@@ -140,7 +137,6 @@ class TestExecutor(threading.Thread):
                 else:
                     test_unit.skip(failed_setup_fixture)
                 test_unit.test_class.end_time = datetime.now()
-                test_unit.test_class.is_finished = True
                 test_listeners.on_test_class_finish(test_unit.test_class)
 
             elif isinstance(test_unit, BeforeGroup):
@@ -151,7 +147,6 @@ class TestExecutor(threading.Thread):
                     test_unit.run()
                 else:
                     test_unit.skip(failed_setup_fixture)
-                test_unit.test_group.is_running_setup_fixture = False
 
             elif isinstance(test_unit, AfterGroup):
                 failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
@@ -160,7 +155,6 @@ class TestExecutor(threading.Thread):
                 else:
                     test_unit.skip(failed_setup_fixture)
                 test_unit.test_group.end_time = datetime.now()
-                test_unit.test_group.is_finished = True
                 test_listeners.on_test_group_finish(test_unit.test_group)
 
     def update_properties(self, **kwargs):

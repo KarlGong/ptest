@@ -1,5 +1,6 @@
-from datetime import datetime
 import os
+
+from datetime import datetime
 
 try:
     from urlparse import urljoin
@@ -10,7 +11,7 @@ except ImportError:
 import inspect
 import threading
 
-from .enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType, TestFixtureStatus
+from .enumeration import TestClassRunMode, TestCaseStatus, PDecoratorType, TestFixtureStatus, PopStatus
 
 __author__ = 'karl.gong'
 
@@ -22,9 +23,6 @@ class TestSuite:
         self.test_classes = []
         self.start_time = None
         self.end_time = None
-        self.is_popped = False
-        self.is_finished = False
-        self.is_running_setup_fixture = False
         self.name = name
         self.before_suite = BeforeSuite(self, None)
         self.after_suite = AfterSuite(self, None)
@@ -121,43 +119,61 @@ class TestSuite:
         """
         self.test_classes = sorted(self.test_classes, key=lambda item: item.full_name)
 
+    @property
+    def pop_status(self):
+        if self.before_suite.pop_status == PopStatus.UNPOPPED:
+            return PopStatus.UNPOPPED
+
+        if self.before_suite.pop_status == PopStatus.RUNNING:
+            return PopStatus.BLOCKING
+
+        test_class_pop_statuses = set([test_class.pop_status for test_class in self.test_classes])
+
+        if test_class_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING}:
+            return PopStatus.BLOCKING
+
+        if test_class_pop_statuses == {PopStatus.FINISHED}:
+            if self.after_suite.pop_status == PopStatus.RUNNING:
+                return PopStatus.BLOCKING
+            if self.after_suite.pop_status == PopStatus.FINISHED:
+                return PopStatus.FINISHED
+
+        return PopStatus.RUNNING
+
     def pop_test_unit(self):
         from . import testexecutor
         current_thread_name = testexecutor.get_name()
         self.__lock.acquire()
         try:
-            if not self.before_suite.is_popped:
-                self.before_suite.is_popped = True
-                self.is_running_setup_fixture = True
+            if self.before_suite.pop_status == PopStatus.UNPOPPED:
+                self.before_suite.pop_status = PopStatus.RUNNING
                 return self.before_suite
 
-            if not self.before_suite.is_finished:
+            if self.pop_status == PopStatus.BLOCKING:
                 return None
 
             for test_class in self.test_classes:
-                if test_class.is_popped or test_class.is_running_setup_fixture:
-                    continue
-                if test_class.run_mode == TestClassRunMode.SingleLine:
-                    if test_class.run_thread == current_thread_name:
+                if test_class.pop_status in [PopStatus.UNPOPPED, PopStatus.RUNNING]:
+                    if test_class.run_mode == TestClassRunMode.SingleLine:
+                        if test_class.run_thread == current_thread_name:
+                            return test_class.pop_test_unit()
+                        elif test_class.run_thread is None:
+                            test_class.run_thread = current_thread_name
+                            return test_class.pop_test_unit()
+                    else:
                         return test_class.pop_test_unit()
-                    elif test_class.run_thread is None:
-                        test_class.run_thread = current_thread_name
-                        return test_class.pop_test_unit()
-                else:
-                    return test_class.pop_test_unit()
 
-            for test_class in self.test_classes:
-                if not test_class.is_finished:
-                    return None
+            if self.pop_status == PopStatus.BLOCKING:
+                return None
 
-            if not self.after_suite.is_popped:
-                self.after_suite.is_popped = True
-                self.is_popped = True
+            if self.after_suite.pop_status == PopStatus.UNPOPPED:
+                self.after_suite.pop_status = PopStatus.RUNNING
                 return self.after_suite
 
             raise NoTestUnitAvailableForThisThread
         finally:
             self.__lock.release()
+
 
 class NoTestUnitAvailableForThisThread(Exception):
     pass
@@ -172,9 +188,6 @@ class TestClass:
         self.full_name = test_class_ref.__full_name__
         self.start_time = None
         self.end_time = None
-        self.is_popped = False
-        self.is_finished = False
-        self.is_running_setup_fixture = False
         self.run_thread = None
         self.run_mode = test_class_ref.__run_mode__
         self.description = test_class_ref.__description__
@@ -196,7 +209,7 @@ class TestClass:
                     self.after_class = AfterClass(self, attr)
 
     def get_failed_setup_fixture(self):
-        setup_fixture =  self.test_suite.get_failed_setup_fixture()
+        setup_fixture = self.test_suite.get_failed_setup_fixture()
         if setup_fixture:
             return setup_fixture
         if self.before_class.status == TestFixtureStatus.FAILED:
@@ -249,27 +262,38 @@ class TestClass:
             return 0
         return float(passed) * 100 / total
 
+    @property
+    def pop_status(self):
+        if self.before_class.pop_status == PopStatus.UNPOPPED:
+            return PopStatus.UNPOPPED
+
+        if self.before_class.pop_status == PopStatus.RUNNING:
+            return PopStatus.BLOCKING
+
+        test_group_pop_statuses = set([test_group.pop_status for test_group in self.test_groups])
+
+        if test_group_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING}:
+            return PopStatus.BLOCKING
+
+        if test_group_pop_statuses == {PopStatus.FINISHED}:
+            if self.after_class.pop_status == PopStatus.RUNNING:
+                return PopStatus.BLOCKING
+            if self.after_class.pop_status == PopStatus.FINISHED:
+                return PopStatus.FINISHED
+
+        return PopStatus.RUNNING
+
     def pop_test_unit(self):
-        if not self.before_class.is_popped:
-            self.before_class.is_popped = True
-            self.is_running_setup_fixture = True
+        if self.before_class == PopStatus.UNPOPPED:
+            self.before_class.pop_status = PopStatus.RUNNING
             return self.before_class
 
-        if not self.before_class.is_finished:
-            return None
-
         for test_group in self.test_groups:
-            if test_group.is_popped or test_group.is_running_setup_fixture:
-                continue
-            return test_group.pop_test_unit()
+            if test_group.pop_status in [PopStatus.UNPOPPED, PopStatus.RUNNING]:
+                return test_group.pop_test_unit()
 
-        for test_group in self.test_groups:
-            if not test_group.is_finished:
-                return None
-
-        if not self.after_class.is_popped:
-            self.after_class.is_popped = True
-            self.is_popped = True
+        if self.after_class == PopStatus.UNPOPPED:
+            self.after_class.pop_status = PopStatus.RUNNING
             return self.after_class
 
 
@@ -283,9 +307,6 @@ class TestGroup:
         self.full_name = "%s(%s)" % (test_class.full_name, name)
         self.start_time = None
         self.end_time = None
-        self.is_popped = False
-        self.is_finished = False
-        self.is_running_setup_fixture = False
 
         self.before_group = BeforeGroup(self, None)
         self.after_group = AfterGroup(self, None)
@@ -305,7 +326,7 @@ class TestGroup:
                     self.after_group = AfterGroup(self, attr)
 
     def get_failed_setup_fixture(self):
-        setup_fixture =  self.test_class.get_failed_setup_fixture()
+        setup_fixture = self.test_class.get_failed_setup_fixture()
         if setup_fixture:
             return setup_fixture
         if self.before_group.status == TestFixtureStatus.FAILED:
@@ -352,27 +373,39 @@ class TestGroup:
             return 0
         return float(passed) * 100 / total
 
+    @property
+    def pop_status(self):
+        if self.before_group.pop_status == PopStatus.UNPOPPED:
+            return PopStatus.UNPOPPED
+
+        if self.before_group.pop_status == PopStatus.RUNNING:
+            return PopStatus.BLOCKING
+
+        test_case_pop_statuses = set([test_case.pop_status for test_case in self.test_cases])
+
+        if test_case_pop_statuses == {PopStatus.RUNNING, PopStatus.FINISHED}:
+            return PopStatus.BLOCKING
+
+        if test_case_pop_statuses == {PopStatus.FINISHED}:
+            if self.after_group.pop_status == PopStatus.RUNNING:
+                return PopStatus.BLOCKING
+            if self.after_group.pop_status == PopStatus.FINISHED:
+                return PopStatus.FINISHED
+
+        return PopStatus.RUNNING
+
     def pop_test_unit(self):
-        if not self.before_group.is_popped:
-            self.before_group.is_popped = True
-            self.is_running_setup_fixture = True
+        if self.before_group.pop_status == PopStatus.UNPOPPED:
+            self.before_group.pop_status = PopStatus.RUNNING
             return self.before_group
 
-        if not self.before_group.is_finished:
-            return None
-
         for test_case in self.test_cases:
-            if not test_case.is_popped:
-                test_case.is_popped = True
+            if test_case.pop_status == PopStatus.UNPOPPED:
+                test_case.pop_status = PopStatus.RUNNING
                 return test_case
 
-        for test_case in self.test_cases:
-            if not test_case.is_finished:
-                return None
-
-        if not self.after_group.is_popped:
-            self.after_group.is_popped = True
-            self.is_popped = True
+        if self.after_group.pop_status == PopStatus.UNPOPPED:
+            self.after_group.pop_status = PopStatus.RUNNING
             return self.after_group
 
 
@@ -386,8 +419,7 @@ class TestCase:
         self.full_name = "%s.%s" % (self.test_group.test_class.full_name, self.name)
         self.start_time = None
         self.end_time = None
-        self.is_popped = False
-        self.is_finished = False
+        self.pop_status = PopStatus.UNPOPPED
 
         self.test = Test(self, test_case_ref)
 
@@ -414,7 +446,7 @@ class TestCase:
                     self.after_method = AfterMethod(self, attr)
 
     def get_failed_setup_fixture(self):
-        setup_fixture =  self.test_group.get_failed_setup_fixture()
+        setup_fixture = self.test_group.get_failed_setup_fixture()
         if setup_fixture:
             return setup_fixture
         if self.before_method.status == TestFixtureStatus.FAILED:
@@ -445,13 +477,13 @@ class TestCase:
     def elapsed_time(self):
         return self.test.elapsed_time
 
+
 class TestFixture:
     def __init__(self, context, test_fixture_ref, fixture_type):
         if test_fixture_ref is None:
             self.context = context
             self.is_empty = True
-            self.is_popped = False
-            self.is_finished = False
+            self.pop_status = PopStatus.UNPOPPED
             self.status = TestFixtureStatus.NOT_RUN
             return
         self.context = context
@@ -459,8 +491,7 @@ class TestFixture:
         self.fixture_type = fixture_type
         self.status = TestFixtureStatus.NOT_RUN
         self.is_empty = False
-        self.is_popped = False
-        self.is_finished = False
+        self.pop_status = PopStatus.UNPOPPED
         self.failure_message = ""
         self.failure_type = ""
         self.stack_trace = ""
@@ -483,7 +514,7 @@ class TestFixture:
 
     def run(self):
         if self.is_empty:
-            self.is_finished = True
+            self.pop_status = PopStatus.FINISHED
             self.status = TestFixtureStatus.PASSED
             return
 
@@ -509,12 +540,12 @@ class TestFixture:
         else:
             test_fixture_executor.join()
         testexecutor.clear_properties()
-        self.is_finished = True
+        self.pop_status = PopStatus.FINISHED
         self.end_time = datetime.now()
 
     def skip(self, caused_test_fixture):
         if self.is_empty:
-            self.is_finished = True
+            self.pop_status = PopStatus.FINISHED
             self.status = TestFixtureStatus.SKIPPED
             return
 
@@ -526,7 +557,7 @@ class TestFixture:
         self.skip_message = "%s failed, so skipped." % caused_test_fixture.fixture_type
         preporter.warn("%s failed, so skipped." % caused_test_fixture.fixture_type)
         testexecutor.clear_properties()
-        self.is_finished = True
+        self.pop_status = PopStatus.FINISHED
         self.end_time = datetime.now()
 
     @property

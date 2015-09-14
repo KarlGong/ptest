@@ -26,3 +26,9 @@ class TestFixtureStatus:
     FAILED = "failed"
 
 TestCaseStatus = TestFixtureStatus
+
+class PopStatus:
+    UNPOPPED = "unpopped"
+    RUNNING = "running"
+    FINISHED = "finished"
+    BLOCKING = "blocking"
