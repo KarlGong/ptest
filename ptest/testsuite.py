@@ -84,8 +84,7 @@ class TestSuite:
     @property
     def elapsed_time(self):
         time_delta = self.end_time - self.start_time
-        seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-        return seconds
+        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
     @property
     def test_case_status_count(self):
@@ -240,8 +239,7 @@ class TestClass:
     @property
     def elapsed_time(self):
         time_delta = self.end_time - self.start_time
-        seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-        return seconds
+        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
     @property
     def test_case_status_count(self):
@@ -284,7 +282,7 @@ class TestClass:
         return PopStatus.RUNNING
 
     def pop_test_unit(self):
-        if self.before_class == PopStatus.UNPOPPED:
+        if self.before_class.pop_status == PopStatus.UNPOPPED:
             self.before_class.pop_status = PopStatus.RUNNING
             return self.before_class
 
@@ -292,7 +290,7 @@ class TestClass:
             if test_group.pop_status in [PopStatus.UNPOPPED, PopStatus.RUNNING]:
                 return test_group.pop_test_unit()
 
-        if self.after_class == PopStatus.UNPOPPED:
+        if self.after_class.pop_status == PopStatus.UNPOPPED:
             self.after_class.pop_status = PopStatus.RUNNING
             return self.after_class
 
@@ -347,8 +345,7 @@ class TestGroup:
     @property
     def elapsed_time(self):
         time_delta = self.end_time - self.start_time
-        seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-        return seconds
+        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
     @property
     def test_case_status_count(self):
@@ -475,7 +472,8 @@ class TestCase:
 
     @property
     def elapsed_time(self):
-        return self.test.elapsed_time
+        time_delta = self.end_time - self.start_time
+        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
 
 class TestFixture:
