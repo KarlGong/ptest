@@ -107,19 +107,24 @@ class TestExecutor(threading.Thread):
                 test_case.pop_status = PopStatus.FINISHED
                 test_listeners.on_test_case_finish(test_case)
 
-            elif isinstance(test_unit, BeforeSuite):
-                test_listeners.on_test_suite_start(test_unit.test_suite)
-                test_unit.test_suite.start_time = datetime.now()
-                test_unit.run()
-
-            elif isinstance(test_unit, AfterSuite):
-                failed_setup_fixture = test_unit.test_suite.get_failed_setup_fixture()
-                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeSuite) and test_unit.always_run):
+            elif isinstance(test_unit, BeforeGroup):
+                test_listeners.on_test_group_start(test_unit.test_group)
+                test_unit.test_group.start_time = datetime.now()
+                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
+                if not failed_setup_fixture:
                     test_unit.run()
                 else:
                     test_unit.skip(failed_setup_fixture)
-                test_unit.test_suite.end_time = datetime.now()
-                test_listeners.on_test_suite_finish(test_unit.test_suite)
+
+            elif isinstance(test_unit, AfterGroup):
+                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
+                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeGroup) and test_unit.always_run):
+                    test_unit.run()
+                else:
+                    test_unit.skip(failed_setup_fixture)
+                test_unit.test_group.is_finished = True
+                test_unit.test_group.end_time = datetime.now()
+                test_listeners.on_test_group_finish(test_unit.test_group)
 
             elif isinstance(test_unit, BeforeClass):
                 test_listeners.on_test_class_start(test_unit.test_class)
@@ -136,26 +141,25 @@ class TestExecutor(threading.Thread):
                     test_unit.run()
                 else:
                     test_unit.skip(failed_setup_fixture)
+                test_unit.test_class.is_finished = True
                 test_unit.test_class.end_time = datetime.now()
                 test_listeners.on_test_class_finish(test_unit.test_class)
 
-            elif isinstance(test_unit, BeforeGroup):
-                test_listeners.on_test_group_start(test_unit.test_group)
-                test_unit.test_group.start_time = datetime.now()
-                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
-                if not failed_setup_fixture:
-                    test_unit.run()
-                else:
-                    test_unit.skip(failed_setup_fixture)
 
-            elif isinstance(test_unit, AfterGroup):
-                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
-                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeGroup) and test_unit.always_run):
+            elif isinstance(test_unit, BeforeSuite):
+                test_listeners.on_test_suite_start(test_unit.test_suite)
+                test_unit.test_suite.start_time = datetime.now()
+                test_unit.run()
+
+            elif isinstance(test_unit, AfterSuite):
+                failed_setup_fixture = test_unit.test_suite.get_failed_setup_fixture()
+                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeSuite) and test_unit.always_run):
                     test_unit.run()
                 else:
                     test_unit.skip(failed_setup_fixture)
-                test_unit.test_group.end_time = datetime.now()
-                test_listeners.on_test_group_finish(test_unit.test_group)
+                test_unit.test_suite.is_finished = True
+                test_unit.test_suite.end_time = datetime.now()
+                test_listeners.on_test_suite_finish(test_unit.test_suite)
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)

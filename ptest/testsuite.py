@@ -22,6 +22,7 @@ class TestContainer:
     def __init__(self):
         self.start_time = None
         self.end_time = None
+        self.is_finished = False
         self.test_cases = []
 
     @property
@@ -121,6 +122,9 @@ class TestSuite(TestContainer):
 
     @property
     def pop_status(self):
+        if self.is_finished:
+            return PopStatus.FINISHED
+
         if self.before_suite.pop_status == PopStatus.UNPOPPED:
             return PopStatus.UNPOPPED
 
@@ -129,7 +133,7 @@ class TestSuite(TestContainer):
 
         test_class_pop_statuses = set([test_class.pop_status for test_class in self.test_classes])
 
-        if test_class_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING}:
+        if test_class_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING} or test_class_pop_statuses == {PopStatus.BLOCKING}:
             return PopStatus.BLOCKING
 
         if test_class_pop_statuses == {PopStatus.FINISHED}:
@@ -223,6 +227,9 @@ class TestClass(TestContainer):
 
     @property
     def pop_status(self):
+        if self.is_finished:
+            return PopStatus.FINISHED
+
         if self.before_class.pop_status == PopStatus.UNPOPPED:
             return PopStatus.UNPOPPED
 
@@ -231,7 +238,7 @@ class TestClass(TestContainer):
 
         test_group_pop_statuses = set([test_group.pop_status for test_group in self.test_groups])
 
-        if test_group_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING}:
+        if test_group_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING} or test_group_pop_statuses == {PopStatus.BLOCKING}:
             return PopStatus.BLOCKING
 
         if test_group_pop_statuses == {PopStatus.FINISHED}:
@@ -299,6 +306,9 @@ class TestGroup(TestContainer):
 
     @property
     def pop_status(self):
+        if self.is_finished:
+            return PopStatus.FINISHED
+
         if self.before_group.pop_status == PopStatus.UNPOPPED:
             return PopStatus.UNPOPPED
 
@@ -307,7 +317,7 @@ class TestGroup(TestContainer):
 
         test_case_pop_statuses = set([test_case.pop_status for test_case in self.test_cases])
 
-        if test_case_pop_statuses == {PopStatus.RUNNING, PopStatus.FINISHED}:
+        if test_case_pop_statuses == {PopStatus.RUNNING, PopStatus.FINISHED} or test_case_pop_statuses == {PopStatus.RUNNING}:
             return PopStatus.BLOCKING
 
         if test_case_pop_statuses == {PopStatus.FINISHED}:
