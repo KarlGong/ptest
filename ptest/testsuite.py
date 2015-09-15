@@ -31,27 +31,26 @@ class TestContainer:
         return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
     @property
-    def test_case_status_count(self):
-        total, passed, failed, skipped, not_run = 0, 0, 0, 0, 0
+    def status_count(self):
+        status_count_dict = {
+            "total": 0,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 0,
+            "not_run": 0
+        }
         for test_case in self.test_cases:
-            total += 1
-            status = test_case.status
-            if status == TestCaseStatus.PASSED:
-                passed += 1
-            elif status == TestCaseStatus.FAILED:
-                failed += 1
-            elif status == TestCaseStatus.SKIPPED:
-                skipped += 1
-            elif status == TestCaseStatus.NOT_RUN:
-                not_run += 1
-        return total, passed, failed, skipped, not_run
+            status_count_dict["total"] += 1
+            status_count_dict[test_case.status] +=1
+        return status_count_dict
 
     @property
     def pass_rate(self):
-        total, passed, _, _, _ = self.test_case_status_count
+        status_count = self.status_count
+        total = status_count["total"]
         if total == 0:
             return 0
-        return float(passed) * 100 / total
+        return float(status_count["passed"]) * 100 / total
 
 
 class TestSuite(TestContainer):
@@ -490,8 +489,8 @@ class TestFixture:
         self.start_time = datetime.now()
         testexecutor.update_properties(running_test_fixture=self)
         self.status = TestFixtureStatus.SKIPPED
-        self.skip_message = "%s failed, so skipped." % caused_test_fixture.fixture_type
-        preporter.warn("%s failed, so skipped." % caused_test_fixture.fixture_type)
+        self.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
+        preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
         testexecutor.clear_properties()
         self.pop_status = PopStatus.FINISHED
         self.end_time = datetime.now()

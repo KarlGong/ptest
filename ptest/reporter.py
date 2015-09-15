@@ -36,11 +36,11 @@ def generate_xunit_xml(xml_file):
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
-    test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, _ = test_suite.test_case_status_count
+    status_count = test_suite.status_count
     test_suite_ele.setAttribute("name", test_suite.name)
-    test_suite_ele.setAttribute("tests", str(test_suite_total))
-    test_suite_ele.setAttribute("failures", str(test_suite_failed))
-    test_suite_ele.setAttribute("skips", str(test_suite_skipped))
+    test_suite_ele.setAttribute("tests", str(status_count["total"]))
+    test_suite_ele.setAttribute("failures", str(status_count["failed"]))
+    test_suite_ele.setAttribute("skips", str(status_count["skipped"]))
     test_suite_ele.setAttribute("errors", "0")
     test_suite_ele.setAttribute("time", "%.3f" % test_suite.elapsed_time)
     test_suite_ele.setAttribute("timestamp", str(test_suite.start_time))

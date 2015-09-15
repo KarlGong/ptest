@@ -256,12 +256,12 @@ def main(args=None):
     run_test_cases(int(config.get_option("test_executor_number")))
 
     # log the test results
-    test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, _ = test_suite.test_case_status_count
+    status_count = test_suite.status_count
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
     pconsole.write_line("Test finished in %.2fs." % test_suite.elapsed_time)
     pconsole.write_line("Total: %s, passed: %s, failed: %s, skipped: %s. Pass rate: %.1f%%." % (
-        test_suite_total, test_suite_passed, test_suite_failed, test_suite_skipped, test_suite.pass_rate))
+        status_count["total"], status_count["passed"], status_count["failed"], status_count["skipped"], test_suite.pass_rate))
 
     # generate the test report
     pconsole.write_line("")
