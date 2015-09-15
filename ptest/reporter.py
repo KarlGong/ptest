@@ -1,9 +1,8 @@
 import os
-import platform
+import json
 import shutil
 import traceback
 from xml.dom import minidom
-from datetime import datetime
 
 from . import config
 from .plogger import pconsole
@@ -28,9 +27,9 @@ def clean_output_dir(output_dir):
             pconsole.write_line("Failed to clean old reports.\n%s" % traceback.format_exc())
 
 
-def generate_xunit_xml(xml_file):
+def generate_xunit_xml(xml_file_path):
     pconsole.write_line("Generating xunit report...")
-    xml_file_dir = os.path.dirname(xml_file)
+    xml_file_dir = os.path.dirname(xml_file_path)
     if not os.path.exists(xml_file_dir):
         os.makedirs(xml_file_dir)
     doc = minidom.Document()
@@ -62,10 +61,10 @@ def generate_xunit_xml(xml_file):
             failure_ele.setAttribute("type", test_case.failure_type)
             failure_ele.appendChild(doc.createTextNode(test_case.stack_trace))
 
-    f = open(xml_file, "w")
+    f = open(xml_file_path, "w")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
-        pconsole.write_line("xunit report is generated at %s" % xml_file)
+        pconsole.write_line("xunit report is generated at %s" % xml_file_path)
     except Exception:
         pconsole.write_line("Failed to generate xunit report.\n%s" % traceback.format_exc())
     finally:
@@ -73,14 +72,10 @@ def generate_xunit_xml(xml_file):
 
 
 def generate_html_report(report_dir):
-    pconsole.write_line("Generating Html report...")
+    pconsole.write_line("Generating html report...")
     if not os.path.exists(report_dir):
         os.makedirs(report_dir)
-    # copy css and js files
-    css_file = os.path.join(current_dir, "htmltemplate", "report.css")
-    js_file = os.path.join(current_dir, "htmltemplate", "amcharts.js")
-    shutil.copy(css_file, report_dir)
-    shutil.copy(js_file, report_dir)
+
     # copy screenshot from temp dir
     temp_dir = config.get_option("temp")
     for fn in os.listdir(temp_dir):
@@ -88,127 +83,107 @@ def generate_html_report(report_dir):
         _, file_ext = os.path.splitext(fn)
         if os.path.isfile(file_full_path) and file_ext == ".png":
             shutil.copy(file_full_path, report_dir)
-    # generate html files
+
+    with open(os.path.join(current_dir, "htmltemplate", "index.html")) as f:
+        index_page_template = f.read()
+
+    index_page_content = index_page_template.format(test_suite_json=json.dumps(_get_test_suite_dict(test_suite)))
+
+    f = open(os.path.join(report_dir, "index.html"), mode="w")
     try:
-        _generate_index_page(report_dir)
-        for test_class in test_suite.test_classes:
-            _generate_test_class_page(test_class, report_dir)
-        pconsole.write_line("html report is generated at %s" % report_dir)
+        f.write(index_page_content)
+        pconsole.write_line("html report is generated at %s" % os.path.abspath(report_dir))
     except Exception:
-        pconsole.write_line("Failed to generate Html report.\n%s" % traceback.format_exc())
-
-
-def _generate_index_page(report_dir):
-    template_file = open(os.path.join(current_dir, "htmltemplate", "index.html"))
-    try:
-        index_page_template = template_file.read()
-    finally:
-        template_file.close()
-    current_time = datetime.now()
-    system_info = "%s / Python %s / %s" % (platform.node(), platform.python_version(), platform.platform())
-    test_class_summaries_content = ""
-    test_class_summary_template = """
-    <tr class="test-class">
-        <td class="name" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html')" title="{test_class.description}">{test_class.full_name}</td>
-        <td class="number">{test_class.elapsed_time}s</td>
-        <td class="all number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#all')">{test_class.test_case_status_count[0]}</td>
-        <td class="passed number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#passed')">{test_class.test_case_status_count[1]}</td>
-        <td class="failed number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#failed')">{test_class.test_case_status_count[2]}</td>
-        <td class="skipped number" onclick="javascript: window.open('test_class_results_{test_class.full_name}.html#skipped')">{test_class.test_case_status_count[3]}</td>
-        <td class="pass-rate number">{test_class.pass_rate:.1f}%</td>
-    </tr>
-    """
-    for test_class in test_suite.test_classes:
-        test_class_summaries_content += test_class_summary_template.format(test_class=test_class)
-    index_page_content = index_page_template.format(current_time=current_time, system_info=system_info,
-                                                    test_suite=test_suite,
-                                                    test_class_summaries=test_class_summaries_content)
-    _write_to_file(index_page_content, os.path.join(report_dir, "index.html"))
-
-
-def _generate_test_class_page(test_class, report_path):
-    template_file = open(os.path.join(current_dir, "htmltemplate", "test_class_results.html"))
-    try:
-        test_class_page_template = template_file.read()
-    finally:
-        template_file.close()
-
-    test_case_template = """
-        <tr title="{test_case.description}" class="testcase {test_case.status}" onclick="javascript:toggleElements('toggle-{toggle_id}', 'table-row')"><td colspan="4">
-        <span class="name">{test_case.name}</span>
-        {test_case_tags}
-        <span class="group" title="group">{test_case.group}</span>
-        </td></tr>
-        <tr class="column-headings toggle-{toggle_id}" style="display:none">
-        <td>Test Fixture</td>
-        <th>Duration</th>
-        <th>Logs</th>
-        <th>Screenshot</th></tr>
-        {before_method_result}
-        {test_result}
-        {after_method_result}
-    """
-    test_case_tag_template = """
-        <span class="tag" title="tag">{tag}</span>
-    """
-    test_case_fixture_template = """
-    <tr class="test-fixture toggle-{toggle_id}" style="display:none">
-      <td title="{test_case_fixture.description}">@{test_case_fixture.fixture_type}</td>
-      <td class="duration">{test_case_fixture.elapsed_time}s</td>
-      <td class="logs">{test_case_fixture_logs}</td>
-      <th class="screenshot">
-        <a href="{test_case_fixture_screenshot_path}" target="_blank">
-          <img src="{test_case_fixture_screenshot_path}" style="width:200px;border:0;">
-        </a>
-       </th></tr>
-    """
-    test_case_fixture_log_template = """
-        <span class="log-level">[{level_name}]</span>
-        <span class="{level_name}">{msg}</span>
-    """
-    test_cases_content = ""
-
-    # test fixture
-    def make_test_case_fixture_content(test_case_fixture):
-        if not test_case_fixture.is_empty:
-            # screenshot
-            test_case_fixture_screenshot_name = "" if test_case_fixture.screenshot is None else test_case_fixture.screenshot
-            # logs
-            test_case_fixture_log_content_list = []
-            for level_name, msg in test_case_fixture.logs:
-                html_msg = msg.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;")\
-                                            .replace('"', "&quot;").replace("\n", "<br/>")
-                test_case_fixture_log_content_list.append(test_case_fixture_log_template.format(level_name=level_name, msg=html_msg))
-            test_case_fixture_logs_content = "<br/>".join(test_case_fixture_log_content_list)
-            return test_case_fixture_template.format(toggle_id=test_case_fixture.test_case.name,
-                                                                     test_case_fixture=test_case_fixture,
-                                                                     test_case_fixture_logs=test_case_fixture_logs_content,
-                                                                     test_case_fixture_screenshot_path=test_case_fixture_screenshot_name)
-        return ""
-
-    # test cases
-    for test_case in test_class.test_cases:
-        # tags
-        test_case_tags_content = ""
-        for tag in test_case.tags:
-            test_case_tags_content += test_case_tag_template.format(tag=tag)
-        # test case
-        test_case_content = test_case_template.format(toggle_id=test_case.name, test_case=test_case,
-                                                      test_case_tags=test_case_tags_content,
-                                                      before_method_result=make_test_case_fixture_content(test_case.before_method),
-                                                      test_result=make_test_case_fixture_content(test_case.test),
-                                                      after_method_result=make_test_case_fixture_content(test_case.after_method))
-        test_cases_content += test_case_content
-
-    test_class_page_content = test_class_page_template.format(test_class=test_class,
-                                                              test_cases_results=test_cases_content)
-    _write_to_file(test_class_page_content,
-                   os.path.join(report_path, "test_class_results_" + test_class.full_name + ".html"))
-
-
-def _write_to_file(file_content, file_name, mode="w"):
-    f = open(file_name, mode)
-    try:
-        f.write(file_content)
+        pconsole.write_line("Failed to generate html report.\n%s" % traceback.format_exc())
     finally:
         f.close()
+
+
+def _get_test_suite_dict(suite):
+    repr_dict = {
+        "name": suite.name,
+        "fullName": suite.full_name,
+        "beforeSuite": _get_test_fixture_dict(suite.before_suite),
+        "testClasses": [_get_test_class_dict(test_class) for test_class in suite.test_classes],
+        "afterSuite": _get_test_fixture_dict(suite.after_suite),
+        "startTime": str(suite.start_time),
+        "endTime": str(suite.end_time),
+        "elapsedTime": suite.elapsed_time,
+        "statusCount": suite.status_count,
+        "passRate": suite.pass_rate
+    }
+    return repr_dict
+
+
+def _get_test_class_dict(test_class):
+    repr_dict = {
+        "name": test_class.name,
+        "fullName": test_class.full_name,
+        "runThread": test_class.run_thread,
+        "runMode": test_class.run_mode,
+        "description": test_class.description,
+        "beforeClass": _get_test_fixture_dict(test_class.before_class),
+        "testGroups": [_get_test_group_dict(test_group) for test_group in test_class.test_groups],
+        "afterClass": _get_test_fixture_dict(test_class.after_class),
+        "startTime": str(test_class.start_time),
+        "endTime": str(test_class.end_time),
+        "elapsedTime": test_class.elapsed_time,
+        "statusCount": test_class.status_count,
+        "passRate": test_class.pass_rate
+    }
+    return repr_dict
+
+
+def _get_test_group_dict(test_group):
+    repr_dict = {
+        "name": test_group.name,
+        "fullName": test_group.full_name,
+        "beforeGroup": _get_test_fixture_dict(test_group.before_group),
+        "testCases": [_get_test_case_dict(test_case) for test_case in test_group.test_cases],
+        "afterGroup": _get_test_fixture_dict(test_group.after_group),
+        "startTime": str(test_group.start_time),
+        "endTime": str(test_group.end_time),
+        "elapsedTime": test_group.elapsed_time,
+        "statusCount": test_group.status_count,
+        "passRate": test_group.pass_rate
+    }
+    return repr_dict
+
+
+def _get_test_case_dict(test_case):
+    repr_dict = {
+        "name": test_case.name,
+        "fullName": test_case.full_name,
+        "startTime": str(test_case.start_time),
+        "endTime": str(test_case.end_time),
+        "elapsedTime": test_case.elapsed_time,
+        "status": test_case.status,
+        "tags": test_case.tags,
+        "group": test_case.group,
+        "description": test_case.description,
+        "beforeMethod": _get_test_fixture_dict(test_case.before_method),
+        "test": _get_test_fixture_dict(test_case.test),
+        "afterMethod": _get_test_fixture_dict(test_case.after_method)
+    }
+    return repr_dict
+
+
+def _get_test_fixture_dict(test_fixture):
+    repr_dict = {
+        "isEmpty": test_fixture.is_empty,
+        "status": test_fixture.status,
+        "fixtureType": test_fixture.fixture_type
+    }
+    if not test_fixture.is_empty:
+        repr_extra_dict = {
+            "name": test_fixture.name,
+            "fullName": test_fixture.full_name,
+            "startTime": str(test_fixture.start_time),
+            "endTime": str(test_fixture.end_time),
+            "elapsedTime": test_fixture.elapsed_time,
+            "logs": test_fixture.logs,
+            "screenshot": test_fixture.screenshot,
+            "description": test_fixture.description
+        }
+        repr_dict.update(repr_extra_dict)
+    return repr_dict
