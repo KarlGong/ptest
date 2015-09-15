@@ -76,6 +76,15 @@ def generate_html_report(report_dir):
     if not os.path.exists(report_dir):
         os.makedirs(report_dir)
 
+    html_template_dir = os.path.join(current_dir, "htmltemplate")
+
+    # copy js and css file to report dir
+    for fn in os.listdir(html_template_dir):
+        file_full_path = os.path.join(html_template_dir, fn)
+        _, file_ext = os.path.splitext(fn)
+        if os.path.isfile(file_full_path) and file_ext in [".js", ".css"]:
+            shutil.copy(file_full_path, report_dir)
+
     # copy screenshot from temp dir
     temp_dir = config.get_option("temp")
     for fn in os.listdir(temp_dir):
@@ -84,7 +93,7 @@ def generate_html_report(report_dir):
         if os.path.isfile(file_full_path) and file_ext == ".png":
             shutil.copy(file_full_path, report_dir)
 
-    with open(os.path.join(current_dir, "htmltemplate", "index.html")) as f:
+    with open(os.path.join(html_template_dir, "index.html")) as f:
         index_page_template = f.read()
 
     index_page_content = index_page_template.format(test_suite_json=json.dumps(_get_test_suite_dict(test_suite)))
