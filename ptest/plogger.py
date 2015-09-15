@@ -1,5 +1,6 @@
 import logging
 import sys
+
 from . import config
 
 __author__ = 'karl.gong'
@@ -42,7 +43,7 @@ class PReporter:
         from . import testexecutor
 
         running_test_fixture = testexecutor.get_property("running_test_fixture")
-        running_test_fixture.logs.append((logging.getLevelName(level).lower(), str(msg),))
+        running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})
 
         if config.get_option("verbose"):
             # output to pconsole
