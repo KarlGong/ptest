@@ -414,19 +414,16 @@ class TestCase:
 
 class TestFixture:
     def __init__(self, context, test_fixture_ref, fixture_type):
-        if test_fixture_ref is None:
-            self.context = context
-            self.is_empty = True
-            self.pop_status = PopStatus.UNPOPPED
-            self.status = TestFixtureStatus.NOT_RUN
-            return
         self.context = context
-        self.test_fixture_ref = test_fixture_ref
         self.fixture_type = fixture_type
-        self.name = test_fixture_ref.__name__
         self.status = TestFixtureStatus.NOT_RUN
-        self.is_empty = False
         self.pop_status = PopStatus.UNPOPPED
+        if test_fixture_ref is None:
+            self.is_empty = True
+            return
+        self.is_empty = False
+        self.test_fixture_ref = test_fixture_ref
+        self.name = test_fixture_ref.__name__
         self.failure_message = ""
         self.failure_type = ""
         self.stack_trace = ""
