@@ -34,10 +34,10 @@ class TestContainer:
     def status_count(self):
         status_count_dict = {
             "total": 0,
-            "passed": 0,
-            "failed": 0,
-            "skipped": 0,
-            "not_run": 0
+            TestCaseStatus.PASSED: 0,
+            TestCaseStatus.FAILED: 0,
+            TestCaseStatus.SKIPPED: 0,
+            TestCaseStatus.NOT_RUN: 0
         }
         for test_case in self.test_cases:
             status_count_dict["total"] += 1

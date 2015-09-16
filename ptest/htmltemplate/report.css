@@ -64,7 +64,7 @@ body {
     text-decoration: none
 }
 
-.tree li.parent_li > span {
+.tree li.node > div {
     cursor: pointer
 }
 
@@ -78,4 +78,9 @@ body {
 
 .tree > ul ul {
     margin-left: 30px
+}
+
+.tree .pass-rate {
+    position: absolute;
+    background-color: aquamarine;
 }

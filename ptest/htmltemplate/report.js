@@ -1,8 +1,7 @@
 $(window).load(function () {
     $(function () {
-        $('.tree li:has(ul)').addClass('parent_li');
-        $('.tree li.parent_li > span').on('click', function (e) {
-            var children = $(this).parent('li.parent_li').find(' > ul > li');
+        $('.tree li.parent > div').on('click', function (e) {
+            var children = $(this).parent('li.parent').find(' > ul > li');
             if (children.is(":visible")) {
                 children.hide('fast');
                 $(this).find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
@@ -38,61 +37,69 @@ String.prototype.format = function (args) {
     return result;
 };
 
-initTree = function (testSuite) {
-    var testSuiteNode = $('<li><span>{0}</span><ul></ul></li>'.format(testSuite.name));
-    $('.tree').find(' > ul').append(testSuiteNode);
-
-    var beforeSuite = testSuite.beforeSuite;
-    if (!beforeSuite.isEmpty) {
-        var beforeSuiteNode = $('<li><span>{0}</span></li>'.format(beforeSuite.fixtureType));
-        testSuiteNode.find(' > ul').append(beforeSuiteNode);
+appendToNode = function (parentNode, data, isLeaf, visible) {
+    var node = null;
+    var nodeContent = null;
+    if (isLeaf) {
+        // an empty test fixture
+        if (data.hasOwnProperty('isEmpty') && data.isEmpty) {
+            return node;
+        }
+        nodeContent = '<li class="node leaf"><div>{name}</div></li>';
+        if (data.hasOwnProperty("fixtureType")) {
+            // test fixture
+            node = $(nodeContent.format({"name": '@' + data.fixtureType}));
+        } else {
+            // test case
+            node = $(nodeContent.format({"name": data.name}));
+        }
     }
+    else {
+        // test container
+        nodeContent = '<li class="node parent"><div class="pass-rate" style="width: {passRate}%"></div><div><span>&gt;</span><span class="name">{name}</span><span class="total">{total}</span><span class="passed">{passed}</span><span class="failed">{failed}</span><span class="skipped">{skipped}</span></div><ul></ul></li>';
+        node = $(nodeContent.format({
+            "passRate": data.passRate,
+            "name": data.name,
+            "total": data.statusCount.total,
+            "passed": data.statusCount.passed,
+            "failed": data.statusCount.failed,
+            "skipped": data.statusCount.skipped
+        }));
+    }
+    if (!visible) {
+        node.css('display', 'none');
+    }
+    parentNode.find(' > ul').append(node);
+    return node;
+};
+
+initTree = function (testSuite) {
+    var testSuiteNode = appendToNode($('.tree'), testSuite, false, true);
+
+    appendToNode(testSuiteNode, testSuite.beforeSuite, true, true);
 
     for (var i = 0; i < testSuite.testClasses.length; i++) {
         var testClass = testSuite.testClasses[i];
-        var testClassNode = $('<li><span>{0}</span><ul></ul></li>'.format(testClass.name));
-        testSuiteNode.find(' > ul').append(testClassNode);
+        var testClassNode = appendToNode(testSuiteNode, testClass, false, true);
 
-        var beforeClass = testClass.beforeClass;
-        if (!beforeClass.isEmpty) {
-            var beforeClassNode = $('<li><span>{0}</span></li>'.format(beforeClass.fixtureType));
-            testClassNode.find(' > ul').append(beforeClassNode);
-        }
+        appendToNode(testClassNode, testClass.beforeClass, true, false);
 
         for (var j = 0; j < testClass.testGroups.length; j++) {
             var testGroup = testClass.testGroups[j];
-            var testGroupNode = $('<li><span>{0}</span><ul></ul></li>'.format(testGroup.name));
-            testClassNode.find(' > ul').append(testGroupNode);
+            var testGroupNode = appendToNode(testClassNode, testGroup, false, false);
 
-            var beforeGroup = testGroup.beforeGroup;
-            if (!beforeGroup.isEmpty) {
-                var beforeGroupNode = $('<li><span>{0}</span></li>'.format(beforeGroup.fixtureType));
-                testGroupNode.find(' > ul').append(beforeGroupNode);
-            }
+            appendToNode(testGroupNode, testGroup.beforeGroup, true, false);
 
             for (var k = 0; k < testGroup.testCases.length; k++) {
                 var testCase = testGroup.testCases[k];
-                var testCaseNode = $('<li><span>{0}</span></li>'.format(testCase.name));
-                testGroupNode.find(' > ul').append(testCaseNode);
+                appendToNode(testGroupNode, testCase, true, false);
             }
 
-            var afterGroup = testGroup.afterGroup;
-            if (!afterGroup.isEmpty) {
-                var afterGroupNode = $('<li><span>{0}</span></li>'.format(afterGroup.fixtureType));
-                testGroupNode.find(' > ul').append(afterGroupNode);
-            }
+            appendToNode(testGroupNode, testGroup.afterGroup, true, false);
         }
 
-        var afterClass = testClass.afterClass;
-        if (!afterClass.isEmpty) {
-            var afterClassNode = $('<li><span>{0}</span></li>'.format(afterClass.fixtureType));
-            testClassNode.find(' > ul').append(afterClassNode);
-        }
+        appendToNode(testClassNode, testClass.afterClass, true, false);
     }
 
-    var afterSuite = testSuite.afterSuite;
-    if (!afterSuite.isEmpty) {
-        var afterSuiteNode = $('<li><span>{0}</span></li>'.format(afterSuite.fixtureType));
-        testSuiteNode.find(' > ul').append(afterSuiteNode);
-    }
+    appendToNode(testSuiteNode, testSuite.afterSuite, true, true);
 };
