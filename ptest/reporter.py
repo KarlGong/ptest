@@ -4,7 +4,6 @@ import platform
 import shutil
 import traceback
 from xml.dom import minidom
-
 from datetime import datetime
 
 from . import config
@@ -119,6 +118,7 @@ def _get_test_suite_dict(suite):
     repr_dict = {
         "name": suite.name,
         "fullName": suite.full_name,
+        "type": "testsuite",
         "beforeSuite": _get_test_fixture_dict(suite.before_suite),
         "testClasses": [_get_test_class_dict(test_class) for test_class in suite.test_classes],
         "afterSuite": _get_test_fixture_dict(suite.after_suite),
@@ -135,6 +135,7 @@ def _get_test_class_dict(test_class):
     repr_dict = {
         "name": test_class.name,
         "fullName": test_class.full_name,
+        "type": "testclass",
         "runThread": test_class.run_thread,
         "runMode": test_class.run_mode,
         "description": test_class.description,
@@ -154,6 +155,7 @@ def _get_test_group_dict(test_group):
     repr_dict = {
         "name": test_group.name,
         "fullName": test_group.full_name,
+        "type": "testgroup",
         "beforeGroup": _get_test_fixture_dict(test_group.before_group),
         "testCases": [_get_test_case_dict(test_case) for test_case in test_group.test_cases],
         "afterGroup": _get_test_fixture_dict(test_group.after_group),
@@ -170,6 +172,7 @@ def _get_test_case_dict(test_case):
     repr_dict = {
         "name": test_case.name,
         "fullName": test_case.full_name,
+        "type": "testcase",
         "startTime": str(test_case.start_time),
         "endTime": str(test_case.end_time),
         "elapsedTime": test_case.elapsed_time,
@@ -186,6 +189,7 @@ def _get_test_case_dict(test_case):
 
 def _get_test_fixture_dict(test_fixture):
     repr_dict = {
+        "type": "testfixture",
         "isEmpty": test_fixture.is_empty,
         "status": test_fixture.status,
         "fixtureType": test_fixture.fixture_type

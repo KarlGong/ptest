@@ -38,11 +38,11 @@ String.prototype.format = function (args) {
 };
 
 renderTree = function (testSuite) {
-    appendToNode = function (parentNode, data, isLeaf, visible) {
+    appendToNode = function (parentNode, data, visible) {
         var node = null;
-        if (isLeaf) {
+        if (data.type == "testfixture" || data.type == "testcase") {
             // an empty test fixture
-            if (data.hasOwnProperty('isEmpty') && data.isEmpty) {
+            if (data.type == "testfixture" && data.isEmpty) {
                 return node;
             }
             var nodeContent = '<li class="node leaf"><div class="name">{name}</div></li>';
@@ -73,34 +73,34 @@ renderTree = function (testSuite) {
         return node;
     };
 
-    var testSuiteNode = appendToNode($('.tree'), testSuite, false, true);
+    var testSuiteNode = appendToNode($('.tree'), testSuite, true);
 
-    appendToNode(testSuiteNode, testSuite.beforeSuite, true, true);
+    appendToNode(testSuiteNode, testSuite.beforeSuite, true);
 
     for (var i = 0; i < testSuite.testClasses.length; i++) {
         var testClass = testSuite.testClasses[i];
-        var testClassNode = appendToNode(testSuiteNode, testClass, false, true);
+        var testClassNode = appendToNode(testSuiteNode, testClass, true);
 
-        appendToNode(testClassNode, testClass.beforeClass, true, false);
+        appendToNode(testClassNode, testClass.beforeClass, false);
 
         for (var j = 0; j < testClass.testGroups.length; j++) {
             var testGroup = testClass.testGroups[j];
-            var testGroupNode = appendToNode(testClassNode, testGroup, false, false);
+            var testGroupNode = appendToNode(testClassNode, testGroup, false);
 
-            appendToNode(testGroupNode, testGroup.beforeGroup, true, false);
+            appendToNode(testGroupNode, testGroup.beforeGroup, false);
 
             for (var k = 0; k < testGroup.testCases.length; k++) {
                 var testCase = testGroup.testCases[k];
-                appendToNode(testGroupNode, testCase, true, false);
+                appendToNode(testGroupNode, testCase, false);
             }
 
-            appendToNode(testGroupNode, testGroup.afterGroup, true, false);
+            appendToNode(testGroupNode, testGroup.afterGroup, false);
         }
 
-        appendToNode(testClassNode, testClass.afterClass, true, false);
+        appendToNode(testClassNode, testClass.afterClass, false);
     }
 
-    appendToNode(testSuiteNode, testSuite.afterSuite, true, true);
+    appendToNode(testSuiteNode, testSuite.afterSuite, true);
 };
 
 renderTestFixturePanel = function (detailPanel, data) {
@@ -141,7 +141,7 @@ renderTestFixturePanel = function (detailPanel, data) {
 renderDetailPanel = function (data) {
     var detailPanel = $('.detail-panel');
     detailPanel.empty();
-    if (data.hasOwnProperty('isEmpty')) {
+    if (data.type == "testfixture") {
         renderTestFixturePanel(detailPanel, data);
     } else {
         if (!data.beforeMethod.isEmpty) {
