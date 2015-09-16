@@ -131,7 +131,7 @@ renderTestFixturePanel = function (detailPanel, data) {
         logSlot.append(log);
     }
     if (data.screenshot != null) {
-        var screenshot = $('<tr><td>Screenshot</td><td><a href="{0}" target="_blank"><img class="screenshot" src="{0}" /></a></td></tr>'.format(data.screenshot));
+        var screenshot = $('<tr><td>Screenshot</td><td><a class="screenshot-link" href="{0}" data-lightbox="{0}"><img class="screenshot" src="{0}" /></a></td></tr>'.format(data.screenshot));
         fieldSlot.append(screenshot);
     }
 
