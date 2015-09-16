@@ -1,5 +1,6 @@
 body {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: small;
 }
 
 #meta {
@@ -83,4 +84,59 @@ body {
 .tree .pass-rate {
     position: absolute;
     background-color: aquamarine;
+}
+
+.test-fixture .passed {
+    background-color: #44aa44;
+}
+
+.test-fixture .passed:hover {
+    background-color: #40a040;
+}
+
+.test-fixture .failed {
+    background-color: #ff5555;
+}
+
+.test-fixture .failed:hover {
+    background-color: #f05050;
+}
+
+.test-fixture .skipped {
+    background-color: #ffaa00;
+}
+
+.test-fixture .skipped:hover {
+    background-color: #f0a000;
+}
+
+.test-fixture .logs .log-level {
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #777;
+}
+
+.test-fixture .logs .debug {
+    color: #749A06;
+}
+
+.test-fixture .logs .info {
+    color: #00A3E8;
+}
+
+.test-fixture .logs .warning {
+    color: #ECBA04;
+}
+
+.test-fixture .logs .error {
+    color: #FF0000
+}
+
+.test-fixture .logs .critical {
+    color: #CE2400;
+}
+
+.test-fixture .screenshot {
+    width: 200px;
+    border: 0;
 }

@@ -191,13 +191,15 @@ def _get_test_fixture_dict(test_fixture):
         "fixtureType": test_fixture.fixture_type
     }
     if not test_fixture.is_empty:
+        escaped_logs = [{"level": log["level"], "message": log["message"].replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")} for log in test_fixture.logs]
         repr_extra_dict = {
             "name": test_fixture.name,
             "fullName": test_fixture.full_name,
             "startTime": str(test_fixture.start_time),
             "endTime": str(test_fixture.end_time),
             "elapsedTime": test_fixture.elapsed_time,
-            "logs": test_fixture.logs,
+            "logs": escaped_logs,
             "screenshot": test_fixture.screenshot,
             "description": test_fixture.description
         }

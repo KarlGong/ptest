@@ -15,12 +15,15 @@
     <br/><span id="system-info">{system_info}</span>
 </div>
 
-<div class="tree">
-    <ul></ul>
+<div class="tree"><ul></ul></div>
+<div class="detail-panel">
+
 </div>
 <script type="text/javascript">
     var testSuite = {test_suite_json};
-    initTree(testSuite);
+    renderTree(testSuite);
+    renderDetailPanel(testSuite.testClasses[0].testGroups[0].testCases[0]);
+    renderDetailPanel(testSuite.testClasses[0].testGroups[0].beforeGroup);
 </script>
 </body>
 </html>
