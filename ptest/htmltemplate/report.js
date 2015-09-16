@@ -1,13 +1,20 @@
 $(window).load(function () {
     $(function () {
-        $('.tree li.parent > div').on('click', function (e) {
-            var children = $(this).parent('li.parent').find(' > ul > li');
+        $('.tree li.leaf > a').on('click', function (e) {
+            renderDetailPanel($(this).parent().data("data"));
+            e.stopPropagation();
+        });
+
+        $('.tree li.parent .sign').on('click', function (e) {
+            var children = $(this).parent().parent().find(' > ul > li');
             if (children.is(":visible")) {
                 children.hide('fast');
-                $(this).find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
+                $(this).attr('title', 'Click to expand.');
+                $(this).find(' > i').addClass('icon-plus').removeClass('icon-minus');
             } else {
                 children.show('fast');
-                $(this).find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
+                $(this).attr('title', 'Click to collapsed.')
+                $(this).find(' > i').addClass('icon-minus').removeClass('icon-plus');
             }
             e.stopPropagation();
         });
@@ -45,21 +52,27 @@ renderTree = function (testSuite) {
             if (data.type == "testfixture" && data.isEmpty) {
                 return node;
             }
-            var nodeContent = '<li class="node leaf"><div class="name">{name}</div></li>';
+            var nodeContent = '<li class="node leaf"><a title={fullName}><span class="name">{name}</span></a></li>';
             if (data.hasOwnProperty("fixtureType")) {
                 // test fixture
-                node = $(nodeContent.format({"name": '@' + data.fixtureType}));
+                node = $(nodeContent.format({
+                    "name": '@' + data.fixtureType,
+                    "fullName": data.fullName
+                }));
             } else {
                 // test case
-                node = $(nodeContent.format({"name": data.name}));
+                node = $(nodeContent.format({
+                    "name": data.name,
+                    "fullName": data.fullName
+                }));
             }
         }
         else {
             // test container
-            var nodeContent = '<li class="node parent"><div class="pass-rate" style="width: {passRate}%"></div><div><span>&gt;</span><span class="name">{name}</span><span class="total">{total}</span><span class="passed">{passed}</span><span class="failed">{failed}</span><span class="skipped">{skipped}</span></div><ul></ul></li>';
+            var nodeContent = '<li class="node parent"><a title={fullName}><span class="sign"><i class="icon-minus"></i></span><span class="name">{name}</span></a><ul></ul></li>';
             node = $(nodeContent.format({
-                "passRate": data.passRate,
                 "name": data.name,
+                "fullName": data.fullName,
                 "total": data.statusCount.total,
                 "passed": data.statusCount.passed,
                 "failed": data.statusCount.failed,
@@ -69,6 +82,7 @@ renderTree = function (testSuite) {
         if (!visible) {
             node.css('display', 'none');
         }
+        node.data("data", data);
         parentNode.find(' > ul').append(node);
         return node;
     };

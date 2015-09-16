@@ -26,6 +26,50 @@ body {
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05)
 }
 
+.tree a {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(204, 204, 204);
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    width: 150px;
+    height: 26px;
+}
+
+.tree .sign {
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    background-color: rgb(81, 195, 235);
+    display: inline-block;
+    height: 20px;
+    padding-bottom: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+}
+
+.tree .icon-minus {
+    display: inline-block;
+    height: 14px;
+    width: 14px;
+}
+
+.tree .icon-plus {
+    display: inline-block;
+    height: 14px;
+    width: 14px;
+}
+
+.tree .name {
+    padding-left: 5px;
+}
+
+
+
 .tree li {
     list-style-type: none;
     margin: 0;
@@ -55,7 +99,7 @@ body {
     width: 25px
 }
 
-.tree li span {
+/*.tree li span {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border: 1px solid #999;
@@ -63,27 +107,18 @@ body {
     display: inline-block;
     padding: 3px 8px;
     text-decoration: none
-}
-
-.tree li.node > div {
-    cursor: pointer
-}
+}*/
 
 .tree > ul > li::before, .tree > ul > li::after {
-    border: 0
+    border: 0;
 }
 
 .tree li:last-child::before {
-    height: 23px
+    height: 23px;
 }
 
 .tree > ul ul {
-    margin-left: 30px
-}
-
-.tree .pass-rate {
-    position: absolute;
-    background-color: aquamarine;
+   margin-left: -6px;
 }
 
 .test-fixture .passed {
