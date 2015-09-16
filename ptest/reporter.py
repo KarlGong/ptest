@@ -1,8 +1,11 @@
 import os
 import json
+import platform
 import shutil
 import traceback
 from xml.dom import minidom
+
+from datetime import datetime
 
 from . import config
 from .plogger import pconsole
@@ -96,7 +99,11 @@ def generate_html_report(report_dir):
     with open(os.path.join(html_template_dir, "index.html")) as f:
         index_page_template = f.read()
 
-    index_page_content = index_page_template.format(test_suite_json=json.dumps(_get_test_suite_dict(test_suite)))
+    current_time = datetime.now()
+    system_info = "%s / Python %s / %s" % (platform.node(), platform.python_version(), platform.platform())
+    test_suite_json = json.dumps(_get_test_suite_dict(test_suite))
+    index_page_content = index_page_template.format(current_time=current_time, system_info=system_info,
+                                                    test_suite_json=test_suite_json)
 
     f = open(os.path.join(report_dir, "index.html"), mode="w")
     try:

@@ -2,6 +2,15 @@ body {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+#meta {
+    text-align: right;
+    float: right;
+}
+
+#system-info {
+    color: #666666;
+}
+
 .tree {
     min-height: 20px;
     padding: 19px;
