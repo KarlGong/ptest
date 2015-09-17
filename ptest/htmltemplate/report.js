@@ -87,7 +87,7 @@ renderTree = function (testSuite) {
         return node;
     };
 
-    var testSuiteNode = appendToNode($('.tree'), testSuite, true);
+    var testSuiteNode = appendToNode($('.navigation .tree'), testSuite, true);
 
     appendToNode(testSuiteNode, testSuite.beforeSuite, true);
 
@@ -141,7 +141,7 @@ renderTestFixturePanel = function (detailPanel, data) {
     for (var i = 0; i < data.logs.length; i++) {
         var level = data.logs[i].level;
         var message = data.logs[i].message;
-        var log = $('<span class="log-level">[{0}]</span><span class="{0}">{1}</span><br/>'.format(level, message));
+        var log = $('<span class="log-level">[{0}] </span><span class="{0}">{1}</span><br/>'.format(level, message));
         logSlot.append(log);
     }
     if (data.screenshot != null) {
@@ -153,17 +153,29 @@ renderTestFixturePanel = function (detailPanel, data) {
 };
 
 renderDetailPanel = function (data) {
-    var detailPanel = $('.detail-panel');
-    detailPanel.empty();
-    if (data.type == "testfixture") {
-        renderTestFixturePanel(detailPanel, data);
-    } else {
-        if (!data.beforeMethod.isEmpty) {
-            renderTestFixturePanel(detailPanel, data.beforeMethod);
-        }
-        renderTestFixturePanel(detailPanel, data.test);
-        if (!data.afterMethod.isEmpty) {
-            renderTestFixturePanel(detailPanel, data.afterMethod);
-        }
+    var detailPanel = $('.detail');
+    var detailPanelHeader = detailPanel.find('.panel-heading .text');
+    var detailPanelBody = detailPanel.find('.panel-body');
+    detailPanelHeader.text(data.fullName);
+    detailPanelBody.empty();
+    switch (data.type) {
+        case "testfixture":
+            renderTestFixturePanel(detailPanelBody, data);
+            break;
+        case "testcase":
+            if (!data.beforeMethod.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.beforeMethod);
+            }
+            renderTestFixturePanel(detailPanelBody, data.test);
+            if (!data.afterMethod.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.afterMethod);
+            }
+            break;
+        case "testsuite":
+            break;
+        case "testclass":
+            break;
+        case "testgroup":
+            break;
     }
 };
