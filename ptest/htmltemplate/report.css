@@ -65,19 +65,19 @@ body {
     background-color: #fff;
 }
 
-.btn.all .badge{
+.btn.all .badge {
     color: #43a3d0;
 }
 
-.btn.pass .badge{
+.btn.pass .badge {
     color: #44aa44;
 }
 
-.btn.fail .badge{
+.btn.fail .badge {
     color: #ff5555;
 }
 
-.btn.skip .badge{
+.btn.skip .badge {
     color: #ffaa00;
 }
 
@@ -87,8 +87,8 @@ body {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
-    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
-    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
 .panel-heading {
@@ -109,23 +109,12 @@ body {
     float: left;
 }
 
-.detail {
-    width: 69%;
-    float: right;
-    display: inline-block;
-}
-
-.detail .panel-heading .text {
-    font-size: medium;
-    font-weight: bold;
-}
-
 .tree > ul {
     padding: 0;
 }
 
 .tree > ul ul {
-   margin-left: -6px;
+    margin-left: -6px;
 }
 
 .tree a {
@@ -202,32 +191,72 @@ body {
     height: 23px;
 }
 
-.detail-panel {
-    width: 70%;
+.detail {
+    width: 69%;
+    float: right;
+    display: inline-block;
+}
+
+.detail .panel-heading .text {
+    font-size: medium;
+    font-weight: bold;
+}
+
+.detail td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-right: 20px;
+}
+
+.testcase {
+    margin-bottom: 15px;
+}
+
+.testcase .tag {
+    margin-right: 10px;
+    padding-right: 3px;
+    padding-left: 3px;
+    color: #fff;
+    background-color: #5bc0de;
+    border: 2px solid transparent;
+    border-radius: 5px;
+}
+
+.testcase .group {
+    margin-right: 10px;
+    padding-right: 3px;
+    padding-left: 3px;
+    color: #fff;
+    background-color: #777;
+    border: 2px solid transparent;
+    border-radius: 5px;
+}
+
+.test-fixture {
+    margin-bottom: 20px;
+}
+
+.test-fixture .panel-heading {
+    color: #fff;
+    font-weight: bold;
+    padding: 5px 17px;
+    opacity: 0.9;
+}
+
+.test-fixture .panel-heading:hover {
+    opacity: 1;
 }
 
 .test-fixture .passed {
     background-color: #44aa44;
 }
 
-.test-fixture .passed:hover {
-    background-color: #40a040;
-}
-
 .test-fixture .failed {
     background-color: #ff5555;
 }
 
-.test-fixture .failed:hover {
-    background-color: #f05050;
-}
-
 .test-fixture .skipped {
     background-color: #ffaa00;
-}
-
-.test-fixture .skipped:hover {
-    background-color: #f0a000;
 }
 
 .test-fixture .logs .log-level {
@@ -269,4 +298,5 @@ body {
 
 .test-fixture .screenshot-link:hover {
     background-color: #4ae;
-    transition: none; }
+    transition: none;
+}

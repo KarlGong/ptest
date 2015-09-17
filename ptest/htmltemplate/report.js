@@ -118,35 +118,36 @@ renderTree = function (testSuite) {
 };
 
 renderTestFixturePanel = function (detailPanel, data) {
-    var testFixturePanel = $('<div class="test-fixture"><table></table></div>');
-    var fieldSlot = testFixturePanel.find(' > table');
+    var testFixturePanel = $('<div class="test-fixture panel"><div class="panel-heading"></div><div class="panel-body"><table></table></div></div>');
+    var panelHeader = testFixturePanel.find('.panel-heading');
+    panelHeader.addClass(data.status);
+    panelHeader.text('@' + data.fixtureType);
 
-    var fixtureType = $('<tr class="{0}"><th>@{1}</th></tr>'.format(data.status, data.fixtureType));
-    fieldSlot.append(fixtureType);
-    var name = $('<tr><td>Name</td><td>{0}</td></tr>'.format(data.name));
-    fieldSlot.append(name);
+    var fieldTable = testFixturePanel.find('table');
     var fullName = $('<tr><td>Full Name</td><td>{0}</td></tr>'.format(data.fullName));
-    fieldSlot.append(fullName);
-    var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
-    fieldSlot.append(description);
+    fieldTable.append(fullName);
+    var name = $('<tr><td>Method Name</td><td>{0}</td></tr>'.format(data.name));
+    fieldTable.append(name);
     var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
-    fieldSlot.append(startTime);
+    fieldTable.append(startTime);
     var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
-    fieldSlot.append(endTime);
+    fieldTable.append(endTime);
     var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
-    fieldSlot.append(duration);
+    fieldTable.append(duration);
+    var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
+    fieldTable.append(description);
     var logs = $('<tr><td>Logs</td><td class="logs"></td></tr>');
-    fieldSlot.append(logs);
-    var logSlot = logs.find('.logs');
+    fieldTable.append(logs);
+    var logGroup = logs.find('.logs');
     for (var i = 0; i < data.logs.length; i++) {
         var level = data.logs[i].level;
         var message = data.logs[i].message;
         var log = $('<span class="log-level">[{0}] </span><span class="{0}">{1}</span><br/>'.format(level, message));
-        logSlot.append(log);
+        logGroup.append(log);
     }
     if (data.screenshot != null) {
         var screenshot = $('<tr><td>Screenshot</td><td><a class="screenshot-link" href="{0}" data-lightbox="{0}"><img class="screenshot" src="{0}" /></a></td></tr>'.format(data.screenshot));
-        fieldSlot.append(screenshot);
+        fieldTable.append(screenshot);
     }
 
     detailPanel.append(testFixturePanel);
@@ -163,6 +164,29 @@ renderDetailPanel = function (data) {
             renderTestFixturePanel(detailPanelBody, data);
             break;
         case "testcase":
+            var fieldTable = $('<table class="testcase"></table>');
+
+            var tags = $('<tr><td>Tags</td><td></td></tr>');
+            var tagSlot = tags.find('td:nth-child(2)');
+            for (var i=0; i < data.tags.length; i++) {
+                tagSlot.append($('<span class="tag">{0}</span>'.format(data.tags[i])));
+            }
+            fieldTable.append(tags);
+
+            var group = $('<tr><td>Group</td><td></td></tr>');
+            group.find('td:nth-child(2)').append($('<span class="group">{0}</span>'.format(data.group)));
+            fieldTable.append(group);
+
+            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+            fieldTable.append(startTime);
+            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+            fieldTable.append(endTime);
+            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+            fieldTable.append(duration);
+            var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
+            fieldTable.append(description);
+
+            detailPanelBody.append(fieldTable);
             if (!data.beforeMethod.isEmpty) {
                 renderTestFixturePanel(detailPanelBody, data.beforeMethod);
             }
