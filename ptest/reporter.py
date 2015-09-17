@@ -115,6 +115,7 @@ def generate_html_report(report_dir):
 
 
 def _get_test_suite_dict(suite):
+    status_count = suite.status_count
     repr_dict = {
         "name": suite.name,
         "fullName": suite.full_name,
@@ -126,12 +127,15 @@ def _get_test_suite_dict(suite):
         "endTime": str(suite.end_time),
         "elapsedTime": suite.elapsed_time,
         "statusCount": suite.status_count,
-        "passRate": suite.pass_rate
+        "passRate": float(status_count['passed']) * 100 / status_count['total'],
+        "failRate": float(status_count['failed']) * 100 / status_count['total'],
+        "skipRate": float(status_count['skipped']) * 100 / status_count['total']
     }
     return repr_dict
 
 
 def _get_test_class_dict(test_class):
+    status_count = test_class.status_count
     repr_dict = {
         "name": test_class.name,
         "fullName": test_class.full_name,
@@ -146,12 +150,15 @@ def _get_test_class_dict(test_class):
         "endTime": str(test_class.end_time),
         "elapsedTime": test_class.elapsed_time,
         "statusCount": test_class.status_count,
-        "passRate": test_class.pass_rate
+        "passRate": float(status_count['passed']) * 100 / status_count['total'],
+        "failRate": float(status_count['failed']) * 100 / status_count['total'],
+        "skipRate": float(status_count['skipped']) * 100 / status_count['total']
     }
     return repr_dict
 
 
 def _get_test_group_dict(test_group):
+    status_count = test_group.status_count
     repr_dict = {
         "name": test_group.name,
         "fullName": test_group.full_name,
@@ -163,7 +170,9 @@ def _get_test_group_dict(test_group):
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
         "statusCount": test_group.status_count,
-        "passRate": test_group.pass_rate
+        "passRate": float(status_count['passed']) * 100 / status_count['total'],
+        "failRate": float(status_count['failed']) * 100 / status_count['total'],
+        "skipRate": float(status_count['skipped']) * 100 / status_count['total']
     }
     return repr_dict
 
