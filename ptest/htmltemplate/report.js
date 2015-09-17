@@ -1,22 +1,43 @@
 $(window).load(function () {
     $(function () {
-        $('.tree li.leaf > a').on('click', function (e) {
+        $('.tree li.leaf>.item').on('click', function (e) {
             renderDetailPanel($(this).parent().data("data"));
             e.stopPropagation();
         });
 
-        $('.tree li.parent .sign').on('click', function (e) {
+        $('.tree li.parent>.item>.sign').on('click', function (e) {
             var children = $(this).parent().parent().find(' > ul > li');
             if (children.is(":visible")) {
                 children.hide('fast');
-                $(this).attr('title', 'Click to expand.');
-                $(this).find(' > i').addClass('icon-plus').removeClass('icon-minus');
+                $(this).text("+");
             } else {
                 children.show('fast');
-                $(this).attr('title', 'Click to collapsed.')
-                $(this).find(' > i').addClass('icon-minus').removeClass('icon-plus');
+                $(this).text("-");
             }
             e.stopPropagation();
+        });
+
+        // init filter for tree
+        $('.navigation .all .badge').text(testSuite.statusCount['total']);
+        $('.navigation .pass .badge').text(testSuite.statusCount['passed']);
+        $('.navigation .fail .badge').text(testSuite.statusCount['failed']);
+        $('.navigation .skip .badge').text(testSuite.statusCount['skipped']);
+
+        // add sign for parent node
+        var parentNodes = $('.tree li.parent');
+        for (var i = 0; i < parentNodes.length; i ++) {
+            var parentNode = $(parentNodes[i]);
+            var children = parentNode.find(' > ul > li');
+            if (children.is(':visible')) {
+                parentNode.find(' > .item > .sign').text('-');
+            } else {
+                parentNode.find(' > .item > .sign').text('+');
+            }
+        }
+
+        // set light box option
+        lightbox.option({
+            'resizeDuration': 0
         });
     });
 });
@@ -52,31 +73,32 @@ renderTree = function (testSuite) {
             if (data.type == "testfixture" && data.isEmpty) {
                 return node;
             }
-            var nodeContent = '<li class="node leaf"><a title={fullName}><span class="name">{name}</span></a></li>';
+            var nodeContent = '<li class="node leaf"><div class="item" title="{fullName}"><div class="sign">O</div><div class="name">{name}</div><div class="rate-container"><div class="{status} rate" style="width: 100%"></div></div></div></li>';
             if (data.hasOwnProperty("fixtureType")) {
                 // test fixture
                 node = $(nodeContent.format({
                     "name": '@' + data.fixtureType,
-                    "fullName": data.fullName
+                    "fullName": data.fullName,
+                    "status": data.status
                 }));
             } else {
                 // test case
                 node = $(nodeContent.format({
                     "name": data.name,
-                    "fullName": data.fullName
+                    "fullName": data.fullName,
+                    "status": data.status
                 }));
             }
         }
         else {
             // test container
-            var nodeContent = '<li class="node parent"><a title={fullName}><span class="sign"><i class="icon-minus"></i></span><span class="name">{name}</span></a><ul></ul></li>';
+            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
             node = $(nodeContent.format({
                 "name": data.name,
                 "fullName": data.fullName,
-                "total": data.statusCount.total,
-                "passed": data.statusCount.passed,
-                "failed": data.statusCount.failed,
-                "skipped": data.statusCount.skipped
+                "passRate": data.passRate,
+                "failRate": data.failRate,
+                "skipRate": data.skipRate
             }));
         }
         if (!visible) {
