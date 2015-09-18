@@ -19,9 +19,9 @@ $(window).load(function () {
 
         // init filter for tree
         $('.navigation .all .badge').text(testSuite.statusCount['total']);
-        $('.navigation .pass .badge').text(testSuite.statusCount['passed']);
-        $('.navigation .fail .badge').text(testSuite.statusCount['failed']);
-        $('.navigation .skip .badge').text(testSuite.statusCount['skipped']);
+        $('.navigation .passed .badge').text(testSuite.statusCount['passed']);
+        $('.navigation .failed .badge').text(testSuite.statusCount['failed']);
+        $('.navigation .skipped .badge').text(testSuite.statusCount['skipped']);
 
         // add sign for parent node
         var parentNodes = $('.tree li.parent');
@@ -68,31 +68,18 @@ String.prototype.format = function (args) {
 renderTree = function (testSuite) {
     appendToNode = function (parentNode, data, visible) {
         var node = null;
-        if (data.type == "testfixture" || data.type == "testcase") {
-            // an empty test fixture
-            if (data.type == "testfixture" && data.isEmpty) {
-                return node;
-            }
+        if (data.type == "testcase") {
             var nodeContent = '<li class="node leaf"><div class="item" title="{fullName}"><div class="sign {status}"></div><div class="name">{name}</div></div></li>';
-            if (data.hasOwnProperty("fixtureType")) {
-                // test fixture
-                node = $(nodeContent.format({
-                    "name": '@' + data.fixtureType,
-                    "fullName": data.fullName,
-                    "status": data.status
-                }));
-            } else {
-                // test case
-                node = $(nodeContent.format({
-                    "name": data.name,
-                    "fullName": data.fullName,
-                    "status": data.status
-                }));
-            }
+            // test case
+            node = $(nodeContent.format({
+                "name": data.name,
+                "fullName": data.fullName,
+                "status": data.status
+            }));
         }
         else {
             // test container
-            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
+            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="all badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
             node = $(nodeContent.format({
                 "name": data.name,
                 "fullName": data.fullName,
@@ -167,13 +154,15 @@ renderTestFixturePanel = function (detailPanel, data) {
 
 renderDetailPanel = function (data) {
     var detailPanel = $('.detail');
-    var detailPanelHeader = detailPanel.find('.panel-heading .text');
+    var detailPanelHeader = detailPanel.find('.panel-heading');
     var detailPanelBody = detailPanel.find('.panel-body');
-    detailPanelHeader.text(data.fullName);
+    detailPanelHeader.empty();
     detailPanelBody.empty();
+    var title = $('<span class="text">{0}</span>'.format(data.fullName));
+    detailPanelHeader.append(title);
     switch (data.type) {
         case "testcase":
-            var fieldTable = $('<table class="testcase"></table>');
+            var fieldTable = $('<table class="overview"></table>');
 
             var tags = $('<tr><td>Tags</td><td></td></tr>');
             var tagSlot = tags.find('td:nth-child(2)');
@@ -205,6 +194,10 @@ renderDetailPanel = function (data) {
             }
             break;
         case "testsuite":
+            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+            var number = $(numberContent.format(data.statusCount.total, data.statusCount.passed, data.statusCount.failed, data.statusCount.skipped));
+            detailPanelHeader.append(number);
+
             var fieldTable = $('<table class="overview"></table>');
 
             var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
@@ -223,6 +216,10 @@ renderDetailPanel = function (data) {
             }
             break;
         case "testclass":
+            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+            var number = $(numberContent.format(data.statusCount.total, data.statusCount.passed, data.statusCount.failed, data.statusCount.skipped));
+            detailPanelHeader.append(number);
+
             var fieldTable = $('<table class="overview"></table>');
 
             var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
@@ -243,6 +240,10 @@ renderDetailPanel = function (data) {
             }
             break;
         case "testgroup":
+            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+            var number = $(numberContent.format(data.statusCount.total, data.statusCount.passed, data.statusCount.failed, data.statusCount.skipped));
+            detailPanelHeader.append(number);
+
             var fieldTable = $('<table class="overview"></table>');
 
             var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
