@@ -1,6 +1,6 @@
 $(window).load(function () {
     $(function () {
-        $('.tree li.leaf>.item').on('click', function (e) {
+        $('.tree li > .item').on('click', function (e) {
             renderDetailPanel($(this).parent().data("data"));
             e.stopPropagation();
         });
@@ -73,7 +73,7 @@ renderTree = function (testSuite) {
             if (data.type == "testfixture" && data.isEmpty) {
                 return node;
             }
-            var nodeContent = '<li class="node leaf"><div class="item" title="{fullName}"><div class="sign">O</div><div class="name">{name}</div><div class="rate-container"><div class="{status} rate" style="width: 100%"></div></div></div></li>';
+            var nodeContent = '<li class="node leaf"><div class="item" title="{fullName}"><div class="sign {status}"></div><div class="name">{name}</div></div></li>';
             if (data.hasOwnProperty("fixtureType")) {
                 // test fixture
                 node = $(nodeContent.format({
@@ -92,10 +92,11 @@ renderTree = function (testSuite) {
         }
         else {
             // test container
-            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
+            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
             node = $(nodeContent.format({
                 "name": data.name,
                 "fullName": data.fullName,
+                "total": data.statusCount.total,
                 "passRate": data.passRate,
                 "failRate": data.failRate,
                 "skipRate": data.skipRate
@@ -109,34 +110,23 @@ renderTree = function (testSuite) {
         return node;
     };
 
+    // render tree
     var testSuiteNode = appendToNode($('.navigation .tree'), testSuite, true);
-
-    appendToNode(testSuiteNode, testSuite.beforeSuite, true);
 
     for (var i = 0; i < testSuite.testClasses.length; i++) {
         var testClass = testSuite.testClasses[i];
         var testClassNode = appendToNode(testSuiteNode, testClass, true);
 
-        appendToNode(testClassNode, testClass.beforeClass, false);
-
         for (var j = 0; j < testClass.testGroups.length; j++) {
             var testGroup = testClass.testGroups[j];
             var testGroupNode = appendToNode(testClassNode, testGroup, false);
-
-            appendToNode(testGroupNode, testGroup.beforeGroup, false);
 
             for (var k = 0; k < testGroup.testCases.length; k++) {
                 var testCase = testGroup.testCases[k];
                 appendToNode(testGroupNode, testCase, false);
             }
-
-            appendToNode(testGroupNode, testGroup.afterGroup, false);
         }
-
-        appendToNode(testClassNode, testClass.afterClass, false);
     }
-
-    appendToNode(testSuiteNode, testSuite.afterSuite, true);
 };
 
 renderTestFixturePanel = function (detailPanel, data) {
@@ -182,9 +172,6 @@ renderDetailPanel = function (data) {
     detailPanelHeader.text(data.fullName);
     detailPanelBody.empty();
     switch (data.type) {
-        case "testfixture":
-            renderTestFixturePanel(detailPanelBody, data);
-            break;
         case "testcase":
             var fieldTable = $('<table class="testcase"></table>');
 
@@ -218,10 +205,60 @@ renderDetailPanel = function (data) {
             }
             break;
         case "testsuite":
+            var fieldTable = $('<table class="overview"></table>');
+
+            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+            fieldTable.append(startTime);
+            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+            fieldTable.append(endTime);
+            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+            fieldTable.append(duration);
+
+            detailPanelBody.append(fieldTable);
+            if (!data.beforeSuite.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.beforeSuite);
+            }
+            if (!data.afterSuite.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.afterSuite);
+            }
             break;
         case "testclass":
+            var fieldTable = $('<table class="overview"></table>');
+
+            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+            fieldTable.append(startTime);
+            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+            fieldTable.append(endTime);
+            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+            fieldTable.append(duration);
+            var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
+            fieldTable.append(description);
+
+            detailPanelBody.append(fieldTable);
+            if (!data.beforeClass.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.beforeClass);
+            }
+            if (!data.afterClass.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.afterClass);
+            }
             break;
         case "testgroup":
+            var fieldTable = $('<table class="overview"></table>');
+
+            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+            fieldTable.append(startTime);
+            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+            fieldTable.append(endTime);
+            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+            fieldTable.append(duration);
+
+            detailPanelBody.append(fieldTable);
+            if (!data.beforeGroup.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.beforeGroup);
+            }
+            if (!data.afterGroup.isEmpty) {
+                renderTestFixturePanel(detailPanelBody, data.afterGroup);
+            }
             break;
     }
 };

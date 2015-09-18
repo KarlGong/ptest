@@ -84,8 +84,6 @@ body {
 .panel {
     background-color: #fff;
     border: 1px solid #ddd;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
@@ -101,6 +99,7 @@ body {
 }
 
 .panel-body {
+    overflow-x: auto;
     padding: 15px;
 }
 
@@ -139,15 +138,32 @@ body {
 }
 
 .tree .sign {
+    height: 18px;
     float: left;
     display: inline-block;
     padding: 4px 10px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    width: 7px;
 }
 
 .tree .name {
     float: left;
-    margin-top: 4px;
+    margin-top: 5px;
     padding-left: 5px;
+}
+
+.tree .badge {
+    text-align: center;
+    margin-top: 2px;
+    font-size: xx-small;
+    float: right;
+    margin-right: 3px;
+    padding: 2px 4px;
+    border-radius: 10px;
+    background-color: #43a3d0;
+    color: #fff;
+    min-width: 10px;
 }
 
 .tree .rate-container {
@@ -217,11 +233,11 @@ body {
     padding-right: 20px;
 }
 
-.testcase {
+.overview {
     margin-bottom: 15px;
 }
 
-.testcase .tag {
+.overview .tag {
     margin-right: 10px;
     padding-right: 3px;
     padding-left: 3px;
@@ -231,7 +247,7 @@ body {
     border-radius: 5px;
 }
 
-.testcase .group {
+.overview .group {
     margin-right: 10px;
     padding-right: 3px;
     padding-left: 3px;
