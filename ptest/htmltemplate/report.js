@@ -2,6 +2,8 @@ $(window).load(function () {
     $(function () {
         $('.tree li > .item').on('click', function (e) {
             renderDetailPanel($(this).parent().data("data"));
+            $('.tree li .selected').removeClass('selected');
+            $(this).addClass('selected');
             e.stopPropagation();
         });
 

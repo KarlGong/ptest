@@ -125,6 +125,11 @@ body {
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
+.tree .item.selected {
+    border: 1px solid #43a3d0;
+    box-shadow: 0 1px 1px #43a3d0;
+}
+
 .tree .sign {
     height: 18px;
     float: left;
