@@ -230,6 +230,8 @@ renderDetailPanel = function (data) {
             fieldTable.append(endTime);
             var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
             fieldTable.append(duration);
+            var runMode = $('<tr><td>Run Mode</td><td>{0}</td></tr>'.format(data.runMode));
+            fieldTable.append(runMode);
             var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
             fieldTable.append(description);
 
