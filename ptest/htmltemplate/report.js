@@ -233,8 +233,8 @@ renderDetailPanel = function (data) {
     var detailPanelBody = detailPanel.find('.panel-body');
     detailPanelHeader.empty();
     detailPanelBody.empty();
-    var title = $('<span class="text">{0}</span>'.format(data.fullName));
-    detailPanelHeader.append(title);
+
+    detailPanelHeader.append($('<span class="text">{0}</span>'.format(data.fullName)));
     switch (data.type) {
         case "testcase":
             var fieldTable = $('<table class="overview"></table>');
@@ -340,3 +340,37 @@ renderDetailPanel = function (data) {
             break;
     }
 };
+
+renderDashBoard = function(data) {
+    var detailPanel = $('.detail');
+    var detailPanelHeader = detailPanel.find('.panel-heading');
+    var detailPanelBody = detailPanel.find('.panel-body');
+    detailPanelHeader.empty();
+    detailPanelBody.empty();
+
+    detailPanelHeader.append($('<span class="text">Dashboard</span>'));
+    detailPanelBody.append($('<canvas class="pieChart"></canvas>'));
+    var pieChartData = [
+    {
+        value: data.statusCount.passed,
+        color:"#5FB65F",
+        highlight: "#7DC27D",
+        label: "Passed"
+    },
+    {
+        value: data.statusCount.failed,
+        color: "#FF6E6E",
+        highlight: "#FD8989",
+        label: "Failed"
+    },
+    {
+        value: data.statusCount.skipped,
+        color: "#FFB626",
+        highlight: "#FDC24F",
+        label: "Skipped"
+    }
+    ]
+    var ctx = $(".pieChart").get(0).getContext("2d");
+    var pieChart = new Chart(ctx).Pie(pieChartData, {animationEasing: 'easeOutQuart'});
+    detailPanelBody.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
+}
