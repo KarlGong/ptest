@@ -36,6 +36,7 @@ body {
 .btn {
     display: inline-block;
     padding: 5px 6px;
+    margin-left: 3px;
     color: #fff;
     font-weight: bold;
     text-align: center;
@@ -58,11 +59,8 @@ body {
 }
 
 .btn .badge {
-    position: relative;
     margin-left: 4px;
-    top: -1px;
     padding: 2px 6px;
-    vertical-align: middle;
     border-radius: 10px;
     background-color: #fff;
 }
@@ -110,6 +108,10 @@ body {
     float: left;
 }
 
+.tree {
+    margin-top: -10px;
+}
+
 .tree > ul {
     padding: 0;
 }
@@ -122,7 +124,7 @@ body {
     cursor: pointer;
     border: 1px solid rgb(204, 204, 204);
     border-radius: 5px;
-    width: 150px;
+    width: 165px;
     height: 26px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
@@ -142,10 +144,24 @@ body {
     width: 7px;
 }
 
-.tree .name {
+.tree .parent .name {
     float: left;
+    width: 101px;
     margin-top: 5px;
-    padding-left: 5px;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.tree .leaf .name {
+    float: left;
+    width: 129px;
+    margin-top: 5px;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
 }
 
 .tree .badge {
@@ -162,7 +178,7 @@ body {
 
 .tree .rate-container {
     left: 32px;
-    width: 124px;
+    width: 139px;
     position: absolute;
 }
 
