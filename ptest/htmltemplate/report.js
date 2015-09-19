@@ -1,49 +1,3 @@
-$(window).load(function () {
-    $(function () {
-        $('.tree li > .item').on('click', function (e) {
-            renderDetailPanel($(this).parent().data("data"));
-            $('.tree li .selected').removeClass('selected');
-            $(this).addClass('selected');
-            e.stopPropagation();
-        });
-
-        $('.tree li.parent>.item>.sign').on('click', function (e) {
-            var children = $(this).parent().parent().find(' > ul > li');
-            if (children.is(":visible")) {
-                children.hide('fast');
-                $(this).text("+");
-            } else {
-                children.show('fast');
-                $(this).text("-");
-            }
-            e.stopPropagation();
-        });
-
-        // init filter for tree
-        $('.navigation .all .badge').text(testSuite.statusCount['total']);
-        $('.navigation .passed .badge').text(testSuite.statusCount['passed']);
-        $('.navigation .failed .badge').text(testSuite.statusCount['failed']);
-        $('.navigation .skipped .badge').text(testSuite.statusCount['skipped']);
-
-        // add sign for parent node
-        var parentNodes = $('.tree li.parent');
-        for (var i = 0; i < parentNodes.length; i ++) {
-            var parentNode = $(parentNodes[i]);
-            var children = parentNode.find(' > ul > li');
-            if (children.is(':visible')) {
-                parentNode.find(' > .item > .sign').text('-');
-            } else {
-                parentNode.find(' > .item > .sign').text('+');
-            }
-        }
-
-        // set light box option
-        lightbox.option({
-            'resizeDuration': 0
-        });
-    });
-});
-
 String.prototype.format = function (args) {
     var result = this;
     if (arguments.length > 0) {
@@ -67,10 +21,27 @@ String.prototype.format = function (args) {
     return result;
 };
 
-renderTree = function (testSuite) {
+renderTree = function (testSuite, statusFilter) {
     appendToNode = function (parentNode, data, visible) {
         var node = null;
         if (data.type == "testcase") {
+            switch (statusFilter){
+                case "passed":
+                    if (data.status != "passed") {
+                        return null;
+                    }
+                    break;
+                case "failed":
+                    if (data.status != "failed") {
+                        return null;
+                    }
+                    break;
+                case "skipped":
+                    if (data.status != "skipped") {
+                        return null;
+                    }
+                    break;
+            }
             var nodeContent = '<li class="node leaf"><div class="item" title="{fullName}"><div class="sign {status}"></div><div class="name">{name}</div></div></li>';
             // test case
             node = $(nodeContent.format({
@@ -81,15 +52,46 @@ renderTree = function (testSuite) {
         }
         else {
             // test container
-            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="all badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
-            node = $(nodeContent.format({
+            var nodeContent = '<li class="node parent"><div class="item" title="{fullName}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="{statusFilter} badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
+            var nodeContentFormatter = {
                 "name": data.name,
                 "fullName": data.fullName,
+                "statusFilter": statusFilter,
                 "total": data.statusCount.total,
                 "passRate": data.passRate,
                 "failRate": data.failRate,
                 "skipRate": data.skipRate
-            }));
+            }
+            switch (statusFilter) {
+                case "passed":
+                    if (data.passRate == 0) {
+                        return null;
+                    }
+                    nodeContentFormatter["total"] = data.statusCount.passed;
+                    nodeContentFormatter["passRate"] = 100;
+                    nodeContentFormatter["failRate"] = 0;
+                    nodeContentFormatter["skipRate"] = 0;
+                    break;
+                case "failed":
+                    if (data.failRate == 0 ) {
+                        return null;
+                    }
+                    nodeContentFormatter["total"] = data.statusCount.failed;
+                    nodeContentFormatter["passRate"] = 0;
+                    nodeContentFormatter["failRate"] = 100;
+                    nodeContentFormatter["skipRate"] = 0;
+                    break;
+                case "skipped":
+                    if (data.skipRate == 0) {
+                        return null;
+                    }
+                    nodeContentFormatter["total"] = data.statusCount.passed;
+                    nodeContentFormatter["passRate"] = 0;
+                    nodeContentFormatter["failRate"] = 0;
+                    nodeContentFormatter["skipRate"] = 100;
+                    break;
+            }
+            node = $(nodeContent.format(nodeContentFormatter));
         }
         if (!visible) {
             node.css('display', 'none');
@@ -99,16 +101,28 @@ renderTree = function (testSuite) {
         return node;
     };
 
+    // clear tree
+    $('.navigation .tree>ul').empty()
+
     // render tree
     var testSuiteNode = appendToNode($('.navigation .tree'), testSuite, true);
+    if (testSuiteNode == null) {
+        return;
+    }
 
     for (var i = 0; i < testSuite.testClasses.length; i++) {
         var testClass = testSuite.testClasses[i];
         var testClassNode = appendToNode(testSuiteNode, testClass, true);
+        if (testClassNode == null) {
+            continue;
+        }
 
         for (var j = 0; j < testClass.testGroups.length; j++) {
             var testGroup = testClass.testGroups[j];
             var testGroupNode = appendToNode(testClassNode, testGroup, false);
+            if (testGroupNode == null) {
+                continue;
+            }
 
             for (var k = 0; k < testGroup.testCases.length; k++) {
                 var testCase = testGroup.testCases[k];
@@ -116,6 +130,39 @@ renderTree = function (testSuite) {
             }
         }
     }
+
+    // add sign for parent node
+    var parentNodes = $('.tree li.parent');
+    for (var i = 0; i < parentNodes.length; i ++) {
+        var parentNode = $(parentNodes[i]);
+        var children = parentNode.find(' > ul > li');
+        if (children.is(':visible')) {
+            parentNode.find(' > .item > .sign').text('-');
+        } else {
+            parentNode.find(' > .item > .sign').text('+');
+        }
+    }
+
+    // add listener for selecting node
+    $('.tree li > .item').on('click', function (e) {
+            renderDetailPanel($(this).parent().data("data"));
+            $('.tree li .selected').removeClass('selected');
+            $(this).addClass('selected');
+            e.stopPropagation();
+        });
+
+    // add listener for expand/collapse parent node
+    $('.tree li.parent>.item>.sign').on('click', function (e) {
+        var children = $(this).parent().parent().find(' > ul > li');
+        if (children.is(":visible")) {
+            children.hide('fast');
+            $(this).text("+");
+        } else {
+            children.show('fast');
+            $(this).text("-");
+        }
+        e.stopPropagation();
+    });
 };
 
 renderTestFixturePanel = function (detailPanel, data) {

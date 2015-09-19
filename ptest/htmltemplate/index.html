@@ -20,10 +20,10 @@
 <div class="container">
     <div class="panel navigation">
         <div class="panel-heading">
-            <button class="btn all selected">ALL<span class="badge"></span></button>
-            <button class="btn passed">PASS<span class="badge"></span></button>
-            <button class="btn failed" >FAIL<span class="badge"></span></button>
-            <button class="btn skipped">SKIP<span class="badge"></span></button>
+            <div class="btn all selected">ALL<span class="badge"></span></div>
+            <div class="btn passed">PASS<span class="badge"></span></div>
+            <div class="btn failed" >FAIL<span class="badge"></span></div>
+            <div class="btn skipped">SKIP<span class="badge"></span></div>
         </div>
         <div class="panel-body">
             <div class="tree"><ul></ul></div>
@@ -40,8 +40,28 @@
 <script type="text/javascript">
     // init test suite data
     var testSuite = {test_suite_json};
+
+    // init filter for tree
+    $('.navigation .all .badge').text(testSuite.statusCount['total']);
+    $('.navigation .passed .badge').text(testSuite.statusCount['passed']);
+    $('.navigation .failed .badge').text(testSuite.statusCount['failed']);
+    $('.navigation .skipped .badge').text(testSuite.statusCount['skipped']);
+
     // render tree
-    renderTree(testSuite);
+    renderTree(testSuite, "all");
+
+    // add listener for tree filter
+    $('.navigation .btn').on('click', function (e) {{
+        $('.navigation .btn.selected').removeClass('selected');
+        $(this).addClass('selected');
+        renderTree(testSuite, $(this).attr('class').split(' ')[1]);
+    }});
+
+    // set light box option
+    lightbox.option({{
+        'resizeDuration': 0
+    }});
+
 </script>
 </body>
 </html>
