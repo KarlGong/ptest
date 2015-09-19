@@ -108,7 +108,31 @@ body {
     float: left;
 }
 
+.navigation .toolbar {
+    float: right;
+    margin-right: -8px;
+    margin-top: -10px;
+    display: none;
+}
+
+.navigation .panel-body:hover .toolbar {
+    display:block;
+}
+
+.navigation .toolbar .expand {
+    cursor: pointer;
+    color: #43A3D0;
+    text-decoration: underline;
+}
+
+.navigation .toolbar .collapse {
+    cursor: pointer;
+    color: #43A3D0;
+    text-decoration: underline;
+}
+
 .tree {
+    float: left;
     margin-top: -10px;
 }
 
@@ -127,6 +151,11 @@ body {
     width: 165px;
     height: 26px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+}
+
+.tree .item:hover {
+    border: 1px solid #BAE0F3;
+    box-shadow: 0 1px 1px #BAE0F3;
 }
 
 .tree .item.selected {

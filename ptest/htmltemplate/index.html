@@ -20,12 +20,13 @@
 <div class="container">
     <div class="panel navigation">
         <div class="panel-heading">
-            <div class="btn all selected">ALL<span class="badge"></span></div>
-            <div class="btn passed">PASS<span class="badge"></span></div>
-            <div class="btn failed" >FAIL<span class="badge"></span></div>
-            <div class="btn skipped">SKIP<span class="badge"></span></div>
+            <div class="btn all selected" filter="all">ALL<span class="badge"></span></div>
+            <div class="btn passed" filter="passed">PASS<span class="badge"></span></div>
+            <div class="btn failed" filter="failed">FAIL<span class="badge"></span></div>
+            <div class="btn skipped" filter="skipped">SKIP<span class="badge"></span></div>
         </div>
         <div class="panel-body">
+            <div class="toolbar"><span class="expand">ExpandAll</span> <span class="collapse">CollapseAll</span></div>
             <div class="tree"><ul></ul></div>
         </div>
     </div>
@@ -54,14 +55,8 @@
     $('.navigation .btn').on('click', function (e) {{
         $('.navigation .btn.selected').removeClass('selected');
         $(this).addClass('selected');
-        renderTree(testSuite, $(this).attr('class').split(' ')[1]);
+        renderTree(testSuite, $(this).attr('filter'));
     }});
-
-    // set light box option
-    lightbox.option({{
-        'resizeDuration': 0
-    }});
-
 </script>
 </body>
 </html>

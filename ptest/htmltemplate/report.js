@@ -1,3 +1,24 @@
+$(window).load(function () {
+    $(function () {
+        // set light box option
+        lightbox.option({
+            'resizeDuration': 0
+        });
+
+        // add listener for expand all
+        $('.navigation .toolbar .expand').on('click', function (e) {
+            $('.tree li.parent.collapsed>.item>.sign').click();
+            e.stopPropagation();
+        });
+
+        // add listener for collapse all
+        $('.navigation .toolbar .collapse').on('click', function (e) {
+            $('.tree li.parent.expanded>.item>.sign').click();
+            e.stopPropagation();
+        });
+    });
+});
+
 String.prototype.format = function (args) {
     var result = this;
     if (arguments.length > 0) {
@@ -138,10 +159,28 @@ renderTree = function (testSuite, statusFilter) {
         var children = parentNode.find(' > ul > li');
         if (children.is(':visible')) {
             parentNode.find(' > .item > .sign').text('-');
+            parentNode.addClass('expanded');
         } else {
             parentNode.find(' > .item > .sign').text('+');
+            parentNode.addClass('collapsed');
         }
     }
+
+     // add listener for expand/collapse parent node
+    $('.tree li.parent>.item>.sign').on('click', function (e) {
+        var node = $(this).parent().parent();
+        var children = node.find(' > ul > li');
+        if (children.is(":visible")) {
+            children.hide('fast');
+            $(this).text("+");
+            node.removeClass('expanded').addClass('collapsed');
+        } else {
+            children.show('fast');
+            $(this).text("-");
+            node.removeClass('collapsed').addClass('expanded');
+        }
+        e.stopPropagation();
+    });
 
     // add listener for selecting node
     $('.tree li > .item').on('click', function (e) {
@@ -149,19 +188,6 @@ renderTree = function (testSuite, statusFilter) {
             $('.tree li .selected').removeClass('selected');
             $(this).addClass('selected');
             e.stopPropagation();
-        });
-
-    // add listener for expand/collapse parent node
-    $('.tree li.parent>.item>.sign').on('click', function (e) {
-        var children = $(this).parent().parent().find(' > ul > li');
-        if (children.is(":visible")) {
-            children.hide('fast');
-            $(this).text("+");
-        } else {
-            children.show('fast');
-            $(this).text("-");
-        }
-        e.stopPropagation();
     });
 };
 
