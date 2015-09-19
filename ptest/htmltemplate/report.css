@@ -112,11 +112,11 @@ body {
     float: right;
     margin-right: -8px;
     margin-top: -10px;
-    display: none;
+    visibility: hidden;
 }
 
 .navigation .panel-body:hover .toolbar {
-    display:block;
+    visibility: visible;
 }
 
 .navigation .toolbar .expand {
@@ -132,7 +132,6 @@ body {
 }
 
 .tree {
-    float: left;
     margin-top: -10px;
 }
 
@@ -166,7 +165,6 @@ body {
 .tree .sign {
     height: 18px;
     float: left;
-    display: inline-block;
     padding: 4px 10px;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
