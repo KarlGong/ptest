@@ -87,6 +87,14 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.4.0 (compared to 1.3.2)
+
+- Support @BeforeSuite, @BeforeClass, @BeforeGroup, @AfterSuite, @AfterClass, @AfterGroup
+
+- Support timeout for test fixtures.
+
+- Redesign the html report.
+
 1.3.2 (compared to 1.3.1)
 
 - Add cmd line entry points for py3.
