@@ -145,7 +145,7 @@ class TestSuite(TestContainer):
 
     def pop_test_unit(self):
         from . import testexecutor
-        current_thread_name = testexecutor.get_name()
+        current_thread_name = testexecutor.current_executor().getName()
         self.__lock.acquire()
         try:
             if self.before_suite.pop_status == PopStatus.UNPOPPED:
@@ -451,10 +451,11 @@ class TestFixture:
             return
 
         from . import testexecutor
-        test_fixture_executor = testexecutor.TestFixtureExecutor(self)
         self.start_time = datetime.now()
         self.status = TestFixtureStatus.RUNNING
-        testexecutor.update_properties(running_test_fixture=self)
+        current_executor = testexecutor.current_executor()
+        current_executor.update_properties(running_test_fixture=self)
+        test_fixture_executor = testexecutor.TestFixtureExecutor(current_executor, self)
         test_fixture_executor.start()
         if self.timeout > 0:
             test_fixture_executor.join(self.timeout)
@@ -465,13 +466,12 @@ class TestFixture:
                 self.failure_message = "Timed out executing this test fixture in %s seconds." % self.timeout
                 self.failure_type = "TimeoutException"
                 self.stack_trace = ""
-                preporter.error(
-                    "Failed with following message:\n" + self.failure_message)
+                preporter.error("Failed with following message:\n" + self.failure_message)
                 screencapturer.take_screenshot()
                 testexecutor.kill_thread(test_fixture_executor)
         else:
             test_fixture_executor.join()
-        testexecutor.clear_properties()
+        current_executor.update_properties(running_test_fixture=None)
         self.pop_status = PopStatus.FINISHED
         self.end_time = datetime.now()
 
@@ -484,11 +484,12 @@ class TestFixture:
         from . import testexecutor
         from .plogger import preporter
         self.start_time = datetime.now()
-        testexecutor.update_properties(running_test_fixture=self)
+        current_executor = testexecutor.current_executor()
+        current_executor.update_properties(running_test_fixture=self)
         self.status = TestFixtureStatus.SKIPPED
         self.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
         preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
-        testexecutor.clear_properties()
+        current_executor.update_properties(running_test_fixture=None)
         self.pop_status = PopStatus.FINISHED
         self.end_time = datetime.now()
 

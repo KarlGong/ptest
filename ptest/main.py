@@ -1,7 +1,7 @@
 import importlib
 import os
 import copy
-from datetime import datetime
+import threading
 import shlex
 import traceback
 import sys
@@ -14,7 +14,7 @@ from . import testexecutor
 from . import reporter
 from . import config
 from .testsuite import test_suite
-from .enumeration import PDecoratorType, TestFixtureStatus
+from .enumeration import PDecoratorType
 from .plogger import pconsole
 from . import plistener
 
@@ -221,12 +221,16 @@ def main(args=None):
     else:
         def new_start_client(self):
             try:
-                testexecutor.update_properties(browser=self)
+                current_executor = testexecutor.current_executor()
+                current_executor.update_properties(browser=self)
+                current_executor.parent_executor.update_properties(browser=self)
             except AttributeError:
                 pass
         def new_stop_client(self):
             try:
-                testexecutor.update_properties(browser=None)
+                current_executor = testexecutor.current_executor()
+                current_executor.update_properties(browser=None)
+                current_executor.parent_executor.update_properties(browser=None)
             except AttributeError:
                 pass
         WebDriver.start_client = new_start_client

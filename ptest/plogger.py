@@ -42,7 +42,7 @@ class PReporter:
     def __log(self, level, msg):
         from . import testexecutor
 
-        running_test_fixture = testexecutor.get_property("running_test_fixture")
+        running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
         running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})
 
         if config.get_option("verbose"):

@@ -15,14 +15,14 @@ __author__ = 'karl.gong'
 
 
 class TestFixtureExecutor(threading.Thread):
-    def __init__(self, test_fixture):
+    def __init__(self, parent_executor, test_fixture):
         threading.Thread.__init__(self)
+        self.parent_executor = parent_executor
         self.test_fixture = test_fixture
-        self.__properties = {}
+        self.__properties = parent_executor.get_properties()
         self.setDaemon(True)
 
     def run(self):
-        self.update_properties(running_test_fixture=self.test_fixture)
         try:
             if self.test_fixture.arguments_count == 1:
                 self.test_fixture.test_fixture_ref.__call__()
@@ -37,7 +37,6 @@ class TestFixtureExecutor(threading.Thread):
             screencapturer.take_screenshot()
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
-        self.clear_properties()
 
     def update_properties(self, **kwargs):
         self.__properties.update(kwargs)
@@ -50,6 +49,9 @@ class TestFixtureExecutor(threading.Thread):
             return self.__properties[key]
         except KeyError:
             return None
+
+    def get_properties(self):
+        return self.__properties
 
 
 class TestExecutor(threading.Thread):
@@ -173,21 +175,12 @@ class TestExecutor(threading.Thread):
         except KeyError:
             return None
 
-
-def update_properties(**kwargs):
-    threading.currentThread().update_properties(**kwargs)
-
-
-def clear_properties():
-    threading.current_thread().clear_properties()
+    def get_properties(self):
+        return self.__properties
 
 
-def get_property(key):
-    return threading.currentThread().get_property(key)
-
-
-def get_name():
-    return threading.currentThread().getName()
+def current_executor():
+    return threading.currentThread()
 
 
 def kill_thread(thread):
