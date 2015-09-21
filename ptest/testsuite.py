@@ -119,30 +119,6 @@ class TestSuite(TestContainer):
         """
         self.test_classes = sorted(self.test_classes, key=lambda item: item.full_name)
 
-    @property
-    def pop_status(self):
-        if self.is_finished:
-            return PopStatus.FINISHED
-
-        if self.before_suite.pop_status == PopStatus.UNPOPPED:
-            return PopStatus.UNPOPPED
-
-        if self.before_suite.pop_status == PopStatus.RUNNING:
-            return PopStatus.BLOCKING
-
-        test_class_pop_statuses = set([test_class.pop_status for test_class in self.test_classes])
-
-        if test_class_pop_statuses == {PopStatus.FINISHED, PopStatus.BLOCKING} or test_class_pop_statuses == {PopStatus.BLOCKING}:
-            return PopStatus.BLOCKING
-
-        if test_class_pop_statuses == {PopStatus.FINISHED}:
-            if self.after_suite.pop_status == PopStatus.RUNNING:
-                return PopStatus.BLOCKING
-            if self.after_suite.pop_status == PopStatus.FINISHED:
-                return PopStatus.FINISHED
-
-        return PopStatus.RUNNING
-
     def pop_test_unit(self):
         from . import testexecutor
         current_thread_name = testexecutor.current_executor().getName()
@@ -152,7 +128,7 @@ class TestSuite(TestContainer):
                 self.before_suite.pop_status = PopStatus.RUNNING
                 return self.before_suite
 
-            if self.pop_status == PopStatus.BLOCKING:
+            if self.before_suite.pop_status == PopStatus.RUNNING:
                 return None
 
             for test_class in self.test_classes:
@@ -166,7 +142,8 @@ class TestSuite(TestContainer):
                     else:
                         return test_class.pop_test_unit()
 
-            if self.pop_status == PopStatus.BLOCKING:
+            test_class_pop_statuses = set([test_class.pop_status for test_class in self.test_classes])
+            if test_class_pop_statuses != {PopStatus.FINISHED}:
                 return None
 
             if self.after_suite.pop_status == PopStatus.UNPOPPED:
