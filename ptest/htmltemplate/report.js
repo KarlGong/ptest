@@ -369,8 +369,8 @@ renderDashBoard = function(data) {
         highlight: "#FDC24F",
         label: "Skipped"
     }
-    ]
+    ];
     var ctx = $(".pieChart").get(0).getContext("2d");
-    var pieChart = new Chart(ctx).Pie(pieChartData, {animationEasing: 'easeOutQuart'});
+    var pieChart = new Chart(ctx).Pie(pieChartData, {animationEasing: 'easeOutQuart', tooltipTemplate: "<%= label %>: <%= value %> (<%= Math.round(circumference * 1000 / 6.283) / 10 %>%)"});
     detailPanelBody.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
-}
+};
