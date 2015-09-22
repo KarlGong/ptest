@@ -1,6 +1,6 @@
 body {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    font-size: small;
+    font-size: 13px;
 }
 
 #meta {
@@ -194,7 +194,7 @@ body {
 .tree .badge {
     text-align: center;
     margin-top: 2px;
-    font-size: xx-small;
+    font-size: 11px;
     float: right;
     margin-right: 3px;
     padding: 2px 4px;
@@ -260,7 +260,7 @@ body {
 }
 
 .detail .panel-heading .text {
-    font-size: medium;
+    font-size: 16px;
     font-weight: bold;
 }
 
