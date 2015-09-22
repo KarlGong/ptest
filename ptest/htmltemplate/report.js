@@ -134,7 +134,7 @@ renderTree = function (testSuite, statusFilter) {
                     if (data.skipRate == 0) {
                         return null;
                     }
-                    nodeContentFormatter["total"] = data.statusCount.passed;
+                    nodeContentFormatter["total"] = data.statusCount.skipped;
                     nodeContentFormatter["passRate"] = 0;
                     nodeContentFormatter["failRate"] = 0;
                     nodeContentFormatter["skipRate"] = 100;
