@@ -8,7 +8,7 @@ from datetime import datetime
 
 from . import config
 from .plogger import pconsole
-from .testsuite import test_suite
+from .testsuite import default_test_suite
 from .enumeration import TestCaseStatus
 
 __author__ = 'karl.gong'
@@ -37,16 +37,16 @@ def generate_xunit_xml(xml_file_path):
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
-    status_count = test_suite.status_count
-    test_suite_ele.setAttribute("name", test_suite.name)
+    status_count = default_test_suite.status_count
+    test_suite_ele.setAttribute("name", default_test_suite.name)
     test_suite_ele.setAttribute("tests", str(status_count["total"]))
     test_suite_ele.setAttribute("failures", str(status_count["failed"]))
     test_suite_ele.setAttribute("skips", str(status_count["skipped"]))
     test_suite_ele.setAttribute("errors", "0")
-    test_suite_ele.setAttribute("time", "%.3f" % test_suite.elapsed_time)
-    test_suite_ele.setAttribute("timestamp", str(test_suite.start_time))
+    test_suite_ele.setAttribute("time", "%.3f" % default_test_suite.elapsed_time)
+    test_suite_ele.setAttribute("timestamp", str(default_test_suite.start_time))
 
-    for test_case in test_suite.test_cases:
+    for test_case in default_test_suite.test_cases:
         test_case_ele = doc.createElement("testcase")
         test_suite_ele.appendChild(test_case_ele)
         test_case_ele.setAttribute("name", test_case.name)
@@ -100,7 +100,7 @@ def generate_html_report(report_dir):
 
     current_time = datetime.now()
     system_info = "%s / Python %s / %s" % (platform.node(), platform.python_version(), platform.platform())
-    test_suite_json = json.dumps(_get_test_suite_dict(test_suite))
+    test_suite_json = json.dumps(_get_test_suite_dict(default_test_suite))
     index_page_content = index_page_template.format(current_time=current_time, system_info=system_info,
                                                     test_suite_json=test_suite_json)
 
@@ -114,19 +114,19 @@ def generate_html_report(report_dir):
         f.close()
 
 
-def _get_test_suite_dict(suite):
-    status_count = suite.status_count
+def _get_test_suite_dict(test_suite):
+    status_count = test_suite.status_count
     repr_dict = {
-        "name": suite.name,
-        "fullName": suite.full_name,
+        "name": test_suite.name,
+        "fullName": test_suite.full_name,
         "type": "testsuite",
-        "beforeSuite": _get_test_fixture_dict(suite.before_suite),
-        "testClasses": [_get_test_class_dict(test_class) for test_class in suite.test_classes],
-        "afterSuite": _get_test_fixture_dict(suite.after_suite),
-        "startTime": str(suite.start_time),
-        "endTime": str(suite.end_time),
-        "elapsedTime": suite.elapsed_time,
-        "statusCount": suite.status_count,
+        "beforeSuite": _get_test_fixture_dict(test_suite.before_suite),
+        "testClasses": [_get_test_class_dict(test_class) for test_class in test_suite.test_classes],
+        "afterSuite": _get_test_fixture_dict(test_suite.after_suite),
+        "startTime": str(test_suite.start_time),
+        "endTime": str(test_suite.end_time),
+        "elapsedTime": test_suite.elapsed_time,
+        "statusCount": test_suite.status_count,
         "passRate": float(status_count['passed']) * 100 / status_count['total'],
         "failRate": float(status_count['failed']) * 100 / status_count['total'],
         "skipRate": float(status_count['skipped']) * 100 / status_count['total']

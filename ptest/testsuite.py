@@ -577,4 +577,4 @@ class AfterMethod(TestFixture):
             self.group = test_fixture_ref.__group__
 
 
-test_suite = TestSuite("DefaultSuite")
+default_test_suite = TestSuite("DefaultSuite")

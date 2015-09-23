@@ -1,7 +1,6 @@
 import importlib
 import os
 import copy
-import threading
 import shlex
 import traceback
 import sys
@@ -13,7 +12,7 @@ from .testfilter import FilterGroup, TestClassNameFilter, TestCaseNameFilter, Te
 from . import testexecutor
 from . import reporter
 from . import config
-from .testsuite import test_suite
+from .testsuite import default_test_suite
 from .enumeration import PDecoratorType
 from .plogger import pconsole
 from . import plistener
@@ -105,7 +104,7 @@ def __find_test_cases_in_class(test_class_ref, test_case_filter_group):
             test_case_refs.append(getattr(test_class_ref(), class_element))
     if len(test_case_refs) != 0:
         for test_case_ref in test_case_refs:
-            test_suite.add_test_case(test_class_ref(), test_case_ref)
+            default_test_suite.add_test_case(test_class_ref(), test_case_ref)
 
 
 def run_test_cases(test_executor_number):
@@ -204,8 +203,8 @@ def main(args=None):
         pconsole.write_line(e.message)
         return
     else:
-        test_cases = test_suite.test_cases
-        test_suite.init_test_fixture()
+        test_cases = default_test_suite.test_cases
+        default_test_suite.init_test_fixture()
 
     # exit if no tests found
     if len(test_cases) == 0:
@@ -237,7 +236,7 @@ def main(args=None):
         WebDriver.stop_client = new_stop_client
 
     # sort the test groups for running
-    test_suite.sort_test_classes_for_running()
+    default_test_suite.sort_test_classes_for_running()
     pconsole.write_line("=" * 100)
     pconsole.write_line("Start to run following %s test(s):" % len(test_cases))
     pconsole.write_line("-" * 30)
@@ -260,17 +259,17 @@ def main(args=None):
     run_test_cases(int(config.get_option("test_executor_number")))
 
     # log the test results
-    status_count = test_suite.status_count
+    status_count = default_test_suite.status_count
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
-    pconsole.write_line("Test finished in %.2fs." % test_suite.elapsed_time)
+    pconsole.write_line("Test finished in %.2fs." % default_test_suite.elapsed_time)
     pconsole.write_line("Total: %s, passed: %s, failed: %s, skipped: %s. Pass rate: %.1f%%." % (
-        status_count["total"], status_count["passed"], status_count["failed"], status_count["skipped"], test_suite.pass_rate))
+        status_count["total"], status_count["passed"], status_count["failed"], status_count["skipped"], default_test_suite.pass_rate))
 
     # generate the test report
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
-    test_suite.sort_test_classes_for_report()
+    default_test_suite.sort_test_classes_for_report()
     reporter.clean_output_dir(config.get_option("output_dir"))
     reporter.generate_xunit_xml(config.get_option("xunit_xml"))
     reporter.generate_html_report(config.get_option("report_dir"))

@@ -8,7 +8,7 @@ from .plistener import test_listeners
 from . import screencapturer
 from .enumeration import TestCaseStatus, TestFixtureStatus, PopStatus
 from .plogger import pconsole, preporter
-from .testsuite import test_suite, NoTestUnitAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
+from .testsuite import default_test_suite, NoTestUnitAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
     AfterGroup, TestCase, BeforeMethod, BeforeSuite, AfterSuite
 
 __author__ = 'karl.gong'
@@ -62,7 +62,7 @@ class TestExecutor(threading.Thread):
     def run(self):
         while True:
             try:
-                test_unit = test_suite.pop_test_unit()
+                test_unit = default_test_suite.pop_test_unit()
             except NoTestUnitAvailableForThisThread:
                 break
 
