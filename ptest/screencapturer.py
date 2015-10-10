@@ -283,17 +283,17 @@ def take_screenshot():
         return
 
     from . import testexecutor
-    active_browser = testexecutor.current_executor().get_property("browser")
+    active_web_driver = testexecutor.current_executor().get_property("web_driver")
 
-    if active_browser is not None:
+    if active_web_driver is not None:
         while True:
             try:
-                active_browser.switch_to.alert.dismiss()
+                active_web_driver.switch_to.alert.dismiss()
             except Exception:
                 break
 
         def capture_screen():
-            return active_browser.get_screenshot_as_png()
+            return active_web_driver.get_screenshot_as_png()
     else:
         if system() == 'Darwin' and not pyobjc_installed:
             preporter.warn("The package pyobjc is necessary for taking screenshot of desktop, please install it.")

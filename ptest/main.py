@@ -221,15 +221,15 @@ def main(args=None):
         def new_start_client(self):
             try:
                 current_executor = testexecutor.current_executor()
-                current_executor.update_properties(browser=self)
-                current_executor.parent_executor.update_properties(browser=self)
+                current_executor.update_properties(web_driver=self)
+                current_executor.parent_executor.update_properties(web_driver=self)
             except AttributeError:
                 pass
         def new_stop_client(self):
             try:
                 current_executor = testexecutor.current_executor()
-                current_executor.update_properties(browser=None)
-                current_executor.parent_executor.update_properties(browser=None)
+                current_executor.update_properties(web_driver=None)
+                current_executor.parent_executor.update_properties(web_driver=None)
             except AttributeError:
                 pass
         WebDriver.start_client = new_start_client
