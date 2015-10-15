@@ -1,25 +1,223 @@
+from copy import copy
 import ctypes
-import time
-from datetime import datetime
 import threading
 import traceback
+import time
 
-from .plistener import test_listeners
+from datetime import datetime
+
 from . import screencapturer
-from .enumeration import TestCaseStatus, TestFixtureStatus, PopStatus
-from .plogger import pconsole, preporter
-from .testsuite import default_test_suite, NoTestUnitAvailableForThisThread, BeforeClass, AfterClass, BeforeGroup, \
-    AfterGroup, TestCase, BeforeMethod, BeforeSuite, AfterSuite
+from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
+from .plogger import preporter, pconsole
+from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
+    BeforeMethod
+from plistener import test_listeners
 
 __author__ = 'karl.gong'
 
 
-class TestFixtureExecutor(threading.Thread):
-    def __init__(self, parent_executor, test_fixture):
+class TestExecutor(threading.Thread):
+    def __init__(self, parent_test_executor):
         threading.Thread.__init__(self)
-        self.parent_executor = parent_executor
+        self.parent_test_executor = parent_test_executor
+        if self.parent_test_executor:
+            self.__properties = copy(self.parent_test_executor.get_properties())
+        else:
+            self.__properties = {}
+
+    def start_and_join(self):
+        self.start()
+        self.join()
+
+    def update_properties(self, properties):
+        self.__properties.update(properties)
+
+    def clear_properties(self):
+        self.__properties.clear()
+
+    def get_property(self, key):
+        try:
+            return self.__properties[key]
+        except KeyError:
+            return None
+
+    def get_properties(self):
+        return self.__properties
+
+
+class TestSuiteExecutor(TestExecutor):
+    def __init__(self, test_suite):
+        TestExecutor.__init__(self, None)
+        self.test_suite = test_suite
+
+    def run(self):
+        test_listeners.on_test_suite_start(self.test_suite)
+        self.test_suite.start_time = datetime.now()
+        test_fixture_executor_pool.apply_for_executor(self, self.test_suite.before_suite).start_and_join()
+
+        test_class_executors = []
+
+        for test_class in self.test_suite.test_classes:
+            test_class_executor = TestClassExecutor(self, test_class)
+            test_class_executors.append(test_class_executor)
+            test_class_executor.start()
+
+        for executor in test_class_executors:
+            executor.join()
+
+        test_fixture_executor_pool.apply_for_executor(self, self.test_suite.after_suite).start_and_join()
+        self.test_suite.end_time = datetime.now()
+        test_listeners.on_test_suite_finish(self.test_suite)
+
+
+class TestClassExecutor(TestExecutor):
+    def __init__(self, test_suite_executor, test_class):
+        TestExecutor.__init__(self, test_suite_executor)
+        self.test_class = test_class
+
+    def run(self):
+        test_listeners.on_test_class_start(self.test_class)
+        self.test_class.start_time = datetime.now()
+        test_fixture_executor_pool.apply_for_executor(self, self.test_class.before_class).start_and_join()
+
+        if self.test_class.run_mode == TestClassRunMode.SingleLine:
+            for test_group in self.test_class.test_groups:
+                TestGroupExecutor(self, test_group).start_and_join()
+        else:
+            test_group_executors = []
+
+            for test_group in self.test_class.test_groups:
+                test_group_executor = TestGroupExecutor(self, test_group)
+                test_group_executors.append(test_group_executor)
+                test_group_executor.start()
+
+            for executor in test_group_executors:
+                executor.join()
+
+        test_fixture_executor_pool.apply_for_executor(self, self.test_class.after_class).start_and_join()
+        self.test_class.end_time = datetime.now()
+        test_listeners.on_test_class_finish(self.test_class)
+
+
+class TestGroupExecutor(TestExecutor):
+    def __init__(self, test_class_executor, test_group):
+        TestExecutor.__init__(self, test_class_executor)
+        self.test_group = test_group
+
+    def run(self):
+        test_listeners.on_test_group_start(self.test_group)
+        self.test_group.start_time = datetime.now()
+        test_fixture_executor_pool.apply_for_executor(self, self.test_group.before_group).start_and_join()
+
+        if self.test_group.test_class.run_mode == TestClassRunMode.SingleLine:
+            for test_case in self.test_group.test_cases:
+                TestCaseExecutor(self, test_case).start_and_join()
+        else:
+            test_case_executors = []
+
+            for test_case in self.test_group.test_cases:
+                test_case_executor = TestCaseExecutor(self, test_case)
+                test_case_executors.append(test_case_executor)
+                test_case_executor.start()
+
+            for executor in test_case_executors:
+                executor.join()
+
+        test_fixture_executor_pool.apply_for_executor(self, self.test_group.after_group).start_and_join()
+        self.test_group.end_time = datetime.now()
+        test_listeners.on_test_group_finish(self.test_group)
+
+
+class TestCaseExecutor(TestExecutor):
+    def __init__(self, test_group_executor, test_case):
+        TestExecutor.__init__(self, test_group_executor)
+        self.test_case = test_case
+
+    def run(self):
+        test_listeners.on_test_case_start(self.test_case)
+        self.test_case.start_time = datetime.now()
+        test_fixture_executor_pool.apply_for_executor(self, self.test_case.before_method).start_and_join()
+
+        test_fixture_executor_pool.apply_for_executor(self, self.test_case.test).start_and_join()
+
+        logger_filler = "-" * (100 - len(self.test_case.full_name) - 6)
+        if self.test_case.status == TestCaseStatus.PASSED:
+            pconsole.write_line("%s%s|PASS|" % (self.test_case.full_name, logger_filler))
+        elif self.test_case.status == TestCaseStatus.FAILED:
+            pconsole.write_line("%s%s|FAIL|" % (self.test_case.full_name, logger_filler))
+        elif self.test_case.status == TestCaseStatus.SKIPPED:
+            pconsole.write_line("%s%s|SKIP|" % (self.test_case.full_name, logger_filler))
+
+        test_fixture_executor_pool.apply_for_executor(self, self.test_case.after_method).start_and_join()
+        self.test_case.end_time = datetime.now()
+        test_listeners.on_test_case_finish(self.test_case)
+
+
+class TestFixtureExecutor(TestExecutor):
+    def __init__(self, test_case_executor, test_fixture):
+        TestExecutor.__init__(self, test_case_executor)
         self.test_fixture = test_fixture
-        self.__properties = parent_executor.get_properties()
+
+    def run_test_fixture(self):
+        if self.test_fixture.is_empty:
+            self.test_fixture.status = TestFixtureStatus.PASSED
+            return
+
+        self.test_fixture.status = TestFixtureStatus.RUNNING
+        test_fixture_sub_executor = TestFixtureSubExecutor(self)
+        test_fixture_sub_executor.start()
+        if self.test_fixture.timeout > 0:
+            test_fixture_sub_executor.join(self.test_fixture.timeout)
+            if test_fixture_sub_executor.isAlive():
+                from .plogger import preporter
+                from . import screencapturer
+                self.test_fixture.status = TestFixtureStatus.FAILED
+                self.test_fixture.failure_message = "Timed out executing this test fixture in %s seconds." % self.test_fixture.timeout
+                self.test_fixture.failure_type = "TimeoutException"
+                self.test_fixture.stack_trace = ""
+                preporter.error("Failed with following message:\n" + self.test_fixture.failure_message)
+                screencapturer.take_screenshot()
+                kill_thread(test_fixture_sub_executor)
+        else:
+            test_fixture_sub_executor.join()
+
+    def skip_test_fixture(self, caused_test_fixture):
+        if self.test_fixture.is_empty:
+            self.test_fixture.status = TestFixtureStatus.SKIPPED
+            return
+
+        from .plogger import preporter
+        self.test_fixture.status = TestFixtureStatus.SKIPPED
+        self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
+        preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
+
+
+    def run(self):
+        self.test_fixture.start_time = datetime.now()
+        self.update_properties({"running_test_fixture": self.test_fixture})
+
+        failed_setup_fixture = self.test_fixture.context.get_failed_setup_fixture()
+        if not failed_setup_fixture:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterSuite) and isinstance(failed_setup_fixture, BeforeSuite) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterClass) and isinstance(failed_setup_fixture, BeforeClass) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterGroup) and isinstance(failed_setup_fixture, BeforeGroup) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterMethod) and isinstance(failed_setup_fixture, BeforeMethod) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        else:
+            self.skip_test_fixture(failed_setup_fixture)
+
+        self.update_properties({"running_test_fixture": None})
+        self.test_fixture.end_time = datetime.now()
+
+
+class TestFixtureSubExecutor(TestExecutor):
+    def __init__(self, parent_executor):
+        TestExecutor.__init__(self, parent_executor)
+        self.test_fixture = parent_executor.test_fixture
         self.setDaemon(True)
 
     def run(self):
@@ -38,145 +236,61 @@ class TestFixtureExecutor(threading.Thread):
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
 
-    def update_properties(self, **kwargs):
-        self.__properties.update(kwargs)
 
-    def clear_properties(self):
-        self.__properties.clear()
-
-    def get_property(self, key):
-        try:
-            return self.__properties[key]
-        except KeyError:
-            return None
-
-    def get_properties(self):
-        return self.__properties
-
-
-class TestExecutor(threading.Thread):
-    def __init__(self):
+class TestFixtureExecutorPool(threading.Thread):
+    def __init__(self, executor_number=1):
         threading.Thread.__init__(self)
-        self.__properties = {}
+        self.executor_number = executor_number
+        self.running_test_executors = []
+        self.pending_test_fixtures = []
+        self.__test_fixture_lock = threading.Lock()
+        self.__test_executor_lock = threading.Lock()
 
-    def run(self):
-        while True:
-            try:
-                test_unit = default_test_suite.pop_test_unit()
-            except NoTestUnitAvailableForThisThread:
-                break
-
-            if test_unit is None:
-                time.sleep(1)
-                continue
-
-            if isinstance(test_unit, TestCase):
-                test_case = test_unit
-                test_listeners.on_test_case_start(test_case)
-                test_case.start_time = datetime.now()
-
-                before_method = test_case.before_method
-                failed_setup_fixture = test_case.get_failed_setup_fixture()
-                if not failed_setup_fixture:
-                    before_method.run()
-                else:
-                    before_method.skip(failed_setup_fixture)
-
-                test = test_case.test
-                failed_setup_fixture = test_case.get_failed_setup_fixture()
-                if not failed_setup_fixture:
-                    test.run()
-                else:
-                    test.skip(failed_setup_fixture)
-
-                logger_filler = "-" * (100 - len(test_case.full_name) - 6)
-                if test_case.status == TestCaseStatus.PASSED:
-                    pconsole.write_line("%s%s|PASS|" % (test_case.full_name, logger_filler))
-                elif test_case.status == TestCaseStatus.FAILED:
-                    pconsole.write_line("%s%s|FAIL|" % (test_case.full_name, logger_filler))
-                elif test_case.status == TestCaseStatus.SKIPPED:
-                    pconsole.write_line("%s%s|SKIP|" % (test_case.full_name, logger_filler))
-
-                after_method = test_case.after_method
-                failed_setup_fixture = test_case.get_failed_setup_fixture()
-                if not failed_setup_fixture or (
-                    isinstance(failed_setup_fixture, BeforeMethod) and after_method.always_run):
-                    after_method.run()
-                else:
-                    after_method.skip(failed_setup_fixture)
-
-                test_case.end_time = datetime.now()
-                test_case.pop_status = PopStatus.FINISHED
-                test_listeners.on_test_case_finish(test_case)
-
-            elif isinstance(test_unit, BeforeGroup):
-                test_listeners.on_test_group_start(test_unit.test_group)
-                test_unit.test_group.start_time = datetime.now()
-                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
-                if not failed_setup_fixture:
-                    test_unit.run()
-                else:
-                    test_unit.skip(failed_setup_fixture)
-
-            elif isinstance(test_unit, AfterGroup):
-                failed_setup_fixture = test_unit.test_group.get_failed_setup_fixture()
-                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeGroup) and test_unit.always_run):
-                    test_unit.run()
-                else:
-                    test_unit.skip(failed_setup_fixture)
-                test_unit.test_group.is_finished = True
-                test_unit.test_group.end_time = datetime.now()
-                test_listeners.on_test_group_finish(test_unit.test_group)
-
-            elif isinstance(test_unit, BeforeClass):
-                test_listeners.on_test_class_start(test_unit.test_class)
-                test_unit.test_class.start_time = datetime.now()
-                failed_setup_fixture = test_unit.test_class.get_failed_setup_fixture()
-                if not failed_setup_fixture:
-                    test_unit.run()
-                else:
-                    test_unit.skip(failed_setup_fixture)
-
-            elif isinstance(test_unit, AfterClass):
-                failed_setup_fixture = test_unit.test_class.get_failed_setup_fixture()
-                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeClass) and test_unit.always_run):
-                    test_unit.run()
-                else:
-                    test_unit.skip(failed_setup_fixture)
-                test_unit.test_class.is_finished = True
-                test_unit.test_class.end_time = datetime.now()
-                test_listeners.on_test_class_finish(test_unit.test_class)
-
-
-            elif isinstance(test_unit, BeforeSuite):
-                test_listeners.on_test_suite_start(test_unit.test_suite)
-                test_unit.test_suite.start_time = datetime.now()
-                test_unit.run()
-
-            elif isinstance(test_unit, AfterSuite):
-                failed_setup_fixture = test_unit.test_suite.get_failed_setup_fixture()
-                if not failed_setup_fixture or (isinstance(failed_setup_fixture, BeforeSuite) and test_unit.always_run):
-                    test_unit.run()
-                else:
-                    test_unit.skip(failed_setup_fixture)
-                test_unit.test_suite.is_finished = True
-                test_unit.test_suite.end_time = datetime.now()
-                test_listeners.on_test_suite_finish(test_unit.test_suite)
-
-    def update_properties(self, **kwargs):
-        self.__properties.update(kwargs)
-
-    def clear_properties(self):
-        self.__properties.clear()
-
-    def get_property(self, key):
+    def get_top_test_fixture(self):
+        self.__test_fixture_lock.acquire()
         try:
-            return self.__properties[key]
-        except KeyError:
-            return None
+            self.pending_test_fixtures = sorted(self.pending_test_fixtures, key=lambda item: item.execution_priority)
+            return self.pending_test_fixtures[0]
+        finally:
+            self.__test_fixture_lock.release()
 
-    def get_properties(self):
-        return self.__properties
+    def get_running_test_executors_count(self):
+        self.__test_executor_lock.acquire()
+        try:
+            self.running_test_executors = [test_executor for test_executor in self.running_test_executors if
+                                           test_executor.isAlive()]
+            return len(self.running_test_executors)
+        finally:
+            self.__test_executor_lock.release()
+
+    def apply_for_executor(self, test_executor, test_fixture):
+        self.__test_fixture_lock.acquire()
+        try:
+            self.pending_test_fixtures.append(test_fixture)
+        finally:
+            self.__test_fixture_lock.release()
+
+        while self.get_running_test_executors_count() >= self.executor_number or self.get_top_test_fixture() != test_fixture:
+            time.sleep(1)
+
+        test_fixture_executor = TestFixtureExecutor(test_executor, test_fixture)
+
+        self.__test_executor_lock.acquire()
+        try:
+            self.running_test_executors.append(test_fixture_executor)
+        finally:
+            self.__test_executor_lock.release()
+
+        self.__test_fixture_lock.acquire()
+        try:
+            self.pending_test_fixtures.remove(test_fixture)
+        finally:
+            self.__test_fixture_lock.release()
+
+        return test_fixture_executor
+
+
+test_fixture_executor_pool = TestFixtureExecutorPool()
 
 
 def current_executor():

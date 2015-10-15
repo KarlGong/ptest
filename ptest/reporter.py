@@ -140,7 +140,6 @@ def _get_test_class_dict(test_class):
         "name": test_class.name,
         "fullName": test_class.full_name,
         "type": "testclass",
-        "runThread": test_class.run_thread,
         "runMode": test_class.run_mode,
         "description": test_class.description,
         "beforeClass": _get_test_fixture_dict(test_class.before_class),

@@ -67,12 +67,13 @@ def __find_test_cases_in_package(package_ref, test_class_filter_group, test_case
         file_full_path = os.path.join(package_path, fn)
         if os.path.isdir(file_full_path) and "__init__.py" in os.listdir(file_full_path):
             __find_test_cases_in_package(importlib.import_module(package_name + "." + fn), test_class_filter_group,
-                                        test_case_filter_group)
+                                         test_case_filter_group)
         elif os.path.isfile(file_full_path):
             file_name, file_ext = os.path.splitext(fn)
             if fn != "__init__.py" and file_ext == ".py":
-                __find_test_cases_in_module(importlib.import_module(package_name + "." + file_name), test_class_filter_group,
-                                           test_case_filter_group)
+                __find_test_cases_in_module(importlib.import_module(package_name + "." + file_name),
+                                            test_class_filter_group,
+                                            test_case_filter_group)
 
 
 def __find_test_cases_in_module(module_ref, test_class_filter_group, test_case_filter_group):
@@ -105,19 +106,6 @@ def __find_test_cases_in_class(test_class_ref, test_case_filter_group):
     if len(test_case_refs) != 0:
         for test_case_ref in test_case_refs:
             default_test_suite.add_test_case(test_class_ref(), test_case_ref)
-
-
-def run_test_cases(test_executor_number):
-    test_executors = []
-    for _ in range(test_executor_number):
-        test_executors.append(testexecutor.TestExecutor())
-
-    # test suite start
-    for test_executor in test_executors:
-        test_executor.start()
-
-    for test_executor in test_executors:
-        test_executor.join()
 
 
 def get_rerun_targets(xml_file):
@@ -221,15 +209,17 @@ def main(args=None):
         def new_start_client(self):
             try:
                 current_executor = testexecutor.current_executor()
-                current_executor.update_properties(web_driver=self)
-                current_executor.parent_executor.update_properties(web_driver=self)
+                current_executor.update_properties({"web_driver": self})
+                current_executor.parent_test_executor.update_properties({"web_driver": self})
+                current_executor.parent_test_executor.parent_test_executor.update_properties({"web_driver": self})
             except AttributeError:
                 pass
         def new_stop_client(self):
             try:
                 current_executor = testexecutor.current_executor()
-                current_executor.update_properties(web_driver=None)
-                current_executor.parent_executor.update_properties(web_driver=None)
+                current_executor.update_properties({"web_driver": None})
+                current_executor.parent_test_executor.update_properties({"web_driver": None})
+                current_executor.parent_test_executor.parent_test_executor.update_properties({"web_driver": None})
             except AttributeError:
                 pass
         WebDriver.start_client = new_start_client
@@ -256,7 +246,8 @@ def main(args=None):
         os.makedirs(temp_dir)
 
     # run test cases
-    run_test_cases(int(config.get_option("test_executor_number")))
+    testexecutor.test_fixture_executor_pool.executor_number = int(config.get_option("test_executor_number"))
+    testexecutor.TestSuiteExecutor(default_test_suite).start_and_join()
 
     # log the test results
     status_count = default_test_suite.status_count
