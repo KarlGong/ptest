@@ -246,7 +246,7 @@ def main(args=None):
         os.makedirs(temp_dir)
 
     # run test cases
-    testexecutor.test_fixture_executor_pool.executor_number = int(config.get_option("test_executor_number"))
+    testexecutor.test_fixture_executor_pool.size = int(config.get_option("test_executor_number"))
     testexecutor.TestSuiteExecutor(default_test_suite).start_and_join()
 
     # log the test results

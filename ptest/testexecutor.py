@@ -238,9 +238,9 @@ class TestFixtureSubExecutor(TestExecutor):
 
 
 class TestFixtureExecutorPool(threading.Thread):
-    def __init__(self, executor_number=1):
+    def __init__(self, size=1):
         threading.Thread.__init__(self)
-        self.executor_number = executor_number
+        self.size = size
         self.running_test_executors = []
         self.pending_test_fixtures = []
         self.__test_fixture_lock = threading.Lock()
@@ -270,7 +270,7 @@ class TestFixtureExecutorPool(threading.Thread):
         finally:
             self.__test_fixture_lock.release()
 
-        while self.get_running_test_executors_count() >= self.executor_number or self.get_top_test_fixture() != test_fixture:
+        while self.get_running_test_executors_count() >= self.size or self.get_top_test_fixture() != test_fixture:
             time.sleep(1)
 
         test_fixture_executor = TestFixtureExecutor(test_executor, test_fixture)
