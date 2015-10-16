@@ -6,12 +6,12 @@ import time
 
 from datetime import datetime
 
-from . import screencapturer
+from . import screencapturer, config
 from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
 from .plogger import preporter, pconsole
 from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
     BeforeMethod
-from plistener import test_listeners
+from .plistener import test_listeners
 
 __author__ = 'karl.gong'
 
@@ -238,7 +238,7 @@ class TestFixtureSubExecutor(TestExecutor):
 
 
 class TestFixtureExecutorPool(threading.Thread):
-    def __init__(self, size=1):
+    def __init__(self, size):
         threading.Thread.__init__(self)
         self.size = size
         self.running_test_executors = []
@@ -290,7 +290,7 @@ class TestFixtureExecutorPool(threading.Thread):
         return test_fixture_executor
 
 
-test_fixture_executor_pool = TestFixtureExecutorPool()
+test_fixture_executor_pool = TestFixtureExecutorPool(int(config.get_option("test_executor_number")))
 
 
 def current_executor():
