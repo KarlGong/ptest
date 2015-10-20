@@ -211,24 +211,25 @@ class TestFixtureExecutor(TestExecutor):
             self.skip_test_fixture(failed_setup_fixture)
 
         # spread before's attributes
-        if isinstance(self.test_fixture, BeforeSuite):
-            before_suite_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
-            for test_class in self.test_fixture.test_suite.test_classes:
-                test_class.test_class_ref.__dict__.update(before_suite_dict)
-                for test_group in test_class.test_groups:
-                    test_group.test_class_ref.__dict__.update(before_suite_dict)
+        if not self.test_fixture.is_empty:
+            if isinstance(self.test_fixture, BeforeSuite):
+                before_suite_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
+                for test_class in self.test_fixture.test_suite.test_classes:
+                    test_class.test_class_ref.__dict__.update(before_suite_dict)
+                    for test_group in test_class.test_groups:
+                        test_group.test_class_ref.__dict__.update(before_suite_dict)
+                        for test_case in test_group.test_cases:
+                            test_case.test_case_ref.__self__.__dict__.update(before_suite_dict)
+            elif isinstance(self.test_fixture, BeforeClass):
+                before_class_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
+                for test_group in self.test_fixture.test_class.test_groups:
+                    test_group.test_class_ref.__dict__.update(before_class_dict)
                     for test_case in test_group.test_cases:
-                        test_case.test_case_ref.__self__.__dict__.update(before_suite_dict)
-        elif isinstance(self.test_fixture, BeforeClass):
-            before_class_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
-            for test_group in self.test_fixture.test_class.test_groups:
-                test_group.test_class_ref.__dict__.update(before_class_dict)
-                for test_case in test_group.test_cases:
-                    test_case.test_case_ref.__self__.__dict__.update(before_class_dict)
-        elif isinstance(self.test_fixture, BeforeGroup):
-            before_group_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
-            for test_case in self.test_fixture.test_group.test_cases:
-                test_case.test_case_ref.__self__.__dict__.update(before_group_dict)
+                        test_case.test_case_ref.__self__.__dict__.update(before_class_dict)
+            elif isinstance(self.test_fixture, BeforeGroup):
+                before_group_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
+                for test_case in self.test_fixture.test_group.test_cases:
+                    test_case.test_case_ref.__self__.__dict__.update(before_group_dict)
 
         self.update_properties({"running_test_fixture": None})
         self.test_fixture.end_time = datetime.now()
