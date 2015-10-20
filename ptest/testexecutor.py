@@ -19,7 +19,6 @@ __author__ = 'karl.gong'
 class TestExecutor(threading.Thread):
     def __init__(self, parent_test_executor):
         threading.Thread.__init__(self)
-        self.is_started = False
         self.parent_test_executor = parent_test_executor
         if self.parent_test_executor:
             self.__properties = copy(self.parent_test_executor.get_properties())
@@ -28,7 +27,6 @@ class TestExecutor(threading.Thread):
 
     def start_and_join(self):
         self.start()
-        self.is_started = True
         self.join()
 
     def update_properties(self, properties):
@@ -64,7 +62,6 @@ class TestSuiteExecutor(TestExecutor):
             test_class_executor = TestClassExecutor(self, test_class)
             test_class_executors.append(test_class_executor)
             test_class_executor.start()
-            test_class_executor.is_started = True
 
         for executor in test_class_executors:
             executor.join()
@@ -95,7 +92,6 @@ class TestClassExecutor(TestExecutor):
                 test_group_executor = TestGroupExecutor(self, test_group)
                 test_group_executors.append(test_group_executor)
                 test_group_executor.start()
-                test_group_executor.is_started = True
 
             for executor in test_group_executors:
                 executor.join()
@@ -126,7 +122,6 @@ class TestGroupExecutor(TestExecutor):
                 test_case_executor = TestCaseExecutor(self, test_case)
                 test_case_executors.append(test_case_executor)
                 test_case_executor.start()
-                test_case_executor.is_started = True
 
             for executor in test_case_executors:
                 executor.join()
@@ -165,6 +160,7 @@ class TestCaseExecutor(TestExecutor):
 class TestFixtureExecutor(TestExecutor):
     def __init__(self, parent_test_executor, test_fixture):
         TestExecutor.__init__(self, parent_test_executor)
+        self.is_started = False
         self.test_fixture = test_fixture
 
     def run_test_fixture(self):
@@ -175,7 +171,6 @@ class TestFixtureExecutor(TestExecutor):
         self.test_fixture.status = TestFixtureStatus.RUNNING
         test_fixture_sub_executor = TestFixtureSubExecutor(self)
         test_fixture_sub_executor.start()
-        test_fixture_sub_executor.is_started = True
         if self.test_fixture.timeout > 0:
             test_fixture_sub_executor.join(self.test_fixture.timeout)
             if test_fixture_sub_executor.isAlive():
@@ -202,6 +197,7 @@ class TestFixtureExecutor(TestExecutor):
         preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
 
     def run(self):
+        self.is_started = True
         self.test_fixture.start_time = datetime.now()
         self.update_properties({"running_test_fixture": self.test_fixture})
 
