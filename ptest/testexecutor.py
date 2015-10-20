@@ -19,6 +19,7 @@ __author__ = 'karl.gong'
 class TestExecutor(threading.Thread):
     def __init__(self, parent_test_executor):
         threading.Thread.__init__(self)
+        self.is_started = False
         self.parent_test_executor = parent_test_executor
         if self.parent_test_executor:
             self.__properties = copy(self.parent_test_executor.get_properties())
@@ -27,6 +28,7 @@ class TestExecutor(threading.Thread):
 
     def start_and_join(self):
         self.start()
+        self.is_started = True
         self.join()
 
     def update_properties(self, properties):
@@ -51,9 +53,10 @@ class TestSuiteExecutor(TestExecutor):
         self.test_suite = test_suite
 
     def run(self):
+        before_suite_executor = test_fixture_executor_pool.apply_for_executor(self, self.test_suite.before_suite)
         test_listeners.on_test_suite_start(self.test_suite)
         self.test_suite.start_time = datetime.now()
-        test_fixture_executor_pool.apply_for_executor(self, self.test_suite.before_suite).start_and_join()
+        before_suite_executor.start_and_join()
 
         test_class_executors = []
 
@@ -61,6 +64,7 @@ class TestSuiteExecutor(TestExecutor):
             test_class_executor = TestClassExecutor(self, test_class)
             test_class_executors.append(test_class_executor)
             test_class_executor.start()
+            test_class_executor.is_started = True
 
         for executor in test_class_executors:
             executor.join()
@@ -76,9 +80,10 @@ class TestClassExecutor(TestExecutor):
         self.test_class = test_class
 
     def run(self):
+        before_class_executor = test_fixture_executor_pool.apply_for_executor(self, self.test_class.before_class)
         test_listeners.on_test_class_start(self.test_class)
         self.test_class.start_time = datetime.now()
-        test_fixture_executor_pool.apply_for_executor(self, self.test_class.before_class).start_and_join()
+        before_class_executor.start_and_join()
 
         if self.test_class.run_mode == TestClassRunMode.SingleLine:
             for test_group in self.test_class.test_groups:
@@ -90,6 +95,7 @@ class TestClassExecutor(TestExecutor):
                 test_group_executor = TestGroupExecutor(self, test_group)
                 test_group_executors.append(test_group_executor)
                 test_group_executor.start()
+                test_group_executor.is_started = True
 
             for executor in test_group_executors:
                 executor.join()
@@ -105,9 +111,10 @@ class TestGroupExecutor(TestExecutor):
         self.test_group = test_group
 
     def run(self):
+        before_group_executor = test_fixture_executor_pool.apply_for_executor(self, self.test_group.before_group)
         test_listeners.on_test_group_start(self.test_group)
         self.test_group.start_time = datetime.now()
-        test_fixture_executor_pool.apply_for_executor(self, self.test_group.before_group).start_and_join()
+        before_group_executor.start_and_join()
 
         if self.test_group.test_class.run_mode == TestClassRunMode.SingleLine:
             for test_case in self.test_group.test_cases:
@@ -119,6 +126,7 @@ class TestGroupExecutor(TestExecutor):
                 test_case_executor = TestCaseExecutor(self, test_case)
                 test_case_executors.append(test_case_executor)
                 test_case_executor.start()
+                test_case_executor.is_started = True
 
             for executor in test_case_executors:
                 executor.join()
@@ -134,9 +142,10 @@ class TestCaseExecutor(TestExecutor):
         self.test_case = test_case
 
     def run(self):
+        before_method_executor = test_fixture_executor_pool.apply_for_executor(self, self.test_case.before_method)
         test_listeners.on_test_case_start(self.test_case)
         self.test_case.start_time = datetime.now()
-        test_fixture_executor_pool.apply_for_executor(self, self.test_case.before_method).start_and_join()
+        before_method_executor.start_and_join()
 
         test_fixture_executor_pool.apply_for_executor(self, self.test_case.test).start_and_join()
 
@@ -154,8 +163,8 @@ class TestCaseExecutor(TestExecutor):
 
 
 class TestFixtureExecutor(TestExecutor):
-    def __init__(self, test_case_executor, test_fixture):
-        TestExecutor.__init__(self, test_case_executor)
+    def __init__(self, parent_test_executor, test_fixture):
+        TestExecutor.__init__(self, parent_test_executor)
         self.test_fixture = test_fixture
 
     def run_test_fixture(self):
@@ -166,6 +175,7 @@ class TestFixtureExecutor(TestExecutor):
         self.test_fixture.status = TestFixtureStatus.RUNNING
         test_fixture_sub_executor = TestFixtureSubExecutor(self)
         test_fixture_sub_executor.start()
+        test_fixture_sub_executor.is_started = True
         if self.test_fixture.timeout > 0:
             test_fixture_sub_executor.join(self.test_fixture.timeout)
             if test_fixture_sub_executor.isAlive():
@@ -190,7 +200,6 @@ class TestFixtureExecutor(TestExecutor):
         self.test_fixture.status = TestFixtureStatus.SKIPPED
         self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
         preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
-
 
     def run(self):
         self.test_fixture.start_time = datetime.now()
@@ -236,9 +245,9 @@ class TestFixtureExecutor(TestExecutor):
 
 
 class TestFixtureSubExecutor(TestExecutor):
-    def __init__(self, parent_executor):
-        TestExecutor.__init__(self, parent_executor)
-        self.test_fixture = parent_executor.test_fixture
+    def __init__(self, test_fixture_executor):
+        TestExecutor.__init__(self, test_fixture_executor)
+        self.test_fixture = test_fixture_executor.test_fixture
         self.setDaemon(True)
 
     def run(self):
@@ -263,52 +272,34 @@ class TestFixtureExecutorPool(threading.Thread):
         threading.Thread.__init__(self)
         self.size = size
         self.running_test_executors = []
-        self.pending_test_fixtures = []
-        self.__test_fixture_lock = threading.Lock()
-        self.__test_executor_lock = threading.Lock()
+        self._lock = threading.Lock()
 
-    def get_top_test_fixture(self):
-        self.__test_fixture_lock.acquire()
-        try:
-            self.pending_test_fixtures = sorted(self.pending_test_fixtures, key=lambda item: item.execution_priority)
-            return self.pending_test_fixtures[0]
-        finally:
-            self.__test_fixture_lock.release()
+    def apply_for_executor(self, parent_test_executor, test_fixture):
+        while True:
+            self._lock.acquire()
+            try:
+                if self.size > len(self.running_test_executors):
+                    new_test_executor = TestFixtureExecutor(parent_test_executor, test_fixture)
+                    self.running_test_executors.append(new_test_executor)
+                    return new_test_executor
 
-    def get_running_test_executors_count(self):
-        self.__test_executor_lock.acquire()
-        try:
-            self.running_test_executors = [test_executor for test_executor in self.running_test_executors if
-                                           test_executor.isAlive()]
-            return len(self.running_test_executors)
-        finally:
-            self.__test_executor_lock.release()
+                finished_test_executors = []
+                running_test_executors = []
+                for test_executor in self.running_test_executors:
+                    if not test_executor.is_started or test_executor.isAlive():
+                        running_test_executors.append(test_executor)
+                    else:
+                        finished_test_executors.append(test_executor)
+                self.running_test_executors = running_test_executors
 
-    def apply_for_executor(self, test_executor, test_fixture):
-        self.__test_fixture_lock.acquire()
-        try:
-            self.pending_test_fixtures.append(test_fixture)
-        finally:
-            self.__test_fixture_lock.release()
-
-        while self.get_running_test_executors_count() >= self.size or self.get_top_test_fixture() != test_fixture:
+                for test_executor in finished_test_executors:
+                    if test_executor.test_fixture.next_execution_priority >= test_fixture.execution_priority:
+                        new_test_executor = TestFixtureExecutor(parent_test_executor, test_fixture)
+                        self.running_test_executors.append(new_test_executor)
+                        return new_test_executor
+            finally:
+                self._lock.release()
             time.sleep(1)
-
-        test_fixture_executor = TestFixtureExecutor(test_executor, test_fixture)
-
-        self.__test_executor_lock.acquire()
-        try:
-            self.running_test_executors.append(test_fixture_executor)
-        finally:
-            self.__test_executor_lock.release()
-
-        self.__test_fixture_lock.acquire()
-        try:
-            self.pending_test_fixtures.remove(test_fixture)
-        finally:
-            self.__test_fixture_lock.release()
-
-        return test_fixture_executor
 
 
 test_fixture_executor_pool = TestFixtureExecutorPool(int(config.get_option("test_executor_number")))
