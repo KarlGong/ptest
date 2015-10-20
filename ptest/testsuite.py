@@ -20,7 +20,6 @@ class TestContainer:
     def __init__(self):
         self.start_time = None
         self.end_time = None
-        self.is_finished = False
         self.test_cases = []
 
     @property
