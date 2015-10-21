@@ -46,33 +46,34 @@ class TestExecutor(threading.Thread):
     def get_properties(self):
         return self.__properties
 
+    def allocate_worker(self, child_test_executor):
+        with self._lock:
+            if self.workers > 0:
+                self.workers -= 1
+                child_test_executor.workers += 1
+                return True
+            else:
+                return False
+
     def acquire_worker(self):
         if self.parent_test_executor:
-            self._lock.acquire()
-            try:
-                if self.parent_test_executor.workers == 0:
-                    if not self.parent_test_executor.acquire_worker():
+            with self._lock:
+                if self.parent_test_executor.allocate_worker(self):
+                    return True
+                else:
+                    if self.parent_test_executor.acquire_worker():
+                        return self.parent_test_executor.allocate_worker(self)
+                    else:
                         return False
-                self.parent_test_executor.workers -= 1
-                self.workers += 1
-                return True
-            finally:
-                self._lock.release()
         else:
-            self._lock.acquire()
-            try:
+            with self._lock:
                 return self.workers > 0
-            finally:
-                self._lock.release()
 
     def release_worker(self):
         if self.parent_test_executor:
-            self._lock.acquire()
-            try:
+            with self._lock:
                 self.parent_test_executor.workers += self.workers
                 self.workers = 0
-            finally:
-                self._lock.release()
         else:
             pass
 
