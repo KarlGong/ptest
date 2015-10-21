@@ -154,7 +154,7 @@ def main(args=None):
         os.makedirs(temp_dir)
 
     # run test cases
-    testexecutor.TestSuiteExecutor(default_test_suite).start_and_join()
+    testexecutor.TestSuiteExecutor(default_test_suite, int(config.get_option("test_executor_number"))).start_and_join()
 
     # log the test results
     status_count = default_test_suite.status_count
