@@ -3,30 +3,32 @@ __author__ = 'karl.gong'
 from .enumeration import PDecoratorType, TestClassRunMode
 
 
-def BeforeSuite(enabled=True, description="", timeout=0):
+def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeSuite
         func.__enabled__ = enabled
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def AfterSuite(enabled=True, always_run=False, description="", timeout=0):
+def AfterSuite(enabled=True, always_run=False, description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterSuite
         func.__enabled__ = enabled
         func.__always_run__ = always_run
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def TestClass(enabled=True, run_mode="parallel", description=""):
+def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
     def tracer(cls):
         cls.__full_name__ = "%s.%s" % (cls.__module__, cls.__name__)
         cls.__pd_type__ = PDecoratorType.TestClass
@@ -37,46 +39,50 @@ def TestClass(enabled=True, run_mode="parallel", description=""):
             raise Exception("Run mode %s is not supported. Please use %s or %s." % (
                 run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
         cls.__description__ = description
+        cls.__custom_args__ = custom_args
         return cls
 
     return tracer
 
 
-def BeforeClass(enabled=True, description="", timeout=0):
+def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeClass
         func.__enabled__ = enabled
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def AfterClass(enabled=True, always_run=False, description="", timeout=0):
+def AfterClass(enabled=True, always_run=False, description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterClass
         func.__enabled__ = enabled
         func.__always_run__ = always_run
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
-def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0):
+def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeGroup
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
+def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterGroup
         func.__enabled__ = enabled
@@ -84,12 +90,13 @@ def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", 
         func.__group__ = group
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0):
+def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.Test
         func.__enabled__ = enabled
@@ -103,24 +110,26 @@ def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0):
             raise Exception("Tags type %s is not supported. Please use string or list." % type(tags))
         func.__tags__ = sorted([str(tag.strip()) for tag in tag_list if tag.strip()])
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0):
+def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.BeforeMethod
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func
 
 
-def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0):
+def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0, **custom_args):
     def handle_func(func):
         func.__pd_type__ = PDecoratorType.AfterMethod
         func.__enabled__ = enabled
@@ -128,6 +137,7 @@ def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="",
         func.__group__ = group
         func.__description__ = description
         func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
         return func
 
     return handle_func

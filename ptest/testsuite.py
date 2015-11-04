@@ -127,6 +127,7 @@ class TestClass(TestContainer):
         self.full_name = test_class_ref.__full_name__
         self.run_mode = test_class_ref.__run_mode__
         self.description = test_class_ref.__description__
+        self.custom_args = test_class_ref.__custom_args__
 
         self.before_class = BeforeClass(self, None)
         self.after_class = AfterClass(self, None)
@@ -217,6 +218,7 @@ class TestCase:
         self.tags = self.test.tags
         self.group = self.test.group
         self.description = self.test.description
+        self.custom_args = self.test.custom_args
         self.location = self.test.location
 
         self.before_method = BeforeMethod(self, None)
@@ -291,6 +293,7 @@ class TestFixture:
         self.screenshot = None
         self.description = test_fixture_ref.__description__
         self.timeout = test_fixture_ref.__timeout__
+        self.custom_args = test_fixture_ref.__custom_args__
 
         file_path = os.path.abspath(inspect.getfile(test_fixture_ref))
         _, line_no = inspect.getsourcelines(test_fixture_ref)
