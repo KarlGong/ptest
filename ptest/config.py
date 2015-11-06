@@ -105,10 +105,13 @@ def _parse_options(option_args):
                           description="ptest is a light test runner for Python.")
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
                       help="Specify the workspace dir (relative to working directory). Default value is current working directory.")
+    parser.add_option("-P", "--pythonpaths", action="store", dest="python_paths", default=None, metavar="paths",
+                      help="Specify the additional locations (relative to workspace) where to search test libraries from when they are imported. "
+                           "Multiple paths can be given by separating them with a comma.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
-                           "NOTE: ptest ONLY searches modules under workspace and sys.path")
+                           "NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path")
     parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
                       help="Select test cases to run by tags, separated by comma.")
     parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
@@ -129,7 +132,7 @@ def _parse_options(option_args):
                       help="Specify the path of test listener classes, separated by comma. "
                            "The listener class should implement class TestListener in ptest.plistener "
                            "The listener path format is: package.module.class "
-                           "NOTE: 1. ptest ONLY searches modules under workspace and sys.path "
+                           "NOTE: 1. ptest ONLY searches modules under --workspace, --pythonpaths and sys.path "
                            "2. The listener class should be thread safe.")
     parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
                       help="Read properties from file (relative to workspace). "
@@ -152,6 +155,7 @@ def _parse_options(option_args):
 
     # convert to full path for options
     options.workspace = os.path.abspath(os.path.join(os.getcwd(), options.workspace))
+    options.python_paths = None if options.python_paths is None else [os.path.abspath(os.path.join(options.workspace, path)) for path in options.python_paths.split(",")]
     options.run_failed = None if options.run_failed is None else os.path.abspath(os.path.join(options.workspace, options.run_failed))
     options.output_dir = os.path.abspath(os.path.join(options.workspace, options.output_dir))
     options.xunit_xml = os.path.abspath(os.path.join(options.output_dir, options.xunit_xml))

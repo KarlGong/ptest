@@ -50,6 +50,14 @@ def main(args=None):
     pconsole.write_line("Workspace:")
     pconsole.write_line(" %s" % workspace)
 
+    # add python_paths to python path
+    python_paths = config.get_option("python_paths")
+    if python_paths:
+        pconsole.write_line("Python paths:")
+        for python_path in python_paths:
+            sys.path.append(python_path)
+            pconsole.write_line(" %s" % python_path)
+
     # get test targets
     test_targets_str = config.get_option("test_targets")
     if test_targets_str:
