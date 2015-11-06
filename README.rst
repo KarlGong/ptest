@@ -87,9 +87,17 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.4.1 (compared to 1.4.0)
+
+- The instance variables defined in @BeforeSuite, @BeforeClass, @BeforeGroup can be accessed by other test fixtures.
+
+- Support custom args in test fixtures.
+
+- Add option (--pythonpaths) to specify additional python paths.
+
 1.4.0 (compared to 1.3.2)
 
-- Support @BeforeSuite, @BeforeClass, @BeforeGroup, @AfterSuite, @AfterClass, @AfterGroup
+- Support @BeforeSuite, @BeforeClass, @BeforeGroup, @AfterSuite, @AfterClass, @AfterGroup.
 
 - Support timeout for test fixtures.
 
