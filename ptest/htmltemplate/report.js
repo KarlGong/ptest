@@ -300,11 +300,11 @@ renderDetailPanel = function (data) {
             fieldTable.append(description);
 
             detailPanelBody.append(fieldTable);
-            if (!data.beforeMethod.isEmpty) {
+            if (data.beforeMethod) {
                 renderTestFixturePanel(detailPanelBody, data.beforeMethod);
             }
             renderTestFixturePanel(detailPanelBody, data.test);
-            if (!data.afterMethod.isEmpty) {
+            if (data.afterMethod) {
                 renderTestFixturePanel(detailPanelBody, data.afterMethod);
             }
             break;
@@ -323,10 +323,10 @@ renderDetailPanel = function (data) {
             fieldTable.append(duration);
 
             detailPanelBody.append(fieldTable);
-            if (!data.beforeSuite.isEmpty) {
+            if (data.beforeSuite) {
                 renderTestFixturePanel(detailPanelBody, data.beforeSuite);
             }
-            if (!data.afterSuite.isEmpty) {
+            if (data.afterSuite) {
                 renderTestFixturePanel(detailPanelBody, data.afterSuite);
             }
             break;
@@ -349,10 +349,10 @@ renderDetailPanel = function (data) {
             fieldTable.append(description);
 
             detailPanelBody.append(fieldTable);
-            if (!data.beforeClass.isEmpty) {
+            if (data.beforeClass) {
                 renderTestFixturePanel(detailPanelBody, data.beforeClass);
             }
-            if (!data.afterClass.isEmpty) {
+            if (data.afterClass) {
                 renderTestFixturePanel(detailPanelBody, data.afterClass);
             }
             break;
@@ -371,10 +371,10 @@ renderDetailPanel = function (data) {
             fieldTable.append(duration);
 
             detailPanelBody.append(fieldTable);
-            if (!data.beforeGroup.isEmpty) {
+            if (data.beforeGroup) {
                 renderTestFixturePanel(detailPanelBody, data.beforeGroup);
             }
-            if (!data.afterGroup.isEmpty) {
+            if (data.afterGroup) {
                 renderTestFixturePanel(detailPanelBody, data.afterGroup);
             }
             break;

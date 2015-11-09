@@ -120,9 +120,7 @@ def _get_test_suite_dict(test_suite):
         "name": test_suite.name,
         "fullName": test_suite.full_name,
         "type": "testsuite",
-        "beforeSuite": _get_test_fixture_dict(test_suite.before_suite),
         "testClasses": [_get_test_class_dict(test_class) for test_class in test_suite.test_classes],
-        "afterSuite": _get_test_fixture_dict(test_suite.after_suite),
         "startTime": str(test_suite.start_time),
         "endTime": str(test_suite.end_time),
         "elapsedTime": test_suite.elapsed_time,
@@ -131,6 +129,10 @@ def _get_test_suite_dict(test_suite):
         "failRate": float(status_count['failed']) * 100 / status_count['total'],
         "skipRate": float(status_count['skipped']) * 100 / status_count['total']
     }
+    if not test_suite.before_suite.is_empty:
+        repr_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
+    if not test_suite.after_suite.is_empty:
+        repr_dict["afterSuite"] =_get_test_fixture_dict(test_suite.after_suite)
     return repr_dict
 
 
@@ -142,9 +144,7 @@ def _get_test_class_dict(test_class):
         "type": "testclass",
         "runMode": test_class.run_mode,
         "description": test_class.description,
-        "beforeClass": _get_test_fixture_dict(test_class.before_class),
         "testGroups": [_get_test_group_dict(test_group) for test_group in test_class.test_groups],
-        "afterClass": _get_test_fixture_dict(test_class.after_class),
         "startTime": str(test_class.start_time),
         "endTime": str(test_class.end_time),
         "elapsedTime": test_class.elapsed_time,
@@ -153,6 +153,10 @@ def _get_test_class_dict(test_class):
         "failRate": float(status_count['failed']) * 100 / status_count['total'],
         "skipRate": float(status_count['skipped']) * 100 / status_count['total']
     }
+    if not test_class.before_class.is_empty:
+        repr_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
+    if not test_class.after_class.is_empty:
+        repr_dict["afterClass"] =_get_test_fixture_dict(test_class.after_class)
     return repr_dict
 
 
@@ -162,9 +166,7 @@ def _get_test_group_dict(test_group):
         "name": test_group.name,
         "fullName": test_group.full_name,
         "type": "testgroup",
-        "beforeGroup": _get_test_fixture_dict(test_group.before_group),
         "testCases": [_get_test_case_dict(test_case) for test_case in test_group.test_cases],
-        "afterGroup": _get_test_fixture_dict(test_group.after_group),
         "startTime": str(test_group.start_time),
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
@@ -173,6 +175,10 @@ def _get_test_group_dict(test_group):
         "failRate": float(status_count['failed']) * 100 / status_count['total'],
         "skipRate": float(status_count['skipped']) * 100 / status_count['total']
     }
+    if not test_group.before_group.is_empty:
+        repr_dict["beforeGroup"] = _get_test_fixture_dict(test_group.before_group)
+    if not test_group.after_group.is_empty:
+        repr_dict["afterGroup"] = _get_test_fixture_dict(test_group.after_group)
     return repr_dict
 
 
@@ -188,32 +194,29 @@ def _get_test_case_dict(test_case):
         "tags": test_case.tags,
         "group": test_case.group,
         "description": test_case.description,
-        "beforeMethod": _get_test_fixture_dict(test_case.before_method),
         "test": _get_test_fixture_dict(test_case.test),
-        "afterMethod": _get_test_fixture_dict(test_case.after_method)
     }
+    if not test_case.before_method.is_empty:
+        repr_dict["beforeMethod"] = _get_test_fixture_dict(test_case.before_method)
+    if not test_case.after_method.is_empty:
+        repr_dict["afterMethod"] = _get_test_fixture_dict(test_case.after_method)
     return repr_dict
 
 
 def _get_test_fixture_dict(test_fixture):
+    escaped_logs = [{"level": log["level"], "message": log["message"].replace("&", "&amp;").replace("<", "&lt;")
+        .replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")} for log in test_fixture.logs]
     repr_dict = {
+        "name": test_fixture.name,
+        "fullName": test_fixture.full_name,
         "type": "testfixture",
-        "isEmpty": test_fixture.is_empty,
         "status": test_fixture.status,
-        "fixtureType": test_fixture.fixture_type
+        "fixtureType": test_fixture.fixture_type,
+        "startTime": str(test_fixture.start_time),
+        "endTime": str(test_fixture.end_time),
+        "elapsedTime": test_fixture.elapsed_time,
+        "logs": escaped_logs,
+        "screenshot": test_fixture.screenshot,
+        "description": test_fixture.description
     }
-    if not test_fixture.is_empty:
-        escaped_logs = [{"level": log["level"], "message": log["message"].replace("&", "&amp;").replace("<", "&lt;")
-            .replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")} for log in test_fixture.logs]
-        repr_extra_dict = {
-            "name": test_fixture.name,
-            "fullName": test_fixture.full_name,
-            "startTime": str(test_fixture.start_time),
-            "endTime": str(test_fixture.end_time),
-            "elapsedTime": test_fixture.elapsed_time,
-            "logs": escaped_logs,
-            "screenshot": test_fixture.screenshot,
-            "description": test_fixture.description
-        }
-        repr_dict.update(repr_extra_dict)
     return repr_dict
