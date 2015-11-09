@@ -290,7 +290,7 @@ class TestFixture:
         self.start_time = None
         self.end_time = None
         self.logs = []
-        self.screenshot = None
+        self.screenshot = {}
         self.description = test_fixture_ref.__description__
         self.timeout = test_fixture_ref.__timeout__
         self.custom_args = test_fixture_ref.__custom_args__

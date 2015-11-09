@@ -29,7 +29,7 @@ body {
     background-color: #FFB626 !important;
 }
 
-.container {
+.main-container {
     margin-top: 30px;
 }
 
@@ -346,20 +346,33 @@ body {
     color: #CE2400;
 }
 
-.test-fixture .screenshot {
-    width: 200px;
-    border: 0;
+.test-fixture .screenshot .container {
+    width: 130px
 }
 
-.test-fixture .screenshot-link {
+.test-fixture .screenshot .link {
     display: inline-block;
     padding: 2px;
     transition: background-color 0.5s ease-out;
 }
 
-.test-fixture .screenshot-link:hover {
+.test-fixture .screenshot .link:hover {
     background-color: #4ae;
     transition: none;
+}
+
+.test-fixture .screenshot .image{
+    width: 130px;
+    border: 0;
+}
+
+.test-fixture .screenshot .property {
+    color: #777;
+    font-size: 11px;
+}
+
+.test-fixture .screenshot .property td:nth-child(2) {
+    word-break: break-all;
 }
 
 .pieChart {
