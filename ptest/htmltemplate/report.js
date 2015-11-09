@@ -226,19 +226,19 @@ renderTestFixturePanel = function (detailPanel, data) {
     panelHeader.text('@' + data.fixtureType);
 
     var fieldTable = testFixturePanel.find('table');
-    var fullName = $('<tr><td>Full Name</td><td colspan="3">{0}</td></tr>'.format(data.fullName));
+    var fullName = $('<tr><td>Full Name</td><td>{0}</td></tr>'.format(data.fullName));
     fieldTable.append(fullName);
-    var name = $('<tr><td>Method Name</td><td colspan="3">{0}</td></tr>'.format(data.name));
+    var name = $('<tr><td>Method Name</td><td>{0}</td></tr>'.format(data.name));
     fieldTable.append(name);
-    var startTime = $('<tr><td>Start Time</td><td colspan="3">{0}</td></tr>'.format(data.startTime));
+    var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
     fieldTable.append(startTime);
-    var endTime = $('<tr><td>End Time</td><td colspan="3">{0}</td></tr>'.format(data.endTime));
+    var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
     fieldTable.append(endTime);
-    var duration = $('<tr><td>Duration</td><td colspan="3">{0}s</td></tr>'.format(data.elapsedTime));
+    var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
     fieldTable.append(duration);
-    var description = $('<tr><td>Description</td><td colspan="3">{0}</td></tr>'.format(data.description));
+    var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
     fieldTable.append(description);
-    var logs = $('<tr><td>Logs</td><td class="logs" colspan="3"></td></tr>');
+    var logs = $('<tr><td>Logs</td><td class="logs"></td></tr>');
     fieldTable.append(logs);
     var logGroup = logs.find('.logs');
     for (var i = 0; i < data.logs.length; i++) {
@@ -248,18 +248,18 @@ renderTestFixturePanel = function (detailPanel, data) {
         logGroup.append(log);
     }
     if (data.screenshot.source) {
-        var screenshot = $('<tr class="screenshot"><td>Screenshot</td><td class="container"><a class="link" href="{0}" data-lightbox="{0}"><img class="image" src="{0}" /></a></td><td class="property"><table></table></td></td></tr>'.format(data.screenshot.path));
+        var screenshot = $('<tr class="screenshot"><td>Screenshot</td><td><div class="container"><a class="link" href="{0}" data-lightbox="{0}"><img class="image" src="{0}" /></a></div><table class="property"></table></td></td></tr>'.format(data.screenshot.path));
 
-        var screenshot_properties = screenshot.find('.property table');
+        var screenshot_properties = screenshot.find('.property');
         screenshot_properties.append($('<tr><td>Source </td><td>{0}</td></tr>'.format(data.screenshot.source)));
-        if (data.screenshot.url) {
-            screenshot_properties.append($('<tr><td>Url </td><td>{0}</td></tr>'.format(data.screenshot.url)));
-        }
         if (data.screenshot.title) {
             screenshot_properties.append($('<tr><td>Title </td><td>{0}</td></tr>'.format(data.screenshot.title)));
         }
         if (data.screenshot.alert) {
             screenshot_properties.append($('<tr><td>Alert Text </td><td>{0}</td></tr>'.format(data.screenshot.alert)));
+        }
+        if (data.screenshot.url) {
+            screenshot_properties.append($('<tr><td>Url </td><td>{0}</td></tr>'.format(data.screenshot.url)));
         }
         fieldTable.append(screenshot);
     }
