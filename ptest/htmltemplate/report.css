@@ -106,7 +106,7 @@ body {
 
 .navigation {
     width: 30%;
-    position: absolute;
+    position: fixed;
 	top: 76px;
 	bottom: 2px;
 }

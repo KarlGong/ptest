@@ -79,17 +79,22 @@ String.prototype.format = function (args) {
     return result;
 };
 
+
+// calculate the "top" of navigation
 $(window).scroll(function () {
-	var top = 79;
-	if (document.body.scrollTop >= top) {
-		$('.navigation').addClass('fixed');
+	var top = 76;
+	var scrollTop = document.body.scrollTop;
+	var scrollHeight = document.body.scrollHeight;
+	if (scrollTop >= top) {
+	    $('.navigation').css('top', '0');
         $('.detail>.panel-heading').addClass('fixed');
 	} else {
-		$('.navigation').removeClass('fixed');
+	    $('.navigation').css('top', top - scrollTop + 'px');
         $('.detail>.panel-heading').removeClass('fixed');
 	}
 });
 
+// remove default mousewheel event when inner scroll bar is up to top or bottom
 $('.navigation .panel-body').mousewheel(function(event, delta){
     var panelBody = $(this);
     var panelBodyOffsetHeight = panelBody[0].offsetHeight;
