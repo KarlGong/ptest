@@ -82,14 +82,14 @@ String.prototype.format = function (args) {
 
 // calculate the "top" of navigation
 $(window).scroll(function () {
-	var top = 76;
+	var maxTop = 76;
 	var scrollTop = document.body.scrollTop;
 	var scrollHeight = document.body.scrollHeight;
-	if (scrollTop >= top) {
+	if (scrollTop >= maxTop) {
 	    $('.navigation').css('top', '0');
         $('.detail>.panel-heading').addClass('fixed');
 	} else {
-	    $('.navigation').css('top', top - scrollTop + 'px');
+	    $('.navigation').css('top', maxTop - scrollTop + 'px');
         $('.detail>.panel-heading').removeClass('fixed');
 	}
 });
@@ -249,6 +249,14 @@ renderTree = function (testSuite, statusFilter) {
 
     // add listener for selecting node
     $('.tree li > .item').on('click', function (e) {
+            // calculate min height of detail panel
+            var navigationBodyHeight = $('.navigation .panel-body')[0].offsetHeight;
+            $('.detail .panel-body').css('min-height', navigationBodyHeight - 32 + 'px');
+            if ($(window).scrollTop() > 76) {
+                $(window).scrollTop(76);
+            }
+
+            // render detail panel
             renderDetailPanel($(this).parent().data("data"));
             $('.tree li .selected').removeClass('selected');
             $(this).addClass('selected');
