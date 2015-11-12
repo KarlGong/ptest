@@ -29,10 +29,6 @@ body {
     background-color: #FFB626 !important;
 }
 
-.main-container {
-    margin-top: 30px;
-}
-
 .btn {
     display: inline-block;
     padding: 5px 6px;
@@ -103,16 +99,29 @@ body {
     padding: 15px;
 }
 
+.fixed {
+    position: fixed !important;
+    top: 0 !important
+}
+
 .navigation {
     width: 30%;
-    float: left;
+    position: absolute;
+	top: 76px;
+	bottom: 2px;
 }
 
 .navigation .toolbar {
-    float: right;
-    margin-right: -8px;
-    margin-top: -10px;
+    right: 25px;
     visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    background-color: #fff;
+}
+
+.navigation .panel-body{
+    overflow-y: auto;
+    height: calc(100% - 78px);
 }
 
 .navigation .panel-body:hover .toolbar {
@@ -256,7 +265,17 @@ body {
 .detail {
     width: 69%;
     float: right;
-    display: inline-block;
+    position: relative;
+    margin-top: 12px;
+    bottom: 2px;
+}
+
+.detail>.panel-heading {
+    box-sizing: border-box;
+    position: absolute;
+    width: 100%;
+    height: 48px;
+    z-index: 1;
 }
 
 .detail .panel-heading .text {
@@ -273,6 +292,10 @@ body {
     font-weight: bold;
     border: 4px solid transparent;
     border-radius: 12px;
+}
+
+.detail>.panel-body {
+    margin-top: 50px;
 }
 
 .detail td {
