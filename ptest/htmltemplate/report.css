@@ -112,7 +112,8 @@ body {
 }
 
 .navigation .toolbar {
-    right: 25px;
+    padding: 6px;
+    right: 20px;
     visibility: hidden;
     position: absolute;
     z-index: 1;
