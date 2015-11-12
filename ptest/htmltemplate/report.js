@@ -83,7 +83,7 @@ String.prototype.format = function (args) {
 // calculate the "top" of navigation
 $(window).scroll(function () {
 	var maxTop = 76;
-	var scrollTop = document.body.scrollTop;
+	var scrollTop = $(window).scrollTop();
 	var scrollHeight = document.body.scrollHeight;
 	if (scrollTop >= maxTop) {
 	    $('.navigation').css('top', '0');
@@ -252,8 +252,9 @@ renderTree = function (testSuite, statusFilter) {
             // calculate min height of detail panel
             var navigationBodyHeight = $('.navigation .panel-body')[0].offsetHeight;
             $('.detail .panel-body').css('min-height', navigationBodyHeight - 32 + 'px');
-            if ($(window).scrollTop() > 76) {
-                $(window).scrollTop(76);
+            var maxTop = 76;
+            if ($(window).scrollTop() > maxTop) {
+                $(window).scrollTop(maxTop);
             }
 
             // render detail panel
