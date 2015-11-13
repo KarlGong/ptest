@@ -87,6 +87,10 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.4.2 (compared to 1.4.1)
+
+- Add detailed information for screenshot.
+
 1.4.1 (compared to 1.4.0)
 
 - The instance variables defined in @BeforeSuite, @BeforeClass, @BeforeGroup can be accessed by other test fixtures.
