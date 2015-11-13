@@ -79,12 +79,10 @@ String.prototype.format = function (args) {
     return result;
 };
 
-
 // calculate the "top" of navigation
 $(window).scroll(function () {
 	var maxTop = 76;
 	var scrollTop = $(window).scrollTop();
-	var scrollHeight = document.body.scrollHeight;
 	if (scrollTop >= maxTop) {
 	    $('.navigation').css('top', '0');
         $('.detail>.panel-heading').addClass('fixed');

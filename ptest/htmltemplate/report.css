@@ -100,7 +100,7 @@ body {
 }
 
 .navigation {
-    width: 30%;
+    width: 380px;
     position: fixed;
 	top: 76px;
 	bottom: 2px;
@@ -260,10 +260,11 @@ body {
 }
 
 .detail {
-    width: 69%;
-    float: right;
+    width: calc(100% - 390px);
+    float: left;
     position: relative;
     margin-top: 12px;
+    margin-left: 390px;
     bottom: 2px;
 }
 
