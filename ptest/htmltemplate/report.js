@@ -37,25 +37,6 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
  */
 !function(a){"function"==typeof define&&define.amd?define(["jquery"],a):"object"==typeof exports?module.exports=a:a(jQuery)}(function(a){function b(b){var g=b||window.event,h=i.call(arguments,1),j=0,l=0,m=0,n=0,o=0,p=0;if(b=a.event.fix(g),b.type="mousewheel","detail"in g&&(m=-1*g.detail),"wheelDelta"in g&&(m=g.wheelDelta),"wheelDeltaY"in g&&(m=g.wheelDeltaY),"wheelDeltaX"in g&&(l=-1*g.wheelDeltaX),"axis"in g&&g.axis===g.HORIZONTAL_AXIS&&(l=-1*m,m=0),j=0===m?l:m,"deltaY"in g&&(m=-1*g.deltaY,j=m),"deltaX"in g&&(l=g.deltaX,0===m&&(j=-1*l)),0!==m||0!==l){if(1===g.deltaMode){var q=a.data(this,"mousewheel-line-height");j*=q,m*=q,l*=q}else if(2===g.deltaMode){var r=a.data(this,"mousewheel-page-height");j*=r,m*=r,l*=r}if(n=Math.max(Math.abs(m),Math.abs(l)),(!f||f>n)&&(f=n,d(g,n)&&(f/=40)),d(g,n)&&(j/=40,l/=40,m/=40),j=Math[j>=1?"floor":"ceil"](j/f),l=Math[l>=1?"floor":"ceil"](l/f),m=Math[m>=1?"floor":"ceil"](m/f),k.settings.normalizeOffset&&this.getBoundingClientRect){var s=this.getBoundingClientRect();o=b.clientX-s.left,p=b.clientY-s.top}return b.deltaX=l,b.deltaY=m,b.deltaFactor=f,b.offsetX=o,b.offsetY=p,b.deltaMode=0,h.unshift(b,j,l,m),e&&clearTimeout(e),e=setTimeout(c,200),(a.event.dispatch||a.event.handle).apply(this,h)}}function c(){f=null}function d(a,b){return k.settings.adjustOldDeltas&&"mousewheel"===a.type&&b%120===0}var e,f,g=["wheel","mousewheel","DOMMouseScroll","MozMousePixelScroll"],h="onwheel"in document||document.documentMode>=9?["wheel"]:["mousewheel","DomMouseScroll","MozMousePixelScroll"],i=Array.prototype.slice;if(a.event.fixHooks)for(var j=g.length;j;)a.event.fixHooks[g[--j]]=a.event.mouseHooks;var k=a.event.special.mousewheel={version:"3.1.12",setup:function(){if(this.addEventListener)for(var c=h.length;c;)this.addEventListener(h[--c],b,!1);else this.onmousewheel=b;a.data(this,"mousewheel-line-height",k.getLineHeight(this)),a.data(this,"mousewheel-page-height",k.getPageHeight(this))},teardown:function(){if(this.removeEventListener)for(var c=h.length;c;)this.removeEventListener(h[--c],b,!1);else this.onmousewheel=null;a.removeData(this,"mousewheel-line-height"),a.removeData(this,"mousewheel-page-height")},getLineHeight:function(b){var c=a(b),d=c["offsetParent"in a.fn?"offsetParent":"parent"]();return d.length||(d=a("body")),parseInt(d.css("fontSize"),10)||parseInt(c.css("fontSize"),10)||16},getPageHeight:function(b){return a(b).height()},settings:{adjustOldDeltas:!0,normalizeOffset:!0}};a.fn.extend({mousewheel:function(a){return a?this.bind("mousewheel",a):this.trigger("mousewheel")},unmousewheel:function(a){return this.unbind("mousewheel",a)}})});
 
-$(document.body).ready(function () {
-    // set light box option
-    lightbox.option({
-        'resizeDuration': 0
-    });
-
-    // add listener for expand all
-    $('.navigation .toolbar .expand').on('click', function (e) {
-        $('.tree li.parent.collapsed>.item>.sign').click();
-        e.stopPropagation();
-    });
-
-    // add listener for collapse all
-    $('.navigation .toolbar .collapse').on('click', function (e) {
-        $('.tree li.parent.expanded>.item>.sign').click();
-        e.stopPropagation();
-    });
-});
-
 String.prototype.format = function (args) {
     var result = this;
     if (arguments.length > 0) {
@@ -78,6 +59,62 @@ String.prototype.format = function (args) {
     }
     return result;
 };
+
+$(document.body).ready(function () {
+    // set light box option
+    lightbox.option({
+        'resizeDuration': 0
+    });
+});
+
+// add listener for clicking expanded parent node
+$('.tree').on('click', 'li.parent.expanded>.item>.sign', function(e) {
+    var node = $(this).parent().parent();
+    var children = node.find(' > ul > li');
+    children.hide('fast');
+    $(this).text("+");
+    node.removeClass('expanded').addClass('collapsed');
+    e.stopPropagation();
+});
+
+// add listener for clicking collapsed parent node
+$('.tree').on('click', 'li.parent.collapsed>.item>.sign', function(e) {
+    var node = $(this).parent().parent();
+    var children = node.find(' > ul > li');
+    children.show('fast');
+    $(this).text("-");
+    node.removeClass('collapsed').addClass('expanded');
+    e.stopPropagation();
+});
+
+// add listener for expand all
+$('.navigation .toolbar .expand-all').on('click', function (e) {
+    $('.tree li.parent.collapsed>.item>.sign').click();
+    e.stopPropagation();
+});
+
+// add listener for collapse all
+$('.navigation .toolbar .collapse-all').on('click', function (e) {
+    $('.tree li.parent.expanded>.item>.sign').click();
+    e.stopPropagation();
+});
+
+// add listener for selecting node
+$('.tree').on('click', 'li > .item', function (e) {
+        // calculate min height of detail panel
+        var navigationBodyHeight = $('.navigation .panel-body')[0].offsetHeight;
+        $('.detail .panel-body').css('min-height', navigationBodyHeight - 32 + 'px');
+        var maxTop = 76;
+        if ($(window).scrollTop() > maxTop) {
+            $(window).scrollTop(maxTop);
+        }
+
+        // render detail panel
+        renderDetailPanel($(this).parent().data("data"));
+        $('.tree li .selected').removeClass('selected');
+        $(this).addClass('selected');
+        e.stopPropagation();
+});
 
 // calculate the "top" of navigation
 $(window).scroll(function () {
@@ -193,6 +230,8 @@ renderTree = function (testSuite, statusFilter) {
     if (testSuiteNode == null) {
         return;
     }
+    testSuiteNode.find(' > .item > .sign').text('-');
+    testSuiteNode.addClass('expanded');
 
     for (var i = 0; i < testSuite.testClasses.length; i++) {
         var testClass = testSuite.testClasses[i];
@@ -200,6 +239,8 @@ renderTree = function (testSuite, statusFilter) {
         if (testClassNode == null) {
             continue;
         }
+        testClassNode.find(' > .item > .sign').text('+');
+        testClassNode.addClass('collapsed');
 
         for (var j = 0; j < testClass.testGroups.length; j++) {
             var testGroup = testClass.testGroups[j];
@@ -207,6 +248,8 @@ renderTree = function (testSuite, statusFilter) {
             if (testGroupNode == null) {
                 continue;
             }
+            testGroupNode.find(' > .item > .sign').text('+');
+            testGroupNode.addClass('collapsed');
 
             for (var k = 0; k < testGroup.testCases.length; k++) {
                 var testCase = testGroup.testCases[k];
@@ -214,53 +257,6 @@ renderTree = function (testSuite, statusFilter) {
             }
         }
     }
-
-    // add sign for parent node
-    var parentNodes = $('.tree li.parent');
-    for (var i = 0; i < parentNodes.length; i ++) {
-        var parentNode = $(parentNodes[i]);
-        var children = parentNode.find(' > ul > li');
-        if (children.is(':visible')) {
-            parentNode.find(' > .item > .sign').text('-');
-            parentNode.addClass('expanded');
-        } else {
-            parentNode.find(' > .item > .sign').text('+');
-            parentNode.addClass('collapsed');
-        }
-    }
-
-     // add listener for expand/collapse parent node
-    $('.tree li.parent>.item>.sign').on('click', function (e) {
-        var node = $(this).parent().parent();
-        var children = node.find(' > ul > li');
-        if (children.is(":visible")) {
-            children.hide('fast');
-            $(this).text("+");
-            node.removeClass('expanded').addClass('collapsed');
-        } else {
-            children.show('fast');
-            $(this).text("-");
-            node.removeClass('collapsed').addClass('expanded');
-        }
-        e.stopPropagation();
-    });
-
-    // add listener for selecting node
-    $('.tree li > .item').on('click', function (e) {
-            // calculate min height of detail panel
-            var navigationBodyHeight = $('.navigation .panel-body')[0].offsetHeight;
-            $('.detail .panel-body').css('min-height', navigationBodyHeight - 32 + 'px');
-            var maxTop = 76;
-            if ($(window).scrollTop() > maxTop) {
-                $(window).scrollTop(maxTop);
-            }
-
-            // render detail panel
-            renderDetailPanel($(this).parent().data("data"));
-            $('.tree li .selected').removeClass('selected');
-            $(this).addClass('selected');
-            e.stopPropagation();
-    });
 };
 
 renderTestFixturePanel = function (detailPanel, data) {

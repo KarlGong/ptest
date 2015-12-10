@@ -125,13 +125,13 @@ body {
     visibility: visible;
 }
 
-.navigation .toolbar .expand {
+.navigation .toolbar .expand-all {
     cursor: pointer;
     color: #43A3D0;
     text-decoration: underline;
 }
 
-.navigation .toolbar .collapse {
+.navigation .toolbar .collapse-all {
     cursor: pointer;
     color: #43A3D0;
     text-decoration: underline;
