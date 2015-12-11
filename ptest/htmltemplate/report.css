@@ -177,9 +177,8 @@ body {
     width: 7px;
 }
 
-.tree .parent .name {
+.tree .item .name {
     float: left;
-    width: 101px;
     margin-top: 5px;
     padding-left: 4px;
     overflow: hidden;
@@ -187,14 +186,12 @@ body {
     white-space: nowrap
 }
 
-.tree .leaf .name {
-    float: left;
+.tree .parent>.item>.name {
+    width: 101px;
+}
+
+.tree .leaf>.item>.name {
     width: 129px;
-    margin-top: 5px;
-    padding-left: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap
 }
 
 .tree .badge {
