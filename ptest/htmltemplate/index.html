@@ -50,9 +50,11 @@
 
     // add listener for tree filter
     $('.navigation .btn').on('click', function (e) {{
-        $('.navigation .btn.selected').removeClass('selected');
-        $(this).addClass('selected');
-        renderTree(testSuite, $(this).attr('filter'));
+        if(!$(this).hasClass('selected')) {{
+            $('.navigation .btn.selected').removeClass('selected');
+            $(this).addClass('selected');
+            renderTree(testSuite, $(this).attr('filter'));
+         }}
     }});
 
     // render dashboard
