@@ -179,9 +179,9 @@ renderTree = function (testSuite, statusFilter) {
                 "fullName": data.fullName,
                 "statusFilter": statusFilter,
                 "total": data.statusCount.total,
-                "passRate": data.passRate,
-                "failRate": data.failRate,
-                "skipRate": data.skipRate
+                "passRate": data.statusCount.passed * 100.0 / data.statusCount.total,
+                "failRate": data.statusCount.failed * 100.0 / data.statusCount.total,
+                "skipRate": data.statusCount.skipped * 100.0 / data.statusCount.total,
             };
             switch (statusFilter) {
                 case "passed":

@@ -46,16 +46,6 @@ class TestContainer:
         status_count = self.status_count
         return float(status_count[TestCaseCountItem.PASSED]) * 100 / status_count[TestCaseCountItem.TOTAL]
 
-    @property
-    def fail_rate(self):
-        status_count = self.status_count
-        return float(status_count[TestCaseCountItem.FAILED]) * 100 / status_count[TestCaseCountItem.TOTAL]
-
-    @property
-    def skip_rate(self):
-        status_count = self.status_count
-        return float(status_count[TestCaseCountItem.SKIPPED]) * 100 / status_count[TestCaseCountItem.TOTAL]
-
 
 class TestSuite(TestContainer):
     def __init__(self, name):

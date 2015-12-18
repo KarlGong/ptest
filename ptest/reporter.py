@@ -124,9 +124,6 @@ def _get_test_suite_dict(test_suite):
         "endTime": str(test_suite.end_time),
         "elapsedTime": test_suite.elapsed_time,
         "statusCount": test_suite.status_count,
-        "passRate": test_suite.pass_rate,
-        "failRate": test_suite.fail_rate,
-        "skipRate": test_suite.skip_rate
     }
     if not test_suite.before_suite.is_empty:
         repr_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
@@ -147,9 +144,6 @@ def _get_test_class_dict(test_class):
         "endTime": str(test_class.end_time),
         "elapsedTime": test_class.elapsed_time,
         "statusCount": test_class.status_count,
-        "passRate": test_class.pass_rate,
-        "failRate": test_class.fail_rate,
-        "skipRate": test_class.skip_rate
     }
     if not test_class.before_class.is_empty:
         repr_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
@@ -168,9 +162,6 @@ def _get_test_group_dict(test_group):
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
         "statusCount": test_group.status_count,
-        "passRate": test_group.pass_rate,
-        "failRate": test_group.fail_rate,
-        "skipRate": test_group.skip_rate
     }
     if not test_group.before_group.is_empty:
         repr_dict["beforeGroup"] = _get_test_fixture_dict(test_group.before_group)
