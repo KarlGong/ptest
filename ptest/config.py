@@ -103,11 +103,21 @@ def _parse_properties(property_args):
 def _parse_options(option_args):
     parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.4.2 for Python " + platform.python_version(),
                           description="ptest is a light test runner for Python.")
+
+    # path and property
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
-                      help="Specify the workspace dir (relative to working directory). Default value is current working directory.")
+                      help="Specify the workspace dir (relative to working directory). Default is current working directory.")
     parser.add_option("-P", "--pythonpaths", action="store", dest="python_paths", default=None, metavar="paths",
                       help="Specify the additional locations (relative to workspace) where to search test libraries from when they are imported. "
                            "Multiple paths can be given by separating them with a comma.")
+    parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
+                      help="Read properties from file (relative to workspace). "
+                           "The properties in property file will be overwritten by user defined properties in cmd line. "
+                           "Get property via get_property() in module ptest.config.")
+
+    # running
+    parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
+                      help="Specify the xunit result xml path (relative to workspace) and run the failed test cases in it.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
@@ -120,47 +130,82 @@ def _parse_options(option_args):
                       help="Select test cases to run by groups, separated by comma.")
     parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
-    parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
-                      help="Specify the xunit xml path (relative to workspace) and run the failed test cases in it.")
+
+    # output
     parser.add_option("-o", "--outputdir", action="store", dest="output_dir", default="test-output", metavar="dir",
                       help="Specify the output dir (relative to workspace).")
-    parser.add_option("-x", "--xunitxml", action="store", dest="xunit_xml", default="xunit-results.xml",
-                      metavar="file", help="Specify the xunit xml path (relative to output dir).")
     parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
                       help="Specify the html report dir (relative to output dir).")
+    parser.add_option("-x", "--xunitxml", action="store", dest="xunit_xml", default="xunit-results.xml",
+                      metavar="file", help="Specify the xunit result xml path (relative to output dir).")
+
+    # miscellaneous
     parser.add_option("-l", "--listeners", action="store", dest="test_listeners", default=None, metavar="class",
                       help="Specify the path of test listener classes, separated by comma. "
                            "The listener class should implement class TestListener in ptest.plistener "
                            "The listener path format is: package.module.class "
                            "NOTE: 1. ptest ONLY searches modules under --workspace, --pythonpaths and sys.path "
                            "2. The listener class should be thread safe.")
-    parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
-                      help="Read properties from file (relative to workspace). "
-                           "The properties in property file will be overwritten by user defined properties in cmd line. "
-                           "Get property via get_property() in module ptest.config.")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
     parser.add_option("--temp", action="store", dest="temp", default="ptest-temp", metavar="dir",
                       help="Specify the temp dir (relative to workspace).")
     parser.add_option("--disablescreenshot", action="store_true", dest="disable_screenshot", default=False,
                       help="Disable taking screenshot for failed test fixtures.")
+
+    # tool
+    parser.add_option("-m", "--mergexunitxmls", action="store", dest="merge_xunit_xmls", default=None, metavar="files",
+                      help="Merge the xunit result xmls (relative to workspace). Multiple files can be given by separating them with a comma."
+                            "Use --to to specify the path of merged xunit result xml.")
+    parser.add_option("--to", action="store", dest="to", default=None, metavar='path',
+                      help="Specify the 'to' destination (relative to workspace).")
+
+    # user defined properties
     parser.add_option_group(
         OptionGroup(parser, "User defined properties",
                     "Define properties via -D<key>=<value>. Get defined property via get_property() in module ptest.config."))
+
     options, unknown_args = parser.parse_args(option_args)
-    if options.test_targets and options.run_failed:
-        parser.error("Options -t(--targets) and -R(--runfailed) are mutually exclusive.")
-    if (options.test_targets is None) and (options.run_failed is None):
-        parser.error("You must specified one of the following options: -t(--targets), -R(--runfailed).")
+
+    # only one of the main options can be use
+    main_options = [options.test_targets, options.run_failed, options.merge_xunit_xmls]
+    used_options_count = len([option for option in main_options if option is not None])
+    if used_options_count == 0:
+        parser.error("You must use one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
+    elif used_options_count > 1:
+        parser.error("You can ONLY use one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
+
+    # check '--to'
+    if options.merge_xunit_xmls is not None and options.to is None:
+        parser.error("You must use --to to specify the path of merged xunit result xml (--mergexunitxmls).")
+
+    # spilt multiple values by comma
+    def split(option_value):
+        return None if option_value is None else option_value.split(",")
+
+    options.python_paths = split(options.python_paths)
+    options.test_targets = split(options.test_targets)
+    options.include_tags = split(options.include_tags)
+    options.exclude_tags = split(options.exclude_tags)
+    options.include_groups = split(options.include_groups)
+    options.test_listeners = split(options.test_listeners)
+    options.merge_xunit_xmls = split(options.merge_xunit_xmls)
 
     # convert to full path for options
-    options.workspace = os.path.abspath(os.path.join(os.getcwd(), options.workspace))
-    options.python_paths = None if options.python_paths is None else [os.path.abspath(os.path.join(options.workspace, path)) for path in options.python_paths.split(",")]
-    options.run_failed = None if options.run_failed is None else os.path.abspath(os.path.join(options.workspace, options.run_failed))
-    options.output_dir = os.path.abspath(os.path.join(options.workspace, options.output_dir))
-    options.xunit_xml = os.path.abspath(os.path.join(options.output_dir, options.xunit_xml))
-    options.report_dir = os.path.abspath(os.path.join(options.output_dir, options.report_dir))
-    options.property_file = None if options.property_file is None else os.path.abspath(os.path.join(options.workspace, options.property_file))
-    options.temp = os.path.abspath(os.path.join(options.workspace, options.temp))
+    def join_path(base_path, sub_path):
+        return os.path.abspath(os.path.join(base_path, sub_path))
+
+    options.workspace = join_path(os.getcwd(), options.workspace)
+    options.python_paths = None if options.python_paths is None else [join_path(options.workspace, path) for path in options.python_paths]
+    options.property_file = None if options.property_file is None else join_path(options.workspace, options.property_file)
+
+    options.run_failed = None if options.run_failed is None else join_path(options.workspace, options.run_failed)
+    options.output_dir = join_path(options.workspace, options.output_dir)
+    options.report_dir = join_path(options.output_dir, options.report_dir)
+    options.xunit_xml = join_path(options.output_dir, options.xunit_xml)
+    options.temp = join_path(options.workspace, options.temp)
+
+    options.merge_xunit_xmls = None if options.merge_xunit_xmls is None else [join_path(options.workspace, path) for path in options.merge_xunit_xmls]
+    options.to = None if options.to is None else join_path(options.workspace, options.to)
 
     _options.update(options.__dict__)

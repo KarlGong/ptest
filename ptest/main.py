@@ -2,6 +2,7 @@ import importlib
 import os
 import shlex
 import sys
+import traceback
 from xml.dom import minidom
 import shutil
 
@@ -23,6 +24,58 @@ def get_rerun_targets(xml_file):
     return test_targets
 
 
+def merge_xunit_xmls(xml_files, to_file):
+    from .plogger import pconsole
+    from .testsuite import default_test_suite
+
+    pconsole.write_line("Start to merge xunit result xmls...")
+
+    test_case_results = {}
+
+    for xml_file in xml_files:
+        doc = minidom.parse(xml_file)
+        if doc.documentElement.nodeName == "testsuites":
+            root = doc.documentElement
+        else:
+            root = doc
+        for test_suite_node in root.getElementsByTagName("testsuite"):
+            for test_case_node in test_suite_node.getElementsByTagName("testcase"):
+                test_case_name = "%s.%s" % (test_case_node.getAttribute("classname"), test_case_node.getAttribute("name"))
+                test_case_status = 0 # passed
+                if test_case_node.getElementsByTagName("failure"):
+                    test_case_status = 1 # failed
+                elif test_case_node.getElementsByTagName("skipped"):
+                    test_case_status = 2 # skipped
+
+                if test_case_name not in test_case_results or test_case_status < test_case_results[test_case_name]["status"]:
+                    test_case_results[test_case_name] = {"status": test_case_status, "node": test_case_node}
+
+    doc = minidom.Document()
+    test_suite_ele = doc.createElement("testsuite")
+    doc.appendChild(test_suite_ele)
+    test_suite_ele.setAttribute("name", default_test_suite.name)
+    test_suite_ele.setAttribute("tests", str(len(test_case_results)))
+    test_suite_ele.setAttribute("failures", str(len([result for result in test_case_results.values() if result["status"] == 1])))
+    test_suite_ele.setAttribute("skips", str(len([result for result in test_case_results.values() if result["status"] == 2])))
+    test_suite_ele.setAttribute("errors", "0")
+
+    for test_case_result in test_case_results.values():
+        test_suite_ele.appendChild(test_case_result["node"])
+
+    if os.path.exists(to_file):
+        pconsole.write_line("Cleaning old merged xunit result xml...")
+        os.remove(to_file)
+
+    f = open(to_file, "w")
+    try:
+        doc.writexml(f, "\t", "\t", "\n", "utf-8")
+        pconsole.write_line("Merged xunit xml is generated at %s" % to_file)
+    except Exception:
+        pconsole.write_line("Failed to generate merged xunit xml.\n%s" % traceback.format_exc())
+    finally:
+        f.close()
+
+
 def main(args=None):
     from . import config
     # load arguments
@@ -35,12 +88,20 @@ def main(args=None):
         args = shlex.split(args)
     config.load(args)
 
+    # merge xunit result xmls
+    xunit_xmls = config.get_option("merge_xunit_xmls")
+    if xunit_xmls is not None:
+        merge_xunit_xmls(xunit_xmls, config.get_option("to"))
+        return
+
+    # run test
     from .testfilter import FilterGroup, TestCaseIncludeTagsFilter, TestCaseExcludeTagsFilter, \
         TestCaseIncludeGroupsFilter
     from . import testexecutor, reporter, plistener
     from .testsuite import default_test_suite
     from .plogger import pconsole
     from .testfinder import find_test_cases, ImportTestTargetError
+    from .enumeration import TestCaseCountItem
 
     pconsole.write_line("Starting ptest...")
 
@@ -52,16 +113,15 @@ def main(args=None):
 
     # add python_paths to python path
     python_paths = config.get_option("python_paths")
-    if python_paths:
+    if python_paths is not None:
         pconsole.write_line("Python paths:")
         for python_path in python_paths:
             sys.path.append(python_path)
             pconsole.write_line(" %s" % python_path)
 
     # get test targets
-    test_targets_str = config.get_option("test_targets")
-    if test_targets_str:
-        test_targets = test_targets_str.split(",")
+    test_targets = config.get_option("test_targets")
+    if test_targets is not None:
         pconsole.write_line("Test targets:")
         for test_target in test_targets:
             pconsole.write_line(" %s" % test_target)
@@ -74,9 +134,9 @@ def main(args=None):
 
     # add test listeners
     listener_paths = config.get_option("test_listeners")
-    if listener_paths:
+    if listener_paths is not None:
         pconsole.write_line("Test listeners:")
-        for listener_path in listener_paths.split(","):
+        for listener_path in listener_paths:
             pconsole.write_line(" %s" % listener_path)
             splitted_listener_path = listener_path.split(".")
             listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
@@ -89,13 +149,13 @@ def main(args=None):
     include_groups = config.get_option("include_groups")
     test_class_filter_group = FilterGroup()
     test_case_filter_group = FilterGroup()
-    if include_tags:
-        test_case_filter_group.append_filter(TestCaseIncludeTagsFilter(include_tags.split(",")))
-    if exclude_tags:
-        test_case_filter_group.append_filter(TestCaseExcludeTagsFilter(exclude_tags.split(",")))
-    if include_groups:
-        test_case_filter_group.append_filter(TestCaseIncludeGroupsFilter(include_groups.split(",")))
-    if include_tags or exclude_tags or include_groups:
+    if include_tags is not None:
+        test_case_filter_group.append_filter(TestCaseIncludeTagsFilter(include_tags))
+    if exclude_tags is not None:
+        test_case_filter_group.append_filter(TestCaseExcludeTagsFilter(exclude_tags))
+    if include_groups is not None:
+        test_case_filter_group.append_filter(TestCaseIncludeGroupsFilter(include_groups))
+    if include_tags is not None or exclude_tags is not None or include_groups is not None:
         pconsole.write_line("=" * 100)
         pconsole.write_line(" %s" % test_case_filter_group)
 
@@ -170,8 +230,8 @@ def main(args=None):
     pconsole.write_line("=" * 100)
     pconsole.write_line("Test finished in %.2fs." % default_test_suite.elapsed_time)
     pconsole.write_line("Total: %s, passed: %s, failed: %s, skipped: %s. Pass rate: %.1f%%." % (
-        status_count["total"], status_count["passed"], status_count["failed"], status_count["skipped"],
-        default_test_suite.pass_rate))
+        status_count[TestCaseCountItem.TOTAL], status_count[TestCaseCountItem.PASSED],
+        status_count[TestCaseCountItem.FAILED], status_count[TestCaseCountItem.SKIPPED], default_test_suite.pass_rate))
 
     # generate the test report
     pconsole.write_line("")

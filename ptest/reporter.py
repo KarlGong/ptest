@@ -9,7 +9,7 @@ from datetime import datetime
 from . import config
 from .plogger import pconsole
 from .testsuite import default_test_suite
-from .enumeration import TestCaseStatus
+from .enumeration import TestCaseStatus, TestCaseCountItem
 
 __author__ = 'karl.gong'
 
@@ -39,9 +39,9 @@ def generate_xunit_xml(xml_file_path):
     doc.appendChild(test_suite_ele)
     status_count = default_test_suite.status_count
     test_suite_ele.setAttribute("name", default_test_suite.name)
-    test_suite_ele.setAttribute("tests", str(status_count["total"]))
-    test_suite_ele.setAttribute("failures", str(status_count["failed"]))
-    test_suite_ele.setAttribute("skips", str(status_count["skipped"]))
+    test_suite_ele.setAttribute("tests", str(status_count[TestCaseCountItem.TOTAL]))
+    test_suite_ele.setAttribute("failures", str(status_count[TestCaseCountItem.FAILED]))
+    test_suite_ele.setAttribute("skips", str(status_count[TestCaseCountItem.SKIPPED]))
     test_suite_ele.setAttribute("errors", "0")
     test_suite_ele.setAttribute("time", "%.3f" % default_test_suite.elapsed_time)
     test_suite_ele.setAttribute("timestamp", str(default_test_suite.start_time))
@@ -115,7 +115,6 @@ def generate_html_report(report_dir):
 
 
 def _get_test_suite_dict(test_suite):
-    status_count = test_suite.status_count
     repr_dict = {
         "name": test_suite.name,
         "fullName": test_suite.full_name,
@@ -125,9 +124,9 @@ def _get_test_suite_dict(test_suite):
         "endTime": str(test_suite.end_time),
         "elapsedTime": test_suite.elapsed_time,
         "statusCount": test_suite.status_count,
-        "passRate": float(status_count['passed']) * 100 / status_count['total'],
-        "failRate": float(status_count['failed']) * 100 / status_count['total'],
-        "skipRate": float(status_count['skipped']) * 100 / status_count['total']
+        "passRate": test_suite.pass_rate,
+        "failRate": test_suite.fail_rate,
+        "skipRate": test_suite.skip_rate
     }
     if not test_suite.before_suite.is_empty:
         repr_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
@@ -137,7 +136,6 @@ def _get_test_suite_dict(test_suite):
 
 
 def _get_test_class_dict(test_class):
-    status_count = test_class.status_count
     repr_dict = {
         "name": test_class.name,
         "fullName": test_class.full_name,
@@ -149,9 +147,9 @@ def _get_test_class_dict(test_class):
         "endTime": str(test_class.end_time),
         "elapsedTime": test_class.elapsed_time,
         "statusCount": test_class.status_count,
-        "passRate": float(status_count['passed']) * 100 / status_count['total'],
-        "failRate": float(status_count['failed']) * 100 / status_count['total'],
-        "skipRate": float(status_count['skipped']) * 100 / status_count['total']
+        "passRate": test_class.pass_rate,
+        "failRate": test_class.fail_rate,
+        "skipRate": test_class.skip_rate
     }
     if not test_class.before_class.is_empty:
         repr_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
@@ -161,7 +159,6 @@ def _get_test_class_dict(test_class):
 
 
 def _get_test_group_dict(test_group):
-    status_count = test_group.status_count
     repr_dict = {
         "name": test_group.name,
         "fullName": test_group.full_name,
@@ -171,9 +168,9 @@ def _get_test_group_dict(test_group):
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
         "statusCount": test_group.status_count,
-        "passRate": float(status_count['passed']) * 100 / status_count['total'],
-        "failRate": float(status_count['failed']) * 100 / status_count['total'],
-        "skipRate": float(status_count['skipped']) * 100 / status_count['total']
+        "passRate": test_group.pass_rate,
+        "failRate": test_group.fail_rate,
+        "skipRate": test_group.skip_rate
     }
     if not test_group.before_group.is_empty:
         repr_dict["beforeGroup"] = _get_test_fixture_dict(test_group.before_group)

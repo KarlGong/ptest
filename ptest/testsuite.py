@@ -9,7 +9,7 @@ except ImportError:
 import inspect
 import threading
 
-from .enumeration import TestCaseStatus, PDecoratorType, TestFixtureStatus
+from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem
 
 __author__ = 'karl.gong'
 
@@ -30,24 +30,31 @@ class TestContainer:
     @property
     def status_count(self):
         status_count_dict = {
-            "total": 0,
-            TestCaseStatus.PASSED: 0,
-            TestCaseStatus.FAILED: 0,
-            TestCaseStatus.SKIPPED: 0,
-            TestCaseStatus.NOT_RUN: 0
+            TestCaseCountItem.TOTAL: 0,
+            TestCaseCountItem.PASSED: 0,
+            TestCaseCountItem.FAILED: 0,
+            TestCaseCountItem.SKIPPED: 0,
+            TestCaseCountItem.NOT_RUN: 0
         }
         for test_case in self.test_cases:
-            status_count_dict["total"] += 1
+            status_count_dict[TestCaseCountItem.TOTAL] += 1
             status_count_dict[test_case.status] += 1
         return status_count_dict
 
     @property
     def pass_rate(self):
         status_count = self.status_count
-        total = status_count["total"]
-        if total == 0:
-            return 0
-        return float(status_count["passed"]) * 100 / total
+        return float(status_count[TestCaseCountItem.PASSED]) * 100 / status_count[TestCaseCountItem.TOTAL]
+
+    @property
+    def fail_rate(self):
+        status_count = self.status_count
+        return float(status_count[TestCaseCountItem.FAILED]) * 100 / status_count[TestCaseCountItem.TOTAL]
+
+    @property
+    def skip_rate(self):
+        status_count = self.status_count
+        return float(status_count[TestCaseCountItem.SKIPPED]) * 100 / status_count[TestCaseCountItem.TOTAL]
 
 
 class TestSuite(TestContainer):

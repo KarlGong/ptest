@@ -26,3 +26,11 @@ class TestFixtureStatus:
     FAILED = "failed"
 
 TestCaseStatus = TestFixtureStatus
+
+
+class TestCaseCountItem:
+    PASSED = TestFixtureStatus.PASSED
+    FAILED = TestFixtureStatus.FAILED
+    SKIPPED = TestFixtureStatus.SKIPPED
+    NOT_RUN = TestFixtureStatus.NOT_RUN
+    TOTAL = "total"
