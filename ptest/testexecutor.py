@@ -244,8 +244,8 @@ class TestFixtureExecutor(TestExecutor):
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = "Timed out executing this test fixture in %s seconds." % self.test_fixture.timeout
                 self.test_fixture.failure_type = "TimeoutException"
-                self.test_fixture.stack_trace = ""
-                preporter.error("Failed with following message:\n" + self.test_fixture.failure_message)
+                self.test_fixture.stack_trace = self.test_fixture.failure_message
+                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
                 screencapturer.take_screenshot()
                 kill_thread(test_fixture_sub_executor)
         else:
