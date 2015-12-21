@@ -167,13 +167,13 @@ def _parse_options(option_args):
 
     options, unknown_args = parser.parse_args(option_args)
 
-    # only one of the main options can be use
+    # only one of the main options can be specified
     main_options = [options.test_targets, options.run_failed, options.merge_xunit_xmls]
-    used_options_count = len([option for option in main_options if option is not None])
-    if used_options_count == 0:
-        parser.error("You must use one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
-    elif used_options_count > 1:
-        parser.error("You can ONLY use one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
+    specified_options_count = len([option for option in main_options if option is not None])
+    if specified_options_count == 0:
+        parser.error("You must specify one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
+    elif specified_options_count > 1:
+        parser.error("You can ONLY specify one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
 
     # check '--to'
     if options.merge_xunit_xmls is not None and options.to is None:
