@@ -185,7 +185,7 @@ renderTree = function (testSuite, statusFilter) {
             };
             switch (statusFilter) {
                 case "passed":
-                    if (data.passRate == 0) {
+                    if (data.statusCount.passed == 0) {
                         return null;
                     }
                     nodeContentFormatter["total"] = data.statusCount.passed;
@@ -194,7 +194,7 @@ renderTree = function (testSuite, statusFilter) {
                     nodeContentFormatter["skipRate"] = 0;
                     break;
                 case "failed":
-                    if (data.failRate == 0 ) {
+                    if (data.statusCount.failed == 0 ) {
                         return null;
                     }
                     nodeContentFormatter["total"] = data.statusCount.failed;
@@ -203,7 +203,7 @@ renderTree = function (testSuite, statusFilter) {
                     nodeContentFormatter["skipRate"] = 0;
                     break;
                 case "skipped":
-                    if (data.skipRate == 0) {
+                    if (data.statusCount.skipped == 0) {
                         return null;
                     }
                     nodeContentFormatter["total"] = data.statusCount.skipped;
