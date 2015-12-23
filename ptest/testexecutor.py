@@ -339,7 +339,8 @@ def current_executor():
 
 
 def kill_thread(thread):
-    """Kill a python thread from another thread.
+    """
+        Kill a python thread from another thread.
 
     :param thread: a threading.Thread instance
     """
