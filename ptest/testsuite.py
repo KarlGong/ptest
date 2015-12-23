@@ -311,8 +311,6 @@ class TestFixture:
 class BeforeSuite(TestFixture):
     def __init__(self, test_suite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.BeforeSuite)
-        self.execution_priority = 8
-        self.next_execution_priority = 7
         self.test_suite = self.context
         if not self.is_empty:
             self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
@@ -321,8 +319,6 @@ class BeforeSuite(TestFixture):
 class BeforeClass(TestFixture):
     def __init__(self, test_class, test_fixture_ref):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.BeforeClass)
-        self.execution_priority = 7
-        self.next_execution_priority = 6
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
         if not self.is_empty:
@@ -332,8 +328,6 @@ class BeforeClass(TestFixture):
 class BeforeGroup(TestFixture):
     def __init__(self, test_group, test_fixture_ref):
         TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.BeforeGroup)
-        self.execution_priority = 6
-        self.next_execution_priority = 5
         self.test_group = self.context
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
@@ -345,8 +339,6 @@ class BeforeGroup(TestFixture):
 class BeforeMethod(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.BeforeMethod)
-        self.execution_priority = 5
-        self.next_execution_priority = 4
         self.test_case = self.context
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
@@ -359,8 +351,6 @@ class BeforeMethod(TestFixture):
 class Test(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
-        self.execution_priority = 4
-        self.next_execution_priority = 3
         self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
         self.test_case = self.context
         self.test_group = self.test_case.test_group
@@ -373,8 +363,6 @@ class Test(TestFixture):
 class AfterMethod(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.AfterMethod)
-        self.execution_priority = 3
-        self.next_execution_priority = 5
         self.test_case = self.context
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
@@ -389,8 +377,6 @@ class AfterMethod(TestFixture):
 class AfterGroup(TestFixture):
     def __init__(self, test_group, test_fixture_ref):
         TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.AfterGroup)
-        self.execution_priority = 2
-        self.next_execution_priority = 6
         self.test_group = self.context
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
@@ -404,8 +390,6 @@ class AfterGroup(TestFixture):
 class AfterClass(TestFixture):
     def __init__(self, test_class, test_fixture_ref):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.AfterClass)
-        self.execution_priority = 1
-        self.next_execution_priority = 7
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
         self.always_run = False
@@ -417,8 +401,6 @@ class AfterClass(TestFixture):
 class AfterSuite(TestFixture):
     def __init__(self, test_suite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.AfterSuite)
-        self.execution_priority = 0
-        self.next_execution_priority = None
         self.test_suite = self.context
         self.always_run = False
         if not self.is_empty:
