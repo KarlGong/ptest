@@ -326,7 +326,7 @@ class TestFixtureSubExecutor(TestExecutor):
         except Exception as e:
             self.test_fixture.status = TestFixtureStatus.FAILED
             self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
-            self.test_fixture.failure_type = e.__class__.__name__
+            self.test_fixture.failure_type = "%s.%s" % (e.__class__.__module__, e.__class__.__name__)
             self.test_fixture.stack_trace = traceback.format_exc()
             preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
             screencapturer.take_screenshot()
