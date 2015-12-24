@@ -9,7 +9,7 @@ except ImportError:
 import inspect
 import threading
 
-from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode
+from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem
 
 __author__ = 'karl.gong'
 
@@ -124,12 +124,7 @@ class TestClass(TestContainer):
         self.test_groups = []
         self.name = test_class_ref.__class__.__name__
         self.full_name = test_class_ref.__full_name__
-        run_mode = test_class_ref.__run_mode__
-        if run_mode.lower() in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
-            self.run_mode = run_mode.lower()
-        else:
-            raise ValueError("Run mode %s is not supported. Please use %s or %s." % (
-                run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
+        self.run_mode = test_class_ref.__run_mode__
         self.description = test_class_ref.__description__
         self.custom_args = test_class_ref.__custom_args__
 
@@ -363,15 +358,7 @@ class Test(TestFixture):
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
         self.test_suite = self.test_case.test_suite
-        tags = test_fixture_ref.__tags__
-        if isinstance(tags, str):
-            tag_list = tags.split(",")
-        elif isinstance(tags, (list, tuple)):
-            tag_list = tags
-        else:
-            raise ValueError(
-                "Tags type %s is not supported. Please use string (separated by comma) or list or tuple." % type(tags))
-        self.tags = sorted([str(tag).strip() for tag in tag_list if str(tag).strip()])
+        self.tags = test_fixture_ref.__tags__
         self.group = test_fixture_ref.__group__
 
 
