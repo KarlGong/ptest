@@ -58,7 +58,6 @@ def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
     """
 
     def tracer(cls):
-        cls.__full_name__ = "%s.%s" % (cls.__module__, cls.__name__)
         cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
         cls.__run_mode__ = run_mode
