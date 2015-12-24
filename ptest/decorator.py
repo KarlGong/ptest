@@ -1,50 +1,15 @@
-__author__ = 'karl.gong'
+import inspect
+import os
+try:
+    from urlparse import urljoin
+    from urllib import unquote, pathname2url
+except ImportError:
+    from urllib.parse import urljoin, unquote
+    from urllib.request import pathname2url
 
 from .enumeration import PDecoratorType, TestClassRunMode
 
-
-def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
-    """
-        The BeforeSuite test fixture, it will be executed before test suite started.
-
-    :param enabled: enable or disable this test fixture.
-    :param description: the description of this test fixture.
-    :param timeout: the timeout of this test fixture (in seconds).
-    :param custom_args: the custom arguments of this test fixture.
-    """
-
-    def handle_func(func):
-        func.__pd_type__ = PDecoratorType.BeforeSuite
-        func.__enabled__ = enabled
-        func.__description__ = description
-        func.__timeout__ = timeout
-        func.__custom_args__ = custom_args
-        return func
-
-    return handle_func
-
-
-def AfterSuite(enabled=True, always_run=False, description="", timeout=0, **custom_args):
-    """
-        The AfterSuite test fixture, it will be executed after test suite finished.
-
-    :param enabled: enable or disable this test fixture.
-    :param always_run: if set to true, this test fixture will be run even if the @BeforeSuite is failed. Otherwise, this test fixture will be skipped.
-    :param description: the description of this test fixture.
-    :param timeout: the timeout of this test fixture (in seconds).
-    :param custom_args: the custom arguments of this test fixture.
-    """
-
-    def handle_func(func):
-        func.__pd_type__ = PDecoratorType.AfterSuite
-        func.__enabled__ = enabled
-        func.__always_run__ = always_run
-        func.__description__ = description
-        func.__timeout__ = timeout
-        func.__custom_args__ = custom_args
-        return func
-
-    return handle_func
+__author__ = 'karl.gong'
 
 
 def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
@@ -73,6 +38,29 @@ def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
     return tracer
 
 
+def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
+    """
+        The BeforeSuite test fixture, it will be executed before test suite started.
+
+    :param enabled: enable or disable this test fixture.
+    :param description: the description of this test fixture.
+    :param timeout: the timeout of this test fixture (in seconds).
+    :param custom_args: the custom arguments of this test fixture.
+    """
+
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.BeforeSuite
+        func.__enabled__ = enabled
+        func.__description__ = description
+        func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
+        return func
+
+    return handle_func
+
+
 def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
     """
         The BeforeClass test fixture, it will be executed before test class started.
@@ -89,29 +77,8 @@ def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
         func.__description__ = description
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
-        return func
-
-    return handle_func
-
-
-def AfterClass(enabled=True, always_run=False, description="", timeout=0, **custom_args):
-    """
-        The AfterClass test fixture, it will be executed after test class finished.
-
-    :param enabled: enable or disable this test fixture.
-    :param always_run: if set to true, this test fixture will be run even if the @BeforeClass is failed. Otherwise, this test fixture will be skipped.
-    :param description: the description of this test fixture.
-    :param timeout: the timeout of this test fixture (in seconds).
-    :param custom_args: the custom arguments of this test fixture.
-    """
-
-    def handle_func(func):
-        func.__pd_type__ = PDecoratorType.AfterClass
-        func.__enabled__ = enabled
-        func.__always_run__ = always_run
-        func.__description__ = description
-        func.__timeout__ = timeout
-        func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
         return func
 
     return handle_func
@@ -135,17 +102,18 @@ def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **cust
         func.__description__ = description
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
         return func
 
     return handle_func
 
 
-def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0, **custom_args):
+def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **custom_args):
     """
-        The AfterGroup test fixture, it will be executed after test group finished.
+        The BeforeMethod test fixture, it will be executed before test started.
 
     :param enabled: enable or disable this test fixture.
-    :param always_run: if set to true, this test fixture will be run even if the @BeforeGroup is failed. Otherwise, this test fixture will be skipped.
     :param group: the group that this test fixture is belong to.
     :param description: the description of this test fixture.
     :param timeout: the timeout of this test fixture (in seconds).
@@ -153,13 +121,14 @@ def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", 
     """
 
     def handle_func(func):
-        func.__pd_type__ = PDecoratorType.AfterGroup
+        func.__pd_type__ = PDecoratorType.BeforeMethod
         func.__enabled__ = enabled
-        func.__always_run__ = always_run
         func.__group__ = group
         func.__description__ = description
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
         return func
 
     return handle_func
@@ -192,29 +161,8 @@ def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0, **cu
         func.__tags__ = sorted([str(tag).strip() for tag in tag_list if str(tag).strip()])
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
-        return func
-
-    return handle_func
-
-
-def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **custom_args):
-    """
-        The BeforeMethod test fixture, it will be executed before test started.
-
-    :param enabled: enable or disable this test fixture.
-    :param group: the group that this test fixture is belong to.
-    :param description: the description of this test fixture.
-    :param timeout: the timeout of this test fixture (in seconds).
-    :param custom_args: the custom arguments of this test fixture.
-    """
-
-    def handle_func(func):
-        func.__pd_type__ = PDecoratorType.BeforeMethod
-        func.__enabled__ = enabled
-        func.__group__ = group
-        func.__description__ = description
-        func.__timeout__ = timeout
-        func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
         return func
 
     return handle_func
@@ -240,6 +188,96 @@ def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="",
         func.__description__ = description
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
         return func
 
     return handle_func
+
+
+def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0, **custom_args):
+    """
+        The AfterGroup test fixture, it will be executed after test group finished.
+
+    :param enabled: enable or disable this test fixture.
+    :param always_run: if set to true, this test fixture will be run even if the @BeforeGroup is failed. Otherwise, this test fixture will be skipped.
+    :param group: the group that this test fixture is belong to.
+    :param description: the description of this test fixture.
+    :param timeout: the timeout of this test fixture (in seconds).
+    :param custom_args: the custom arguments of this test fixture.
+    """
+
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterGroup
+        func.__enabled__ = enabled
+        func.__always_run__ = always_run
+        func.__group__ = group
+        func.__description__ = description
+        func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
+        return func
+
+    return handle_func
+
+
+def AfterClass(enabled=True, always_run=False, description="", timeout=0, **custom_args):
+    """
+        The AfterClass test fixture, it will be executed after test class finished.
+
+    :param enabled: enable or disable this test fixture.
+    :param always_run: if set to true, this test fixture will be run even if the @BeforeClass is failed. Otherwise, this test fixture will be skipped.
+    :param description: the description of this test fixture.
+    :param timeout: the timeout of this test fixture (in seconds).
+    :param custom_args: the custom arguments of this test fixture.
+    """
+
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterClass
+        func.__enabled__ = enabled
+        func.__always_run__ = always_run
+        func.__description__ = description
+        func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
+        return func
+
+    return handle_func
+
+
+def AfterSuite(enabled=True, always_run=False, description="", timeout=0, **custom_args):
+    """
+        The AfterSuite test fixture, it will be executed after test suite finished.
+
+    :param enabled: enable or disable this test fixture.
+    :param always_run: if set to true, this test fixture will be run even if the @BeforeSuite is failed. Otherwise, this test fixture will be skipped.
+    :param description: the description of this test fixture.
+    :param timeout: the timeout of this test fixture (in seconds).
+    :param custom_args: the custom arguments of this test fixture.
+    """
+
+    def handle_func(func):
+        func.__pd_type__ = PDecoratorType.AfterSuite
+        func.__enabled__ = enabled
+        func.__always_run__ = always_run
+        func.__description__ = description
+        func.__timeout__ = timeout
+        func.__custom_args__ = custom_args
+        func.__location__ = __get_location(func)
+        func.__arguments_count__ = __get_arguments_count(func)
+        return func
+
+    return handle_func
+
+def __get_location(func):
+    file_path = os.path.abspath(inspect.getfile(func))
+    _, line_no = inspect.getsourcelines(func)
+    return urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
+
+def __get_arguments_count(func):
+    arguments_count = len(inspect.getargspec(func)[0])
+    if arguments_count not in [1, 2]:
+        raise TypeError("arguments number of %s() is not acceptable. Please give 1 or 2 arguments." % func.__name__)
+    return arguments_count

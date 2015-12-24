@@ -1,14 +1,5 @@
 import os
 
-try:
-    from urlparse import urljoin
-    from urllib import unquote, pathname2url
-except ImportError:
-    from urllib.parse import urljoin, unquote
-    from urllib.request import pathname2url
-import inspect
-import threading
-
 from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem
 
 __author__ = 'karl.gong'
@@ -55,7 +46,6 @@ class TestSuite(TestContainer):
         self.full_name = name
         self.before_suite = BeforeSuite(self, None)
         self.after_suite = AfterSuite(self, None)
-        self.__lock = threading.Lock()
 
     def init_test_fixture(self):
         # reflect the before suite and after suite
@@ -293,15 +283,8 @@ class TestFixture:
         self.description = test_fixture_ref.__description__
         self.timeout = test_fixture_ref.__timeout__
         self.custom_args = test_fixture_ref.__custom_args__
-
-        file_path = os.path.abspath(inspect.getfile(test_fixture_ref))
-        _, line_no = inspect.getsourcelines(test_fixture_ref)
-        self.location = urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
-
-        self.arguments_count = len(inspect.getargspec(self.test_fixture_ref)[0])
-        if self.arguments_count not in [1, 2]:
-            raise TypeError(
-                "arguments number of %s() is not acceptable. Please give 1 or 2 arguments." % self.test_fixture_ref.__name__)
+        self.location = test_fixture_ref.__location__
+        self.arguments_count = test_fixture_ref.__arguments_count__
 
     @property
     def elapsed_time(self):
