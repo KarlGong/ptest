@@ -1,5 +1,3 @@
-import os
-
 from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem
 
 __author__ = 'karl.gong'
