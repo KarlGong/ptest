@@ -98,10 +98,9 @@ def main(args=None):
     from .testfilter import FilterGroup, TestCaseIncludeTagsFilter, TestCaseExcludeTagsFilter, \
         TestCaseIncludeGroupsFilter
     from . import testexecutor, reporter, plistener
+    from .testfinder import TestFinder
     from .testsuite import default_test_suite
     from .plogger import pconsole
-    from .testfinder import find_test_cases
-    from .exceptions import ImportTestTargetError
     from .enumeration import TestCaseCountItem
 
     pconsole.write_line("Starting ptest...")
@@ -120,30 +119,6 @@ def main(args=None):
             sys.path.append(python_path)
             pconsole.write_line(" %s" % python_path)
 
-    # get test targets
-    test_targets = config.get_option("test_targets")
-    if test_targets is not None:
-        pconsole.write_line("Test targets:")
-        for test_target in test_targets:
-            pconsole.write_line(" %s" % test_target)
-    else:
-        # rerun failed/skipped test cases
-        xunit_xml = config.get_option("run_failed")
-        pconsole.write_line("Run failed/skipped test cases in xunit xml:")
-        pconsole.write_line(" %s" % xunit_xml)
-        test_targets = get_rerun_targets(xunit_xml)
-
-    # add test listeners
-    listener_paths = config.get_option("test_listeners")
-    if listener_paths is not None:
-        pconsole.write_line("Test listeners:")
-        for listener_path in listener_paths:
-            pconsole.write_line(" %s" % listener_path)
-            splitted_listener_path = listener_path.split(".")
-            listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
-            listener_class = getattr(listener_module, splitted_listener_path[-1])
-            plistener.test_listeners.append(listener_class())
-
     # test class and test case filter
     include_tags = config.get_option("include_tags")
     exclude_tags = config.get_option("exclude_tags")
@@ -157,19 +132,46 @@ def main(args=None):
     if include_groups is not None:
         test_case_filter_group.append_filter(TestCaseIncludeGroupsFilter(include_groups))
     if include_tags is not None or exclude_tags is not None or include_groups is not None:
-        pconsole.write_line("=" * 100)
+        pconsole.write_line("Test filters:")
         pconsole.write_line(" %s" % test_case_filter_group)
 
-    # find test cases
-    try:
+    # get test targets
+    test_targets = config.get_option("test_targets")
+    if test_targets is not None:
+        pconsole.write_line("Test targets:")
         for test_target in test_targets:
-            find_test_cases(test_target, test_class_filter_group, test_case_filter_group)
-    except ImportTestTargetError as e:
-        pconsole.write_line(e.message)
-        return
+            test_finder = TestFinder(test_target, test_class_filter_group, test_case_filter_group, default_test_suite)
+            test_finder.find_test_case()
+            if test_finder.repeated_test_case_count:
+                pconsole.write_line(" %s (%s tests found, %s repeated)" % (test_target, test_finder.found_test_case_count, test_finder.repeated_test_case_count))
+            else:
+                pconsole.write_line(" %s (%s tests found)" % (test_target, test_finder.found_test_case_count))
     else:
-        test_cases = default_test_suite.test_cases
-        default_test_suite.init_test_fixture()
+        # rerun failed/skipped test cases
+        pconsole.write_line("Run failed/skipped tests in xunit xml:")
+        xunit_xml = config.get_option("run_failed")
+        test_targets = get_rerun_targets(xunit_xml)
+        found_test_case_count = 0
+        for test_target in test_targets:
+            test_finder = TestFinder(test_target, test_class_filter_group, test_case_filter_group, default_test_suite)
+            test_finder.find_test_case()
+            found_test_case_count += test_finder.found_test_case_count
+        pconsole.write_line(" %s (%s tests found)" % (xunit_xml, found_test_case_count))
+
+    # add test listeners
+    listener_paths = config.get_option("test_listeners")
+    if listener_paths is not None:
+        pconsole.write_line("Test listeners:")
+        for listener_path in listener_paths:
+            pconsole.write_line(" %s" % listener_path)
+            splitted_listener_path = listener_path.split(".")
+            listener_module = importlib.import_module(".".join(splitted_listener_path[:-1]))
+            listener_class = getattr(listener_module, splitted_listener_path[-1])
+            plistener.test_listeners.append(listener_class())
+
+    # init test suite
+    default_test_suite.init_test_fixture()
+    test_cases = default_test_suite.test_cases
 
     # exit if no tests found
     if len(test_cases) == 0:
@@ -205,7 +207,7 @@ def main(args=None):
     # sort the test groups for running
     default_test_suite.sort_test_classes_for_running()
     pconsole.write_line("=" * 100)
-    pconsole.write_line("Start to run following %s test(s):" % len(test_cases))
+    pconsole.write_line("Start to run following %s tests:" % len(test_cases))
     pconsole.write_line("-" * 30)
     for test_case in test_cases:
         pconsole.write_line(" %s" % test_case.full_name)

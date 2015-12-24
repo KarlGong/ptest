@@ -6,7 +6,3 @@ class PTestException(Exception):
 
 class ScreenshotError(PTestException):
     pass
-
-
-class ImportTestTargetError(PTestException):
-    pass
