@@ -4,15 +4,11 @@ import os
 import traceback
 
 from .enumeration import PDecoratorType
-from .testsuite import default_test_suite
+from .exceptions import ImportTestTargetError
 from .testfilter import TestClassNameFilter, TestCaseNameFilter
+from .testsuite import default_test_suite
 
 __author__ = 'karl.gong'
-
-
-class ImportTestTargetError(Exception):
-    def __init__(self, message):
-        self.message = message
 
 
 def find_test_cases(test_target, test_class_filter_group, test_case_filter_group):

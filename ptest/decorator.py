@@ -1,6 +1,6 @@
 __author__ = 'karl.gong'
 
-from .enumeration import PDecoratorType, TestClassRunMode
+from .enumeration import PDecoratorType
 
 
 def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
@@ -61,11 +61,7 @@ def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
         cls.__full_name__ = "%s.%s" % (cls.__module__, cls.__name__)
         cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
-        if run_mode.lower() in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
-            cls.__run_mode__ = run_mode.lower()
-        else:
-            raise Exception("Run mode %s is not supported. Please use %s or %s." % (
-                run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
+        cls.__run_mode__ = run_mode
         cls.__description__ = description
         cls.__custom_args__ = custom_args
         return cls
@@ -182,14 +178,7 @@ def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0, **cu
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
-        if isinstance(tags, str):
-            tag_list = tags.split(",")
-        elif isinstance(tags, list) or isinstance(tags, tuple):
-            tag_list = tags
-        else:
-            raise Exception(
-                "Tags type %s is not supported. Please use string (separated by comma) or list or tuple." % type(tags))
-        func.__tags__ = sorted([str(tag.strip()) for tag in tag_list if tag.strip()])
+        func.__tags__ = tags
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         return func

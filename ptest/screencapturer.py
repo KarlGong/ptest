@@ -2,8 +2,9 @@ import os
 import traceback
 from io import BytesIO
 
-from .plogger import preporter
 from . import config
+from .exceptions import ScreenshotError
+from .plogger import preporter
 
 __author__ = 'karl.gong'
 
@@ -23,11 +24,6 @@ __author__ = 'karl.gong'
 from struct import pack
 from platform import system
 from zlib import compress, crc32
-
-
-class ScreenshotError(Exception):
-    pass
-
 
 if system() == 'Darwin':
     try:

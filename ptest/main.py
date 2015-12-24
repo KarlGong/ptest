@@ -100,7 +100,8 @@ def main(args=None):
     from . import testexecutor, reporter, plistener
     from .testsuite import default_test_suite
     from .plogger import pconsole
-    from .testfinder import find_test_cases, ImportTestTargetError
+    from .testfinder import find_test_cases
+    from .exceptions import ImportTestTargetError
     from .enumeration import TestCaseCountItem
 
     pconsole.write_line("Starting ptest...")
