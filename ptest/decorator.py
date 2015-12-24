@@ -64,7 +64,7 @@ def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
         if run_mode.lower() in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
             cls.__run_mode__ = run_mode.lower()
         else:
-            raise ValueError("Run mode %s is not supported. Please use %s or %s." % (
+            raise ValueError("Run mode <%s> is not supported. Please use <%s> or <%s>." % (
                 run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
         cls.__description__ = description
         cls.__custom_args__ = custom_args
