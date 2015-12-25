@@ -24,11 +24,13 @@ class TestFinder:
             try:
                 module_ref = importlib.import_module(".".join(splitted_test_target[:i + 1]))
                 module_name_len = i + 1
-            except ImportError:
-                break
+            except ImportError as e:
+                if splitted_test_target[i] in str(e):
+                    break
+                raise e
 
         if module_ref is None:
-            return
+            raise ImportError("Test target <%s> is invalid.\nNo module named <%s>."% (self.test_target, splitted_test_target[0]))
 
         test_target_len = len(splitted_test_target)
         if module_name_len == test_target_len:
@@ -47,6 +49,8 @@ class TestFinder:
             self.test_class_filter_group.append_filter(TestClassNameFilter(splitted_test_target[-2]))
             self.test_case_filter_group.append_filter(TestCaseNameFilter(splitted_test_target[-1]))
             self.find_test_cases_in_module(module_ref)
+        raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't."% (
+            self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
 
     def find_test_cases_in_package(self, package_ref):
         package_name = package_ref.__name__
