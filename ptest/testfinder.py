@@ -49,8 +49,9 @@ class TestFinder:
             self.test_class_filter_group.append_filter(TestClassNameFilter(splitted_test_target[-2]))
             self.test_case_filter_group.append_filter(TestCaseNameFilter(splitted_test_target[-1]))
             self.find_test_cases_in_module(module_ref)
-        raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't."% (
-            self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
+        else:
+            raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't."% (
+                self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
 
     def find_test_cases_in_package(self, package_ref):
         package_name = package_ref.__name__
