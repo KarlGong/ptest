@@ -87,6 +87,10 @@ For information and suggestions you can contact me at karl.gong@outlook.com
 
 Change Log
 ----------
+1.4.3 (compared to 1.4.2)
+
+- Add command option -m(--mergexunitxmls) to merge the xunit result xmls.
+
 1.4.2 (compared to 1.4.1)
 
 - Add detailed information for screenshot.
