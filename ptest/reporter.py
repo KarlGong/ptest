@@ -16,24 +16,8 @@ __author__ = 'karl.gong'
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def clean_output_dir(output_dir):
-    if os.path.exists(output_dir):
-        pconsole.write_line("Cleaning old reports...")
-        try:
-            for root, dirs, files in os.walk(output_dir, topdown=False):
-                for name in files:
-                    os.remove(os.path.join(root, name))
-                for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-        except Exception:
-            pconsole.write_line("Failed to clean old reports.\n%s" % traceback.format_exc())
-
-
 def generate_xunit_xml(xml_file_path):
     pconsole.write_line("Generating xunit report...")
-    xml_file_dir = os.path.dirname(xml_file_path)
-    if not os.path.exists(xml_file_dir):
-        os.makedirs(xml_file_dir)
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
@@ -63,6 +47,12 @@ def generate_xunit_xml(xml_file_path):
             failure_ele.setAttribute("type", test_case.failure_type)
             failure_ele.appendChild(doc.createTextNode(test_case.stack_trace))
 
+    if os.path.exists(xml_file_path):
+        pconsole.write_line("Cleaning old xunit report...")
+        os.remove(xml_file_path)
+    else:
+        os.makedirs(os.path.dirname(xml_file_path))
+
     f = open(xml_file_path, "w")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
@@ -75,7 +65,15 @@ def generate_xunit_xml(xml_file_path):
 
 def generate_html_report(report_dir):
     pconsole.write_line("Generating html report...")
-    if not os.path.exists(report_dir):
+
+    if os.path.exists(report_dir):
+        pconsole.write_line("Cleaning old html report...")
+        for root, dirs, files in os.walk(report_dir, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+    else:
         os.makedirs(report_dir)
 
     html_template_dir = os.path.join(current_dir, "htmltemplate")

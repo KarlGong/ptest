@@ -65,6 +65,8 @@ def merge_xunit_xmls(xml_files, to_file):
     if os.path.exists(to_file):
         pconsole.write_line("Cleaning old merged xunit result xml...")
         os.remove(to_file)
+    else:
+        os.makedirs(os.path.dirname(to_file))
 
     f = open(to_file, "w")
     try:
@@ -240,7 +242,6 @@ def main(args=None):
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
     default_test_suite.sort_test_classes_for_report()
-    reporter.clean_output_dir(config.get_option("output_dir"))
     reporter.generate_xunit_xml(config.get_option("xunit_xml"))
     reporter.generate_html_report(config.get_option("report_dir"))
 
