@@ -27,7 +27,7 @@ class TestFinder:
             except ImportError as e:
                 if splitted_test_target[i] in str(e):
                     break
-                raise e
+                raise
 
         if module_ref is None:
             raise ImportError("Test target <%s> is invalid.\nNo module named <%s>."% (self.test_target, splitted_test_target[0]))
