@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import platform
 import shutil
 import traceback
@@ -10,6 +10,7 @@ from . import config
 from .plogger import pconsole
 from .testsuite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
+from .utils import make_dirs, remove_tree
 
 __author__ = 'karl.gong'
 
@@ -51,7 +52,7 @@ def generate_xunit_xml(xml_file_path):
         pconsole.write_line("Cleaning old xunit report...")
         os.remove(xml_file_path)
     else:
-        os.makedirs(os.path.dirname(xml_file_path))
+        make_dirs(os.path.dirname(xml_file_path))
 
     f = open(xml_file_path, "w")
     try:
@@ -68,13 +69,9 @@ def generate_html_report(report_dir):
 
     if os.path.exists(report_dir):
         pconsole.write_line("Cleaning old html report...")
-        for root, dirs, files in os.walk(report_dir, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
+        remove_tree(report_dir, remove_self=False)
     else:
-        os.makedirs(report_dir)
+        make_dirs(report_dir)
 
     html_template_dir = os.path.join(current_dir, "htmltemplate")
 

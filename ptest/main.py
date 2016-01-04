@@ -4,7 +4,8 @@ import shlex
 import sys
 import traceback
 from xml.dom import minidom
-import shutil
+
+from .utils import make_dirs, remove_tree
 
 __author__ = 'karl.gong'
 
@@ -66,7 +67,7 @@ def merge_xunit_xmls(xml_files, to_file):
         pconsole.write_line("Cleaning old merged xunit result xml...")
         os.remove(to_file)
     else:
-        os.makedirs(os.path.dirname(to_file))
+        make_dirs(os.path.dirname(to_file))
 
     f = open(to_file, "w")
     try:
@@ -218,13 +219,9 @@ def main(args=None):
     # clean and create temp dir
     temp_dir = config.get_option("temp")
     if os.path.exists(temp_dir):
-        for root, dirs, files in os.walk(temp_dir, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
+        remove_tree(temp_dir, remove_self=False)
     else:
-        os.makedirs(temp_dir)
+        make_dirs(temp_dir)
 
     # run test cases
     testexecutor.TestSuiteExecutor(default_test_suite, int(config.get_option("test_executor_number"))).start_and_join()
@@ -246,4 +243,4 @@ def main(args=None):
     reporter.generate_html_report(config.get_option("report_dir"))
 
     # clean temp dir
-    shutil.rmtree(temp_dir)
+    remove_tree(temp_dir)
