@@ -20,11 +20,6 @@ The concepts used in this documentation are as follows:
 
 A ptest test can be configured by **@BeforeXXX** and **@AfterXXX** decorators which allows to perform some Python logic before and after a certain point, these points being either of the items listed above.
 
-The rest of this manual will explain the following:
-
-- A list of all the decorators with a brief explanation.
-- This will give you an idea of the various functionalities offered by ptest but you will probably want to consult the section dedicated to each of these decorators to learn the details.
-
 2 - Decorators
 ==============
 Here is a quick overview of the decorators available in ptest along with their attributes.
