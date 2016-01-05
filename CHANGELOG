@@ -1,0 +1,75 @@
+Change Log
+----------
+1.4.3 (compared to 1.4.2)
+
+- Add command option -m(--mergexunitxmls) to merge the xunit result xmls.
+
+1.4.2 (compared to 1.4.1)
+
+- Add detailed information for screenshot.
+
+1.4.1 (compared to 1.4.0)
+
+- The instance variables defined in @BeforeSuite, @BeforeClass, @BeforeGroup can be accessed by other test fixtures.
+
+- Support custom args in test fixtures.
+
+- Add option (--pythonpaths) to specify additional python paths.
+
+1.4.0 (compared to 1.3.2)
+
+- Support @BeforeSuite, @BeforeClass, @BeforeGroup, @AfterSuite, @AfterClass, @AfterGroup.
+
+- Support timeout for test fixtures.
+
+- Redesign the html report.
+
+1.3.2 (compared to 1.3.1)
+
+- Add cmd line entry points for py3.
+
+- All temp data will be stored in temp folder.
+
+1.3.1 (compared to 1.3.0)
+
+- Add examples folder.
+
+- Support declare additional arguments in test methods.
+
+1.3.0 (compared to 1.2.2)
+
+- Support py3.
+
+- No extra package is needed to capture screenshot.
+
+1.2.2 (compared to 1.2.1)
+
+- Support default value for config.get_property().
+
+- Add filter for test case status in html report.
+
+1.2.1 (compared to 1.2.0)
+
+- Support multiple test listeners.
+
+1.2.0 (compared to 1.1.1)
+
+- Support run/debug in Pycharm via a ptest plugin.
+
+- Support filter test cases by group.
+
+1.1.0 (compared to 1.0.4)
+
+- No extra codes are needed to support capturing screenshot for selenium test.
+
+- Add always_run attribute to @Test.
+
+- Add command option --disablescreenshot to disable taking screenshot for failed test fixture.
+
+- Support group in test class.
+
+1.0.4 (compared to 1.0.3)
+
+- Support capture screenshot for no-selenium test.
+
+- Optimize the html report.

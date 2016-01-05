@@ -111,7 +111,7 @@ def _parse_options(option_args):
                       help="Specify the additional locations (relative to workspace) where to search test libraries from when they are imported. "
                            "Multiple paths can be given by separating them with a comma.")
     parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
-                      help="Read properties from file (relative to workspace). "
+                      help="Specify the property file (relative to workspace). "
                            "The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in module ptest.config.")
 
@@ -145,7 +145,7 @@ def _parse_options(option_args):
                            "The listener class should implement class TestListener in ptest.plistener "
                            "The listener path format is: package.module.class "
                            "NOTE: 1. ptest ONLY searches modules under --workspace, --pythonpaths and sys.path "
-                           "2. The listener class should be thread safe.")
+                           "2. The listener class must be thread safe if you set -n(--testexecutornumber) greater than 1.")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
     parser.add_option("--temp", action="store", dest="temp", default="ptest-temp", metavar="dir",

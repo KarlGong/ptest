@@ -7,6 +7,8 @@ current_dir = path.abspath(path.dirname(__file__))
 # Get the long description from the relevant file
 with open(path.join(current_dir, "README.rst")) as f:
     long_description = f.read()
+with open(path.join(current_dir, "CHANGELOG")) as f:
+    long_description += "\n" + f.read()
 
 classifiers = ["License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing",
