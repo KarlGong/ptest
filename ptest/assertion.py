@@ -38,17 +38,19 @@ def assert_list_equals(actual_list, expected_list, msg=""):
 
 
 def assert_list_elements_equal(actual_list, expected_list, msg=""):
-    actual_set = set(actual_list)
-    expected_set = set(expected_list)
-    if len(actual_set) != len(expected_set) or [element for element in actual_set if not element in expected_set]:
-        __raise_error("%s Expected elements: <%s>, Actual elements: <%s>." % (msg, actual_set, expected_set))
+    diff_elements = [element for element in actual_list if not element in expected_list]
+    if len(diff_elements) != 0:
+        __raise_error("%s expected list <%s> doesn't contain elements <%s> from actual list <%s>." % (msg, expected_list, diff_elements, actual_list))
+    diff_elements = [element for element in expected_list if not element in actual_list]
+    if len(diff_elements) != 0:
+        __raise_error("%s actual list <%s> doesn't contain elements <%s> from expected list <%s>." % (msg, actual_list, diff_elements, expected_list))
 
 
 def assert_set_contains(superset, subset, msg=""):
-    for element in subset:
-        if not element in superset:
-            __raise_error(
-                "%s Superset <%s> doesn't contain element <%s> from subset <%s>." % (msg, superset, element, subset))
+    diff_elements = [element for element in subset if not element in superset]
+    if len(diff_elements) != 0:
+        __raise_error(
+                "%s Superset <%s> doesn't contain elements <%s> from subset <%s>." % (msg, superset, diff_elements, subset))
 
 
 def fail(msg=""):
