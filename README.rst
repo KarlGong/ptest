@@ -5,6 +5,8 @@ ptest is a light test runner for Python. With ptest, you can tag test classes & 
 
 Find the latest version on github: https://github.com/KarlGong/ptest or PyPI: https://pypi.python.org/pypi/ptest
 
+The documentation is on github wiki: https://github.com/KarlGong/ptest/wiki/documentation
+
 Installation
 ------------
 The last stable release is available on PyPI and can be installed with ``pip``.
