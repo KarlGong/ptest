@@ -89,7 +89,7 @@ def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **cust
         The BeforeGroup test fixture, it will be executed before test group started.
 
     :param enabled: enable or disable this test fixture.
-    :param group: the group that this test fixture is belong to.
+    :param group: the group that this test fixture belongs to.
     :param description: the description of this test fixture.
     :param timeout: the timeout of this test fixture (in seconds).
     :param custom_args: the custom arguments of this test fixture.
@@ -114,7 +114,7 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
         The BeforeMethod test fixture, it will be executed before test started.
 
     :param enabled: enable or disable this test fixture.
-    :param group: the group that this test fixture is belong to.
+    :param group: the group that this test fixture belongs to.
     :param description: the description of this test fixture.
     :param timeout: the timeout of this test fixture (in seconds).
     :param custom_args: the custom arguments of this test fixture.
@@ -140,7 +140,7 @@ def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0, **cu
 
     :param enabled: enable or disable this test.
     :param tags: the tags of this test. It can be string (separated by comma) or list or tuple.
-    :param group: the group that this test is belong to.
+    :param group: the group that this test belongs to.
     :param description: the description of this test.
     :param timeout: the timeout of this test (in seconds).
     :param custom_args: the custom arguments of this test.
@@ -174,7 +174,7 @@ def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="",
 
     :param enabled: enable or disable this test fixture.
     :param always_run: if set to true, this test fixture will be run even if the @BeforeMethod is failed. Otherwise, this test fixture will be skipped.
-    :param group: the group that this test fixture is belong to.
+    :param group: the group that this test fixture belongs to.
     :param description: the description of this test fixture.
     :param timeout: the timeout of this test fixture (in seconds).
     :param custom_args: the custom arguments of this test fixture.
@@ -201,7 +201,7 @@ def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", 
 
     :param enabled: enable or disable this test fixture.
     :param always_run: if set to true, this test fixture will be run even if the @BeforeGroup is failed. Otherwise, this test fixture will be skipped.
-    :param group: the group that this test fixture is belong to.
+    :param group: the group that this test fixture belongs to.
     :param description: the description of this test fixture.
     :param timeout: the timeout of this test fixture (in seconds).
     :param custom_args: the custom arguments of this test fixture.

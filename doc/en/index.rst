@@ -42,7 +42,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *tags* - the tags of this test (it can be string (separated by comma) or list or tuple)
 
-- *group* - the group that this test is belong to
+- *group* - the group that this test belongs to
 
 - *description* - the description of this test
 
@@ -98,7 +98,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *enabled* - whether this test fixture is enabled
 
-- *group* - the group that this test fixture is belong to
+- *group* - the group that this test fixture belongs to
 
 - *description* - the description of this test fixture
 
@@ -112,7 +112,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *always_run* - if set to true, this test fixture will be run even if the **@BeforeGroup** is failed. Otherwise, this test fixture will be skipped.
 
-- *group* - the group that this test fixture is belong to
+- *group* - the group that this test fixture belongs to
 
 - *description* - the description of this test fixture
 
@@ -124,7 +124,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *enabled* - whether this test fixture is enabled
 
-- *group* - the group that this test fixture is belong to
+- *group* - the group that this test fixture belongs to
 
 - *description* - the description of this test fixture
 
@@ -138,7 +138,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *always_run* - if set to true, this test fixture will be run even if the **@BeforeMethod** is failed. Otherwise, this test fixture will be skipped.
 
-- *group* - the group that this testfixture is belong to
+- *group* - the group that this testfixture belongs to
 
 - *description* - the description of this test fixture
 
@@ -152,7 +152,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can use **@TestClass** to mark a class as ptest class and **@Test** to mark a method as ptest test.
 
-*Note:* By default, a ptest test is belong to group "DEFAULT".
+*Note:* By default, a ptest test belongs to group "DEFAULT".
 
 .. code:: python
 
