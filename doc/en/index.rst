@@ -22,6 +22,8 @@ A ptest test can be configured by **@BeforeXXX** and **@AfterXXX** decorators wh
 
 2 - Decorators
 ==============
+2.1 - Overview
+--------------
 Here is a quick overview of the decorators available in ptest along with their attributes.
 
 **@TestClass** - the decorated class will be marked as ptest class
@@ -144,6 +146,161 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *custom_args* - the custom arguments of this test fixture
 
+2.2 - Usage
+-----------
+2.2.1 - Test and TestClass
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can use **@TestClass** to mark a class as ptest class and **@Test** to mark a method as ptest test.
+
+*Note:* By default, a ptest test is belong to group "DEFAULT".
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+    from ptest.assertion import assert_equals
+
+    @TestClass()
+    class PTestClass:
+        @Test()
+        def test(self):
+            expected = 10
+            assert_equals(10, expected)
+
+2.2.2 - BeforeMethod and AfterMethod
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Method which is decorated by **@BeforeMethod** will be executed before test started.
+Method which is decorated by **@AfterMethod** will be executed after test finished.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
+    from ptest.assertion import assert_equals
+
+    @TestClass()
+    class PTestClass:
+        @BeforeMethod()
+        def setup_data(self):
+            self.expected = 10
+
+        @Test()
+        def test(self):
+            assert_equals(10, self.expected)
+
+        @AfterMethod()
+        def clean_up_data(self):
+            self.expected = None
+
+2.2.3 - BeforeGroup and AfterGroup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Method which is decorated by **@BeforeGroup** will be executed before test group started.
+Method which is decorated by **@AfterGroup** will be executed after test group finished.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeGroup, AfterGroup
+    from ptest.assertion import assert_equals
+
+    CN_GROUP = "CN"
+    US_GROUP = "US"
+
+    @TestClass()
+    class PTestClass:
+        @BeforeGroup(group=CN_GROUP)
+        def before_group_cn(self):
+            self.expected = "cn"
+
+        @AfterGroup(group=CN_GROUP)
+        def after_group_cn(self):
+            self.expected = None
+
+        @Test(group=CN_GROUP)
+        def test_cn(self):
+            assert_equals("cn", self.expected)
+
+        @BeforeGroup(group=US_GROUP)
+        def before_group_us(self):
+            self.expected = "us"
+
+        @AfterGroup(group=US_GROUP)
+        def after_group_us(self):
+            self.expected = None
+
+        @Test(group=US_GROUP)
+        def test_us(self):
+            assert_equals("us", self.expected)
+
+2.2.4 - BeforeClass and AfterClass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Method which is decorated by **@BeforeClass** will be executed before test class started.
+Method which is decorated by **@AfterClass** will be executed after test class finished.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeClass, AfterClass
+    from ptest.assertion import assert_equals
+
+    @TestClass()
+    class PTestClass:
+        @BeforeClass()
+        def before_class(self):
+            self.expected = "cn&us"
+
+        @Test(group="CN")
+        def test_cn(self):
+            assert_equals("cn&us", self.expected)
+
+        @Test(group="US")
+        def test_us(self):
+            assert_equals("cn&us", self.expected)
+
+        @AfterClass()
+        def after_class(self):
+            self.expected = None
+
+2.2.5 - BeforeSuite, AfterSuite and inherit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Method which is decorated by **@BeforeSuite** will be executed before test suite started.
+Method which is decorated by **@AfterSuite** will be executed after test suite finished.
+
+*Note:* If you specify multiple **@BeforeSuite** or **@AfterSuite** in different classes,
+ONLY one **@BeforeSuite** or **@AfterSuite** will be executed.
+So we recommend you to put **@BeforeSuite** or **@AfterSuite** into a base class, and create test classes to inherit it.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod, BeforeSuite, AfterSuite
+    from ptest.assertion import assert_true
+
+    class PTestBase:
+        @BeforeSuite()
+        def before_suite(self):
+            self.max = 999
+
+        @AfterSuite()
+        def after_suite(self):
+            self.max = None
+
+        @BeforeMethod()
+        def setup_data(self):
+            self.now = 10
+
+        @AfterMethod()
+        def clean_up_data(self):
+            self.now = None
+
+    @TestClass()
+    class PTestClass1(PTestBase):
+        @Test()
+        def test(self):
+            assert_true(self.max > self.now)
+
+    @TestClass()
+    class PTestClass2(PTestBase):
+        @Test()
+        def test(self):
+            self.now = 10000
+            assert_true(self.max > self.now)
+
 3 - Running ptest
 =================
 ptest can be invoked in different ways:
@@ -262,9 +419,9 @@ Then use ``-l(--listeners)`` to specify the path of test listener classes
 
 5 - Test results
 ================
-5.1 - Success, failure and assert
----------------------------------
-A test is considered successful if it completed without throwing any exception.
+5.1 - Success, failure, skipped and assert
+------------------------------------------
+A test is considered successful if it completed without throwing any exception. If it's **@BeforeXXX** failed it will be marked as skipped.
 
 Your test methods will typically be made of calls that can throw an exception, or of various assertions (using the Python "assert" keyword).  An "assert" failing will trigger an AssertionError, which in turn will mark the method as failed.
 
@@ -304,7 +461,7 @@ There are two loggers in plogger:
 
 - *pconsole* - the messages will be output to console
 
-- *preproter* - the messages will be output to html report
+- *preporter* - the messages will be output to html report
 
 Here is an example to log the value which is generated by Random:
 
