@@ -32,9 +32,13 @@ def assert_not_equals(actual, not_expected, msg=""):
 
 
 def assert_list_equals(actual_list, expected_list, msg=""):
-    if len(actual_list) != len(expected_list) or [element for i, element in enumerate(actual_list) if
-                                                  not element == expected_list[i]]:
-        __raise_error("%s Expected list: <%s>, Actual list: <%s>." % (msg, expected_list, actual_list))
+    if len(actual_list) != len(expected_list):
+        __raise_error("%s size of expected list <%s> is: <%s>, but size of actual list <%s> is: <%s>." %
+                      (msg, expected_list, len(expected_list), actual_list, len(actual_list)))
+    for i, element in enumerate(actual_list):
+        if not element == expected_list[i]:
+            __raise_error("%s element <index: %s> of expected list <%s> is: <%s>, but element <index: %s> of actual list <%s> is: <%s>" %
+                    (msg, i, expected_list, expected_list[i], i, actual_list, actual_list[i]))
 
 
 def assert_list_elements_equal(actual_list, expected_list, msg=""):
