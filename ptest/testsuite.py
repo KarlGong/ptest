@@ -146,6 +146,10 @@ class TestClass(TestContainer):
                 return test_group
         return None
 
+    @property
+    def is_group_feature_used(self):
+        return not(len(self.test_groups) == 1 and self.test_groups[0].name == "DEFAULT" and self.test_groups[0].before_group.is_empty and self.test_groups[0].after_group.is_empty)
+
 
 class TestGroup(TestContainer):
     def __init__(self, test_class, name, test_class_ref):

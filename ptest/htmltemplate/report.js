@@ -242,18 +242,25 @@ renderTree = function (testSuite, statusFilter) {
         testClassNode.find(' > .item > .sign').text('+');
         testClassNode.addClass('collapsed');
 
-        for (var j = 0; j < testClass.testGroups.length; j++) {
-            var testGroup = testClass.testGroups[j];
-            var testGroupNode = appendToNode(testClassNode, testGroup, false);
-            if (testGroupNode == null) {
-                continue;
-            }
-            testGroupNode.find(' > .item > .sign').text('+');
-            testGroupNode.addClass('collapsed');
+        if (testClass.isGroupFeatureUsed) {
+            for (var j = 0; j < testClass.testGroups.length; j++) {
+                var testGroup = testClass.testGroups[j];
+                var testGroupNode = appendToNode(testClassNode, testGroup, false);
+                if (testGroupNode == null) {
+                    continue;
+                }
+                testGroupNode.find(' > .item > .sign').text('+');
+                testGroupNode.addClass('collapsed');
 
-            for (var k = 0; k < testGroup.testCases.length; k++) {
-                var testCase = testGroup.testCases[k];
-                appendToNode(testGroupNode, testCase, false);
+                for (var k = 0; k < testGroup.testCases.length; k++) {
+                    var testCase = testGroup.testCases[k];
+                    appendToNode(testGroupNode, testCase, false);
+                }
+            }
+        } else {
+            for (var k = 0; k < testClass.testCases.length; k++) {
+                var testCase = testClass.testCases[k];
+                appendToNode(testClassNode, testCase, false);
             }
         }
     }

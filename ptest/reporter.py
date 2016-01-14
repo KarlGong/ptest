@@ -129,17 +129,22 @@ def _get_test_suite_dict(test_suite):
 
 def _get_test_class_dict(test_class):
     repr_dict = {
-        "name": test_class.name,
-        "fullName": test_class.full_name,
-        "type": "testclass",
-        "runMode": test_class.run_mode,
-        "description": test_class.description,
-        "testGroups": [_get_test_group_dict(test_group) for test_group in test_class.test_groups],
-        "startTime": str(test_class.start_time),
-        "endTime": str(test_class.end_time),
-        "elapsedTime": test_class.elapsed_time,
-        "statusCount": test_class.status_count,
-    }
+            "name": test_class.name,
+            "fullName": test_class.full_name,
+            "type": "testclass",
+            "runMode": test_class.run_mode,
+            "description": test_class.description,
+            "isGroupFeatureUsed": test_class.is_group_feature_used,
+            "startTime": str(test_class.start_time),
+            "endTime": str(test_class.end_time),
+            "elapsedTime": test_class.elapsed_time,
+            "statusCount": test_class.status_count,
+        }
+    if test_class.is_group_feature_used:
+        repr_dict["testGroups"] = [_get_test_group_dict(test_group) for test_group in test_class.test_groups]
+    else:
+        repr_dict["testCases"] = [_get_test_case_dict(test_case) for test_case in test_class.test_cases]
+
     if not test_class.before_class.is_empty:
         repr_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
     if not test_class.after_class.is_empty:
