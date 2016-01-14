@@ -92,14 +92,14 @@ class TestSuiteExecutor(TestExecutor):
         before_suite_executor.start_and_join()
         before_suite_executor.release_worker()
 
-        test_class_executors = []
+        test_class_run_group_executors = []
 
-        for test_class in self.test_suite.test_classes:
-            test_class_executor = TestClassExecutor(self, test_class)
-            test_class_executors.append(test_class_executor)
-            test_class_executor.start()
+        for test_classes in self.test_suite.test_class_run_groups.values():
+            test_class_run_group_executor = TestClassRunGroupExecutor(self, test_classes)
+            test_class_run_group_executors.append(test_class_run_group_executor)
+            test_class_run_group_executor.start()
 
-        for executor in test_class_executors:
+        for executor in test_class_run_group_executors:
             executor.join()
 
         after_suite_executor = TestFixtureExecutor(self, self.test_suite.after_suite)
@@ -111,10 +111,20 @@ class TestSuiteExecutor(TestExecutor):
 
         self.release_worker()
 
+class TestClassRunGroupExecutor(TestExecutor):
+    def __init__(self, test_suite_executor, test_classes):
+        TestExecutor.__init__(self, test_suite_executor)
+        self.test_classes = test_classes
+
+    def run(self):
+        for test_class in self.test_classes:
+            TestClassExecutor(self, test_class).start_and_join()
+
+        self.release_worker()
 
 class TestClassExecutor(TestExecutor):
-    def __init__(self, test_suite_executor, test_class):
-        TestExecutor.__init__(self, test_suite_executor)
+    def __init__(self, test_class_run_group_executor, test_class):
+        TestExecutor.__init__(self, test_class_run_group_executor)
         self.test_class = test_class
 
     def run(self):

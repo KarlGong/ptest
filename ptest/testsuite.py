@@ -1,4 +1,6 @@
-from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem
+from collections import OrderedDict
+
+from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode
 
 __author__ = 'karl.gong'
 
@@ -40,12 +42,17 @@ class TestSuite(TestContainer):
     def __init__(self, name):
         TestContainer.__init__(self)
         self.test_classes = []
+        self.test_class_run_groups = {}
         self.name = name
         self.full_name = name
         self.before_suite = BeforeSuite(self, None)
         self.after_suite = AfterSuite(self, None)
 
-    def init_test_fixture(self):
+    def init(self):
+        self.init_test_fixtures()
+        self.init_test_class_run_groups()
+
+    def init_test_fixtures(self):
         # reflect the before suite and after suite
         for test_class in self.test_classes:
             for element in dir(test_class.test_class_ref):
@@ -60,6 +67,21 @@ class TestSuite(TestContainer):
                         self.before_suite = BeforeSuite(self, attr)
                     elif pd_type == PDecoratorType.AfterSuite:
                         self.after_suite = AfterSuite(self, attr)
+
+    def init_test_class_run_groups(self):
+        for test_class in self.test_classes:
+            if test_class.run_group is None:
+                self.test_class_run_groups[test_class.full_name] = [test_class]
+            elif test_class.run_group in self.test_class_run_groups:
+                # put single line test class to top
+                if test_class.run_mode == TestClassRunMode.SingleLine:
+                    self.test_class_run_groups[test_class.run_group].insert(0, test_class)
+                else:
+                    self.test_class_run_groups[test_class.run_group].append(test_class)
+            else:
+                self.test_class_run_groups[test_class.run_group] = [test_class]
+        # sort the test class run groups by its size
+        self.test_class_run_groups = OrderedDict(sorted(self.test_class_run_groups.items(), key=lambda t: len(t[1]), reverse=True))
 
     def get_failed_setup_fixture(self):
         if self.before_suite.status == TestFixtureStatus.FAILED:
@@ -90,19 +112,6 @@ class TestSuite(TestContainer):
             return True
         return False
 
-    def sort_test_classes_for_running(self):
-        """
-            Sort the test classes by run_mode, put SingleLine classes to the top.
-            Invoking this function before running test cases will increase the running efficiency.
-        """
-        self.test_classes = sorted(self.test_classes, key=lambda item: item.run_mode, reverse=True)
-
-    def sort_test_classes_for_report(self):
-        """
-            Sort the test classes by test class's full name.
-        """
-        self.test_classes = sorted(self.test_classes, key=lambda item: item.full_name)
-
 
 class TestClass(TestContainer):
     def __init__(self, test_suite, test_class_ref):
@@ -113,6 +122,7 @@ class TestClass(TestContainer):
         self.name = test_class_ref.__class__.__name__
         self.full_name = test_class_ref.__full_name__
         self.run_mode = test_class_ref.__run_mode__
+        self.run_group = test_class_ref.__run_group__
         self.description = test_class_ref.__description__
         self.custom_args = test_class_ref.__custom_args__
 
@@ -148,7 +158,8 @@ class TestClass(TestContainer):
 
     @property
     def is_group_feature_used(self):
-        return not(len(self.test_groups) == 1 and self.test_groups[0].name == "DEFAULT" and self.test_groups[0].before_group.is_empty and self.test_groups[0].after_group.is_empty)
+        return not (len(self.test_groups) == 1 and self.test_groups[0].name == "DEFAULT" and self.test_groups[
+            0].before_group.is_empty and self.test_groups[0].after_group.is_empty)
 
 
 class TestGroup(TestContainer):

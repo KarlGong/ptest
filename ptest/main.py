@@ -173,7 +173,7 @@ def main(args=None):
             plistener.test_listeners.append(listener_class())
 
     # init test suite
-    default_test_suite.init_test_fixture()
+    default_test_suite.init()
     test_cases = default_test_suite.test_cases
 
     # exit if no tests found
@@ -207,8 +207,7 @@ def main(args=None):
         WebDriver.start_client = new_start_client
         WebDriver.stop_client = new_stop_client
 
-    # sort the test groups for running
-    default_test_suite.sort_test_classes_for_running()
+    # print test names
     pconsole.write_line("=" * 100)
     pconsole.write_line("Start to run following %s tests:" % len(test_cases))
     pconsole.write_line("-" * 30)
@@ -238,7 +237,6 @@ def main(args=None):
     # generate the test report
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
-    default_test_suite.sort_test_classes_for_report()
     reporter.generate_xunit_xml(config.get_option("xunit_xml"))
     reporter.generate_html_report(config.get_option("report_dir"))
 

@@ -12,12 +12,13 @@ from .enumeration import PDecoratorType, TestClassRunMode
 __author__ = 'karl.gong'
 
 
-def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
+def TestClass(enabled=True, run_mode="parallel", run_group=None, description="", **custom_args):
     """
         The TestClass decorator, it is used to mark a class as TestClass.
 
     :param enabled: enable or disable this test class.
     :param run_mode: the run mode of all the test cases in this test class. If set to "parallel", all the test cases will be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
+    :param run_group: the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one.
     :param description: the description of this test class.
     :param custom_args: the custom arguments of this test class.
     """
@@ -31,6 +32,7 @@ def TestClass(enabled=True, run_mode="parallel", description="", **custom_args):
         else:
             raise ValueError("Run mode <%s> is not supported. Please use <%s> or <%s>." % (
                 run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
+        cls.__run_group__ = None if run_group is None else "@" + str(run_group)
         cls.__description__ = description
         cls.__custom_args__ = custom_args
         return cls
