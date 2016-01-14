@@ -154,7 +154,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can use **@TestClass** to mark a class as ptest class and **@Test** to mark a method as ptest test.
 
-*Note:* By default, a ptest test belongs to group "DEFAULT". And the "DEFAULT" group will be ignored if no test group features (@BeforeGroup, @AfterGroup and specify other value for attribute "group" of @Test) are used.
+*Note:* By default, a ptest test belongs to group "DEFAULT". And the "DEFAULT" group will be ignored if no test group features (**@BeforeGroup**, **@AfterGroup** and specify other value for attribute *group* of **@Test**) are used.
 
 .. code:: python
 
