@@ -94,8 +94,8 @@ class TestSuiteExecutor(TestExecutor):
 
         test_class_run_group_executors = []
 
-        for test_classes in self.test_suite.test_class_run_groups.values():
-            test_class_run_group_executor = TestClassRunGroupExecutor(self, test_classes)
+        for test_class_run_group in self.test_suite.test_class_run_groups:
+            test_class_run_group_executor = TestClassRunGroupExecutor(self, test_class_run_group)
             test_class_run_group_executors.append(test_class_run_group_executor)
             test_class_run_group_executor.start()
 
@@ -112,12 +112,12 @@ class TestSuiteExecutor(TestExecutor):
         self.release_worker()
 
 class TestClassRunGroupExecutor(TestExecutor):
-    def __init__(self, test_suite_executor, test_classes):
+    def __init__(self, test_suite_executor, test_class_run_group):
         TestExecutor.__init__(self, test_suite_executor)
-        self.test_classes = test_classes
+        self.test_class_run_group = test_class_run_group
 
     def run(self):
-        for test_class in self.test_classes:
+        for test_class in self.test_class_run_group:
             TestClassExecutor(self, test_class).start_and_join()
 
         self.release_worker()
