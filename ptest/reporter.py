@@ -133,6 +133,7 @@ def _get_test_class_dict(test_class):
             "fullName": test_class.full_name,
             "type": "testclass",
             "runMode": test_class.run_mode,
+            "runGroup": test_class.run_group,
             "description": test_class.description,
             "isGroupFeatureUsed": test_class.is_group_feature_used,
             "startTime": str(test_class.start_time),
