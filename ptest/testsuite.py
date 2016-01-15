@@ -1,3 +1,5 @@
+from functools import cmp_to_key
+
 from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode
 
 __author__ = 'karl.gong'
@@ -94,7 +96,7 @@ class TestSuite(TestContainer):
                 return len([test_class for test_class in run_group_a if test_class.run_mode == TestClassRunMode.SingleLine]) - \
                        len([test_class for test_class in run_group_b if test_class.run_mode == TestClassRunMode.SingleLine])
 
-        self.test_class_run_groups = sorted(run_groups, cmp=cmp_run_group, reverse=True)
+        self.test_class_run_groups = sorted(run_groups, key=cmp_to_key(cmp_run_group), reverse=True)
 
     def get_failed_setup_fixture(self):
         if self.before_suite.status == TestFixtureStatus.FAILED:
