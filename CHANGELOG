@@ -1,5 +1,15 @@
 Change Log
 ----------
+1.5.1 (compared to 1.4.3)
+
+- Add documentation for ptest: https://github.com/KarlGong/ptest/wiki/documentation
+
+- Ignore the test group if no group features are used.
+
+- Support run_group for @TestClass.
+
+- Support expected_exceptions for @Test.
+
 1.4.3 (compared to 1.4.2)
 
 - Add command option -m(--mergexunitxmls) to merge the xunit result xmls.

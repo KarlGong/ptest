@@ -35,7 +35,7 @@ def main():
         name="ptest",
         description="light test runner for Python",
         long_description=long_description,
-        version="1.4.3",
+        version="1.5.1",
         keywords="test testing framework automation python runner",
         author="Karl Gong",
         author_email="karl.gong@outlook.com",

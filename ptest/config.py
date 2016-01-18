@@ -101,7 +101,7 @@ def _parse_properties(property_args):
 
 
 def _parse_options(option_args):
-    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.4.3 for Python " + platform.python_version(),
+    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.5.1 for Python " + platform.python_version(),
                           description="ptest is a light test runner for Python.")
 
     # path and property
