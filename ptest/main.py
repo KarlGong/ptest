@@ -218,7 +218,7 @@ def main(args=None):
     # clean and create temp dir
     temp_dir = config.get_option("temp")
     if os.path.exists(temp_dir):
-        remove_tree(temp_dir, remove_self=False)
+        remove_tree(temp_dir, remove_root=False)
     else:
         make_dirs(temp_dir)
 

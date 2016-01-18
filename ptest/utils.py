@@ -12,12 +12,12 @@ def make_dirs(dir_path):
             raise
 
 
-def remove_tree(dir_path, remove_self=True):
+def remove_tree(dir_path, remove_root=True):
     if os.path.exists(dir_path):
         for root, dirs, files in os.walk(dir_path, topdown=False):
             for name in files:
                 os.remove(os.path.join(root, name))
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
-        if remove_self is True:
+        if remove_root is True:
             os.rmdir(dir_path)

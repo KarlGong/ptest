@@ -69,7 +69,7 @@ def generate_html_report(report_dir):
 
     if os.path.exists(report_dir):
         pconsole.write_line("Cleaning old html report...")
-        remove_tree(report_dir, remove_self=False)
+        remove_tree(report_dir, remove_root=False)
     else:
         make_dirs(report_dir)
 
