@@ -44,6 +44,8 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - *tags* - the tags of this test (it can be string (separated by comma) or list or tuple)
 
+- *expected_exceptions* - the expected exceptions of this test fixture. If no exception or a different one is thrown, this test will be marked as failed.
+
 - *group* - the group that this test belongs to
 
 - *description* - the description of this test
@@ -154,7 +156,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can use **@TestClass** to mark a class as ptest class and **@Test** to mark a method as ptest test.
 
-*Note:* By default, a ptest test belongs to group "DEFAULT". And the "DEFAULT" group will be ignored if no test group features (**@BeforeGroup**, **@AfterGroup** and specify other value for attribute *group* of **@Test**) are used.
+*Note:* By default, a ptest test belongs to group "DEFAULT". And the "DEFAULT" group will be ignored if no test group features (**@BeforeGroup**, **@AfterGroup**, specify other value for the *group*  attribute of **@Test**) are used.
 
 .. code:: python
 
@@ -423,7 +425,8 @@ Then use ``-l(--listeners)`` to specify the path of test listener classes
 ================
 5.1 - Success, failure, skipped and assert
 ------------------------------------------
-A test is considered successful if it completed without throwing any exception. If it's **@BeforeXXX** failed it will be marked as skipped.
+A test is considered successful if it completed without throwing any exception or if it threw an exception that was expected (see the documentation for the *expected_exceptions* attribute found on the **@Test** decorator).
+And it will be marked as skipped if its **@BeforeXXX** failed.
 
 Your test methods will typically be made of calls that can throw an exception, or of various assertions (using the Python "assert" keyword).  An "assert" failing will trigger an AssertionError, which in turn will mark the method as failed.
 
