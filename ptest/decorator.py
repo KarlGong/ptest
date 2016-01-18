@@ -1,5 +1,6 @@
 import inspect
 import os
+import re
 try:
     from urlparse import urljoin
     from urllib import unquote, pathname2url
@@ -136,12 +137,22 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
     return handle_func
 
 
-def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0, **custom_args):
+def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", description="", timeout=0, **custom_args):
     """
         The Test decorator, it is used to mark a test as Test.
 
     :param enabled: enable or disable this test.
     :param tags: the tags of this test. It can be string (separated by comma) or list or tuple.
+    :param expected_exceptions: the expected exceptions of this test fixture.
+        If no exception or a different one is thrown, this test will be marked as failed.
+        The possible values of this parameter are::
+            Exception Class:
+                expected_exceptions=AttributeError
+            Exception Class list or tuple:
+                expected_exceptions=[AttributeError, IndexError]
+                expected_exceptions=(AttributeError, IndexError)
+            Exception Class and regular expression of expected message dict:
+                expected_exceptions={AttributeError: '.*object has no attribute.*'}
     :param group: the group that this test belongs to.
     :param description: the description of this test.
     :param timeout: the timeout of this test (in seconds).
@@ -153,14 +164,44 @@ def Test(enabled=True, tags=[], group="DEFAULT", description="", timeout=0, **cu
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
-        if isinstance(tags, str):
-            tag_list = tags.split(",")
-        elif isinstance(tags, (list, tuple)):
-            tag_list = tags
+        # process tags
+        if not tags:
+            func.__tags__ = []
         else:
-            raise ValueError(
-                "Tags type %s is not supported. Please use string (separated by comma) or list or tuple." % type(tags))
-        func.__tags__ = sorted([str(tag).strip() for tag in tag_list if str(tag).strip()])
+            if isinstance(tags, str):
+                tag_list = tags.split(",")
+            elif isinstance(tags, (list, tuple)):
+                tag_list = tags
+            else:
+                raise ValueError(
+                    "Tags type %s is not supported. Please use string (separated by comma) or list or tuple." % type(tags))
+            func.__tags__ = sorted([str(tag).strip() for tag in tag_list if str(tag).strip()])
+        # process expected exceptions
+        if not expected_exceptions:
+            func.__expected_exceptions__ = None
+        else:
+            exceptions = {}
+            if inspect.isclass(expected_exceptions):
+                if issubclass(expected_exceptions, Exception):
+                    exceptions[expected_exceptions] = None
+                else:
+                    raise ValueError("Expected exception should be a sub class of Exception.")
+            elif isinstance(expected_exceptions, (tuple, list)):
+                for exception in expected_exceptions:
+                    if issubclass(exception, Exception):
+                        exceptions[exception] = None
+                    else:
+                        raise ValueError("Expected exception should be a sub class of Exception.")
+            elif isinstance(expected_exceptions, dict):
+                for exception, message in expected_exceptions.items():
+                    if issubclass(exception, Exception):
+                        exceptions[exception] = re.compile(message)
+                    else:
+                        raise ValueError("Expected exception should be a sub class of Exception.")
+            else:
+                raise ValueError("Expected exceptions type %s is not supported. Please use class or list or tuple or dict." % type(expected_exceptions))
+            func.__expected_exceptions__ = exceptions
+
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
