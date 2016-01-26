@@ -26,129 +26,129 @@ A ptest test can be configured by **@BeforeXXX** and **@AfterXXX** decorators wh
 --------------
 Here is a quick overview of the decorators available in ptest along with their attributes.
 
-**@TestClass** - the decorated class will be marked as ptest class
+`@TestClass <#221---test-and-testclass>`_ - the decorated class will be marked as ptest class
 
-- *enabled* - whether this test class is enabled
+- `enabled <#231---enabled>`_ - whether this test class is enabled
 
-- *run_mode* - the run mode of all the test cases in this test class. If set to "parallel", all the test cases will be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
+- `run_mode <#237---run_mode>`_ - the run mode of all the test cases in this test class. If set to "parallel", all the test cases will be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
 
-- *run_group* - the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one.
+- `run_group <#238---run_group>`_ - the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one. If not, this test class will be belong to it own run group.
 
-- *description* - the description of this test class
+- `description <#232---description>`_ - the description of this test class
 
-- *custom_args* - the custom arguments of this test class
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test class
 
-**@Test** - the decorated method will be marked as ptest test
+`@Test <#221---test-and-testclass>`_ - the decorated method will be marked as ptest test
 
-- *enabled* - whether this test is enabled
+- `enabled <#231---enabled>`_ - whether this test is enabled
 
-- *tags* - the tags of this test (it can be string (separated by comma) or list or tuple)
+- `tags <#239---tags>`_ - the tags of this test (it can be string (separated by comma) or list or tuple)
 
-- *expected_exceptions* - the expected exceptions of this test fixture. If no exception or a different one is thrown, this test will be marked as failed.
+- `expected_exceptions <#2310---expected_exceptions>`_ - the expected exceptions of this test fixture. If no exception or a different one is thrown, this test will be marked as failed.
 
-- *group* - the group that this test belongs to
+- `group <#236---group>`_ - the group that this test belongs to
 
-- *description* - the description of this test
+- `description <#232---description>`_ - the description of this test
 
-- *timeout* - the timeout of this test (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test (in seconds)
 
-- *custom_args* - the custom arguments of this test
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test
 
-**@BeforeSuite** - the decorated method will be executed before test suite started
+`@BeforeSuite <#225---beforesuite,-aftersuite-and-inherit>`_ - the decorated method will be executed before test suite started
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@AfterSuite** - the decorated method will be executed after test suite finished
+`@AfterSuite <#225---beforesuite,-aftersuite-and-inherit>`_ - the decorated method will be executed after test suite finished
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *always_run* - if set to true, this test fixture will be run even if the **@BeforeSuite** is failed. Otherwise, this test fixture will be skipped.
+- `always_run <#235---always_run>`_ - if set to true, this test fixture will be run even if the **@BeforeSuite** is failed. Otherwise, this test fixture will be skipped.
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@BeforeClass** - the decorated method will be executed before test class started
+`@BeforeClass <#224---beforeclass-and-afterClass>`_ - the decorated method will be executed before test class started
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@AfterClass** - the decorated method will be executed after test class finished
+`@AfterClass <#224---beforeclass-and-afterClass>`_ - the decorated method will be executed after test class finished
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *always_run* - if set to true, this test fixture will be run even if the **@BeforeClass** is failed. Otherwise, this test fixture will be skipped.
+- `always_run <#235---always_run>`_ - if set to true, this test fixture will be run even if the **@BeforeClass** is failed. Otherwise, this test fixture will be skipped.
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@BeforeGroup** - the decorated method will be executed before test group started
+`@BeforeGroup <#223---beforegroup-and-aftergroup>`_ - the decorated method will be executed before test group started
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *group* - the group that this test fixture belongs to
+- `group <#236---group>`_ - the group that this test fixture belongs to
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@AfterGroup** - the decorated method will be executed after test group finished
+`@AfterGroup <#223---beforegroup-and-aftergroup>`_ - the decorated method will be executed after test group finished
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *always_run* - if set to true, this test fixture will be run even if the **@BeforeGroup** is failed. Otherwise, this test fixture will be skipped.
+- `always_run <#235---always_run>`_ - if set to true, this test fixture will be run even if the **@BeforeGroup** is failed. Otherwise, this test fixture will be skipped.
 
-- *group* - the group that this test fixture belongs to
+- `group <#236---group>`_ - the group that this test fixture belongs to
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@BeforeMethod** - the decorated method will be executed before test started
+`@BeforeMethod <#222---beforemethod-and-aftermethod>`_ - the decorated method will be executed before test started
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *group* - the group that this test fixture belongs to
+- `group <#236---group>`_ - the group that this test fixture belongs to
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-**@AfterMethod** - the decorated method will be executed after test finished
+`@AfterMethod <#222---beforemethod-and-aftermethod>`_ - the decorated method will be executed after test finished
 
-- *enabled* - whether this test fixture is enabled
+- `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
-- *always_run* - if set to true, this test fixture will be run even if the **@BeforeMethod** is failed. Otherwise, this test fixture will be skipped.
+- `always_run <#235---always_run>`_ - if set to true, this test fixture will be run even if the **@BeforeMethod** is failed. Otherwise, this test fixture will be skipped.
 
-- *group* - the group that this testfixture belongs to
+- `group <#236---group>`_ - the group that this testfixture belongs to
 
-- *description* - the description of this test fixture
+- `description <#232---description>`_ - the description of this test fixture
 
-- *timeout* - the timeout of this test fixture (in seconds)
+- `timeout <#234---timeout>`_ - the timeout of this test fixture (in seconds)
 
-- *custom_args* - the custom arguments of this test fixture
+- `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
 2.2 - Usage
 -----------
@@ -156,7 +156,8 @@ Here is a quick overview of the decorators available in ptest along with their a
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can use **@TestClass** to mark a class as ptest class and **@Test** to mark a method as ptest test.
 
-*Note:* By default, a ptest test belongs to the "DEFAULT" group. And the "DEFAULT" group will be ignored if no test group features (**@BeforeGroup**, **@AfterGroup**, specify other value for the *group* attribute of **@Test**) are used.
+*Note:* By default, a ptest test belongs to the ``DEFAULT`` group.
+And the ``DEFAULT`` group will be ignored if no test group features (**@BeforeGroup**, **@AfterGroup**, specify other value for the *group* attribute of **@Test**) are used.
 
 .. code:: python
 
@@ -174,6 +175,8 @@ You can use **@TestClass** to mark a class as ptest class and **@Test** to mark 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Method which is decorated by **@BeforeMethod** will be executed before test started.
 Method which is decorated by **@AfterMethod** will be executed after test finished.
+
+*Note:* You can not specify multiple `enabled <#231---enabled>`_ **@BeforeMethod** or **@AfterMethod** for one test group.
 
 .. code:: python
 
@@ -199,6 +202,8 @@ Method which is decorated by **@AfterMethod** will be executed after test finish
 Method which is decorated by **@BeforeGroup** will be executed before test group started.
 Method which is decorated by **@AfterGroup** will be executed after test group finished.
 
+*Note:* You can not specify multiple `enabled <#231---enabled>`_ **@BeforeGroup** or **@AfterGroup** for one test group.
+
 .. code:: python
 
     from ptest.decorator import TestClass, Test, BeforeGroup, AfterGroup
@@ -209,6 +214,7 @@ Method which is decorated by **@AfterGroup** will be executed after test group f
 
     @TestClass()
     class PTestClass:
+        # CN group
         @BeforeGroup(group=CN_GROUP)
         def before_group_cn(self):
             self.expected = "cn"
@@ -221,6 +227,7 @@ Method which is decorated by **@AfterGroup** will be executed after test group f
         def test_cn(self):
             assert_equals("cn", self.expected)
 
+        # US group
         @BeforeGroup(group=US_GROUP)
         def before_group_us(self):
             self.expected = "us"
@@ -237,6 +244,8 @@ Method which is decorated by **@AfterGroup** will be executed after test group f
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Method which is decorated by **@BeforeClass** will be executed before test class started.
 Method which is decorated by **@AfterClass** will be executed after test class finished.
+
+*Note:* You can not specify multiple `enabled <#2.3.1---enabled>`_ **@BeforeClass** or **@AfterClass** for one test class.
 
 .. code:: python
 
@@ -266,7 +275,7 @@ Method which is decorated by **@AfterClass** will be executed after test class f
 Method which is decorated by **@BeforeSuite** will be executed before test suite started.
 Method which is decorated by **@AfterSuite** will be executed after test suite finished.
 
-*Note:* If you specify multiple **@BeforeSuite** or **@AfterSuite** in different classes,
+*Note:* If you specify multiple `enabled <#231---enabled>`_ **@BeforeSuite** or **@AfterSuite** in different classes,
 ONLY one **@BeforeSuite** or **@AfterSuite** will be executed.
 So we recommend you to put **@BeforeSuite** or **@AfterSuite** into a base class, and create test classes to inherit it.
 
@@ -304,6 +313,344 @@ So we recommend you to put **@BeforeSuite** or **@AfterSuite** into a base class
         def test(self):
             self.now = 10000
             assert_true(self.max > self.now)
+
+2.3 - Attributes
+----------------
+2.3.1 - enabled
+~~~~~~~~~~~~~~~
+*enabled* attribute is for all decorators. If the attribute is set to false, the decorator will be ignored.
+
+The default value is ``True``. The value type should be ``bool``.
+
+**Examples:**
+
+If *enabled* attribute of **@TestClass** is set to ``False``, this test class will be ignored.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+    from ptest.assertion import assert_equals
+
+    @TestClass(enabled=False)
+    class PTestClass:
+        @Test()
+        def test(self):
+            pass
+
+
+If *enabled* attribute of **@BeforeMethod** is set to ``False``, the **@BeforeMethod** will be ignored.
+In following case, the ``before2`` method will be run before every test.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod
+    from ptest.assertion import assert_equals
+
+    @TestClass(enabled=False)
+    class PTestClass:
+        @BeforeMethod(enabled=False)
+        def before1(self):
+            self.expected = 1
+
+        @BeforeMethod()
+        def before2(self):
+            self.expected = 2
+
+        @Test()
+        def test(self):
+            assert_equals(2, self.expected)
+
+2.3.2 - description
+~~~~~~~~~~~~~~~~~~~
+*description* attribute is for all decorators. This attribute is used to specify the description of the decorator.
+
+The default value is an empty string ``""``. The value type should be ``str``.
+
+**Examples:**
+
+You can specify the description by *description* attribute.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod
+    from ptest.assertion import assert_equals
+
+    @TestClass(description="This is a sample test class for ptest.")
+    class PTestClass:
+        @BeforeMethod(description="I need to setup data.")
+        def setup(self):
+            self.expected = 1
+
+        @Test(description="I need to verify the data.")
+        def test(self):
+            assert_equals(1, self.expected)
+
+2.3.3 - custom_args
+~~~~~~~~~~~~~~~~~~~
+*custom_args* attribute is for all decorators. This attribute is a placeholder for unsupported attributes.
+
+**Examples:**
+
+You can use *custom_args* to do some record things.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+
+    @TestClass(test_suite_id="ptest-suite")
+    class PTestClass:
+        @Test(test_case_id="PT-123")
+        def test(self):
+            pass
+
+2.3.4 - timeout
+~~~~~~~~~~~~~~~
+*timeout* attribute is for all decorators except **@TestClass**. This attribute is used to specify the timeout (in seconds) of decorated method.
+
+The default value is ``0`` (0 means no timeout). The value type should be ``int``.
+
+**Examples:**
+
+If the firefox is not setup in 30 seconds, the **@BeforeMethod** will be timed out and marked as failed.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
+    from ptest.assertion import assert_true
+    from selenium.webdriver import Firefox
+
+    @TestClass()
+    class PTestClass:
+        @BeforeMethod(timeout=30)
+        def setup(self):
+            self.browser = Firefox()
+
+        @Test()
+        def test(self):
+            self.browser.get("http://www.google.com")
+            assert_true("http://www.google.com" in self.browser.current_url)
+
+        @AfterMethod()
+        def teardown(self):
+            self.browser.quit()
+
+2.3.5 - always_run
+~~~~~~~~~~~~~~~~~~
+*always_run* attribute is for all **@AfterXXX** decorators. If set to ``true``, the decorated method will be run even if its corresponding **@BeforeXXX** is failed. Otherwise, the decorated method will be skipped.
+
+The default value is ``False``. The value type should be ``bool``.
+
+**Examples:**
+
+The **@AfterMethod** will be run even if **@BeforeMethod** if failed.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
+    from ptest.assertion import fail, assert_equals
+
+    @TestClass()
+    class PTestClass:
+        @BeforeMethod()
+        def setup(self):
+            self.expected = 1
+            fail()
+
+        @Test()
+        def test(self):
+            assert_equals(1, self.expected)
+
+        @AfterMethod(always_run=True)
+        def teardown(self):
+            self.expected = None
+
+2.3.6 - group
+~~~~~~~~~~~~~
+*group* attribute is for **@BeforeGroup**, **@BeforeMethod**, **@Test**, **@AfterMethod**, **@AfterGroup** decorators. The attribute is used to specify which group is the test fixture belong to.
+
+The default value is ``"DEFAULT"``. The value type should be ``str``.
+
+**Examples:**
+
+In following case, the **@BeforeMethod** *before_cn* and *after_cn* are belong to ``CN`` group and the **@BeforeMethod** *before_us* and *after_us* are belong to ``US`` group
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
+    from ptest.assertion import assert_equals
+
+    CN_GROUP = "CN"
+    US_GROUP = "US"
+
+    @TestClass()
+    class PTestClass:
+        # CN group
+        @BeforeMethod(group=CN_GROUP)
+        def before_cn(self):
+            self.expected = "cn"
+
+        @AfterMethod(group=CN_GROUP)
+        def after_cn(self):
+            self.expected = None
+
+        @Test(group=CN_GROUP)
+        def test_cn(self):
+            assert_equals("cn", self.expected)
+
+        # US group
+        @BeforeMethod(group=US_GROUP)
+        def before_us(self):
+            self.expected = "us"
+
+        @AfterMethod(group=US_GROUP)
+        def after_us(self):
+            self.expected = None
+
+        @Test(group=US_GROUP)
+        def test_us(self):
+            assert_equals("us", self.expected)
+
+2.3.7 - run_mode
+~~~~~~~~~~~~~~~~
+*run_mode* attribute is only for **@TestClass** decorator. This attribute is used to specify the run mode of all the test cases in the test class. If set to ``"parallel"``, all the test cases will be run by multiple threads. If set to ``"singleline"``, all the test cases will be only run by one thread.
+
+The default value is ``"parallel"``. The value type should be ``str`` and it must be ``"singleline"`` or ``"parallel"``.
+
+**Examples:**
+
+In following case, all the test cases use the same browser, so they should only be run by one thread.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeClass, AfterClass
+    from ptest.assertion import assert_true
+    from selenium.webdriver import Firefox
+
+    @TestClass(run_mode="singleline")
+    class PTestClass:
+        @BeforeClass()
+        def setup(self):
+            self.browser = Firefox()
+
+        @Test()
+        def test1(self):
+            self.browser.get("http://www.google.com")
+            assert_true("http://www.google.com" in self.browser.current_url)
+
+        @Test()
+        def test2(self):
+            self.browser.get("http://github.com")
+            assert_true("https://github.com" in self.browser.current_url)
+
+        @Test()
+        def test3(self):
+            self.browser.get("https://www.python.org")
+            assert_true("https://www.python.org" in self.browser.current_url)
+
+        @AfterClass()
+        def teardown(self):
+            self.browser.quit()
+
+2.3.8 - run_group
+~~~~~~~~~~~~~~~~~
+*run_group* attribute is only for **@TestClass** decorator. This attribute is used to specify the run group of test class. If run group is specified, all the test classes in the same run group will be run one by one. If not, this test class will be belong to it own run group.
+
+The default value is ``None``. The value type should be ``str``.
+
+**Examples:**
+
+In following case, the ``PTestClass1`` and ``PTestClass2`` will be run one by one even if the ``-n(--testexecutornumber)`` is set of greater than 1.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+
+    RUN_GROUP = "my run group"
+
+    @TestClass(run_group=RUN_GROUP)
+    class PTestClass1:
+        @Test()
+        def test1(self):
+            pass
+
+        @Test()
+        def test2(self):
+            pass
+
+
+    @TestClass(run_group=RUN_GROUP)
+    class PTestClass2:
+        @Test()
+        def test3(self):
+            pass
+
+        @Test()
+        def test4(self):
+            pass
+
+2.3.9 - tags
+~~~~~~~~~~~~
+*tags* attribute is only for **@Test** decorator. This attribute is used to specify the tags of the test case.
+
+The default value is an empty list ``[]``. The value type should be ``str`` (separated by comma) or ``list`` or ``tuple``.
+
+**Examples:**
+
+You can specify the tags by *tags* attribute.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+    
+    @TestClass()
+    class PTestClass:
+        @Test(tags="nightly,smoke")
+        def test1(self):
+            pass
+        
+        @Test(tags=["smoke"])
+        def test2(self):
+            pass
+
+2.3.10 - expected_exceptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*expected_exceptions* attribute is only for **@Test** decorator. This attribute is used to specify the expected exceptions of the test case. If no exception or a different one is thrown, this test case will be marked as failed.
+
+The default value is ``None``. The value type should be ``Exception Class`` or ``list`` or ``tuple`` or ``dict``.
+
+**Examples:**
+
+You can specify the expected exceptions by *expected_exceptions* attribute.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+
+    @TestClass()
+    class PTestClass:
+        @Test(expected_exceptions=AssertionError)
+        def test1(self):
+            assert False # pass, the AssertionError is thrown
+
+        @Test(expected_exceptions=ImportError)
+        def test2(self):
+            assert False # failed, thrown exception doesn't match ImportError
+
+        @Test(expected_exceptions=AssertionError)
+        def test3(self):
+            pass # failed, no exception is thrown
+
+        @Test(expected_exceptions=Exception)
+        def test4(self):
+            assert False # pass, the AssertionError is subclass of Exception
+
+        @Test(expected_exceptions=(AttributeError, AssertionError))
+        def test5(self):
+            sum = self.x + self.y # pass, the AttributeError is thrown
+
+        @Test(expected_exceptions={AttributeError: '.*object has no attribute.*'})
+        def test6(self):
+            diff = self.x - self.y # failed, the AttributeError is thrown but the message doesnt' match
 
 3 - Running ptest
 =================
@@ -428,7 +775,7 @@ Then use ``-l(--listeners)`` to specify the path of test listener classes
 A test is considered successful if it completed without throwing any exception or if it threw an exception that was expected (see the documentation for the *expected_exceptions* attribute found on the **@Test** decorator).
 And it will be marked as skipped if its **@BeforeXXX** failed.
 
-Your test methods will typically be made of calls that can throw an exception, or of various assertions (using the Python "assert" keyword).  An "assert" failing will trigger an AssertionError, which in turn will mark the method as failed.
+Your test methods will typically be made of calls that can throw an exception, or of various assertions (using the Python ``assert`` keyword).  An ``assert`` failing will trigger an ``AssertionError``, which in turn will mark the method as failed.
 
 Here is an example test method:
 
@@ -491,4 +838,4 @@ By default, ptest will take screenshot for any failed test fixtures.
 If your test cases are based on selenium web driver, ptest will take screenshot for the web driver.
 Otherwise, ptest will take screenshot for the desktop.
 
-You can disable ptest to take screenshot by adding command line option ``--disablescreenshot``
+You can disable ptest to take screenshot by adding command line option ``--disablescreenshot``.
