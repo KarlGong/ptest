@@ -1,6 +1,6 @@
 import copy
 import importlib
-import os
+import pkgutil
 
 from .enumeration import PDecoratorType
 from .testfilter import TestClassNameFilter, TestCaseNameFilter
@@ -34,7 +34,7 @@ class TestFinder:
 
         test_target_len = len(splitted_test_target)
         if module_name_len == test_target_len:
-            if "__init__.py" in module_ref.__file__:
+            if hasattr(module_ref, "__path__"):
                 # test target is package
                 self.find_test_cases_in_package(module_ref)
             else:
@@ -54,46 +54,33 @@ class TestFinder:
                 self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
 
     def find_test_cases_in_package(self, package_ref):
-        package_name = package_ref.__name__
-        package_path, _ = os.path.split(package_ref.__file__)
-        for fn in os.listdir(package_path):
-            file_path = os.path.join(package_path, fn)
-            if os.path.isdir(file_path) and "__init__.py" in os.listdir(file_path):
-                self.find_test_cases_in_package(importlib.import_module(package_name + "." + fn))
-            elif os.path.isfile(file_path):
-                file_name, file_ext = os.path.splitext(fn)
-                if fn != "__init__.py" and file_ext == ".py":
-                    self.find_test_cases_in_module(importlib.import_module(package_name + "." + file_name))
+        for _, name, is_package in pkgutil.iter_modules(package_ref.__path__):
+            if is_package:
+                self.find_test_cases_in_package(importlib.import_module(package_ref.__name__ + "." + name))
+            else:
+                self.find_test_cases_in_module(importlib.import_module(package_ref.__name__ + "." + name))
 
     def find_test_cases_in_module(self, module_ref):
-        test_class_refs = []
         for module_element in dir(module_ref):
             test_class_ref = getattr(module_ref, module_element)
             try:
-                pd_type = test_class_ref.__pd_type__
-                is_enabled = test_class_ref.__enabled__
+                if test_class_ref.__pd_type__ == PDecoratorType.TestClass \
+                        and test_class_ref.__enabled__ \
+                        and test_class_ref.__module__ == module_ref.__name__ \
+                        and self.test_class_filter_group.filter(test_class_ref):
+                    self.find_test_cases_in_class(test_class_ref)
             except AttributeError:
-                continue
-            if pd_type == PDecoratorType.TestClass and is_enabled and self.test_class_filter_group.filter(
-                    test_class_ref):
-                test_class_refs.append(test_class_ref)
-        if len(test_class_refs) != 0:
-            for test_class_ref in test_class_refs:
-                self.find_test_cases_in_class(test_class_ref)
+                pass
 
     def find_test_cases_in_class(self, test_class_ref):
-        test_case_refs = []
         for class_element in dir(test_class_ref):
-            test_case_ref = getattr(test_class_ref, class_element)
+            test_case_ref = getattr(test_class_ref(), class_element)
             try:
-                pd_type = test_case_ref.__pd_type__
-                is_enabled = test_case_ref.__enabled__
+                if test_case_ref.__pd_type__ == PDecoratorType.Test \
+                        and test_class_ref.__enabled__ \
+                        and self.test_case_filter_group.filter(test_case_ref):
+                    self.found_test_case_count += 1
+                    if not self.target_test_suite.add_test_case(test_case_ref):
+                        self.repeated_test_case_count += 1
             except AttributeError:
-                continue
-            if pd_type == PDecoratorType.Test and is_enabled and self.test_case_filter_group.filter(test_case_ref):
-                test_case_refs.append(getattr(test_class_ref(), class_element))
-        if len(test_case_refs) != 0:
-            for test_case_ref in test_case_refs:
-                self.found_test_case_count += 1
-                if not self.target_test_suite.add_test_case(test_class_ref(), test_case_ref):
-                    self.repeated_test_case_count += 1
+                pass

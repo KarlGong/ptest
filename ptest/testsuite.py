@@ -59,15 +59,13 @@ class TestSuite(TestContainer):
             for element in dir(test_class.test_class_ref):
                 attr = getattr(test_class.test_class_ref, element)
                 try:
-                    pd_type = attr.__pd_type__
-                    is_enabled = attr.__enabled__
+                    if attr.__enabled__:
+                        if attr.__pd_type__ == PDecoratorType.BeforeSuite:
+                            self.before_suite = BeforeSuite(self, attr)
+                        elif attr.__pd_type__ == PDecoratorType.AfterSuite:
+                            self.after_suite = AfterSuite(self, attr)
                 except AttributeError:
-                    continue
-                if is_enabled:
-                    if pd_type == PDecoratorType.BeforeSuite:
-                        self.before_suite = BeforeSuite(self, attr)
-                    elif pd_type == PDecoratorType.AfterSuite:
-                        self.after_suite = AfterSuite(self, attr)
+                    pass
 
     def init_test_class_run_groups(self):
         run_groups = {}
@@ -109,15 +107,18 @@ class TestSuite(TestContainer):
                 return test_class
         return None
 
-    def add_test_case(self, test_class_ref, test_case_ref):
+    def add_test_case(self, test_case_ref):
+        test_class_ref = test_case_ref.__self__.__class__
         test_class = self.get_test_class(test_class_ref.__full_name__)
         if test_class is None:
-            test_class = TestClass(self, test_class_ref)
+            test_class = TestClass(self, test_class_ref())
             self.test_classes.append(test_class)
+
         test_group = test_class.get_test_group(test_case_ref.__group__)
         if test_group is None:
-            test_group = TestGroup(test_class, test_case_ref.__group__, test_class_ref)
+            test_group = TestGroup(test_class, test_case_ref.__group__, test_class_ref())
             test_class.test_groups.append(test_group)
+
         test_case = test_group.get_test_case(test_case_ref.__name__)
         if test_case is None:
             test_case = TestCase(test_group, test_case_ref)
@@ -147,15 +148,13 @@ class TestClass(TestContainer):
         for element in dir(test_class_ref):
             attr = getattr(test_class_ref, element)
             try:
-                pd_type = attr.__pd_type__
-                is_enabled = attr.__enabled__
+                if attr.__enabled__:
+                    if attr.__pd_type__ == PDecoratorType.BeforeClass:
+                        self.before_class = BeforeClass(self, attr)
+                    elif attr.__pd_type__ == PDecoratorType.AfterClass:
+                        self.after_class = AfterClass(self, attr)
             except AttributeError:
-                continue
-            if is_enabled:
-                if pd_type == PDecoratorType.BeforeClass:
-                    self.before_class = BeforeClass(self, attr)
-                elif pd_type == PDecoratorType.AfterClass:
-                    self.after_class = AfterClass(self, attr)
+                pass
 
     def get_failed_setup_fixture(self):
         setup_fixture = self.test_suite.get_failed_setup_fixture()
@@ -193,16 +192,13 @@ class TestGroup(TestContainer):
         for element in dir(test_class_ref):
             attr = getattr(test_class_ref, element)
             try:
-                pd_type = attr.__pd_type__
-                is_enabled = attr.__enabled__
-                group = attr.__group__
+                if attr.__enabled__ and attr.__group__ == self.name:
+                    if attr.__pd_type__ == PDecoratorType.BeforeGroup:
+                        self.before_group = BeforeGroup(self, attr)
+                    elif attr.__pd_type__ == PDecoratorType.AfterGroup:
+                        self.after_group = AfterGroup(self, attr)
             except AttributeError:
-                continue
-            if is_enabled and self.name == group:
-                if pd_type == PDecoratorType.BeforeGroup:
-                    self.before_group = BeforeGroup(self, attr)
-                elif pd_type == PDecoratorType.AfterGroup:
-                    self.after_group = AfterGroup(self, attr)
+                pass
 
     def get_failed_setup_fixture(self):
         setup_fixture = self.test_class.get_failed_setup_fixture()
@@ -245,16 +241,13 @@ class TestCase:
         for element in dir(test_case_ref.__self__):
             attr = getattr(test_case_ref.__self__, element)
             try:
-                pd_type = attr.__pd_type__
-                is_enabled = attr.__enabled__
-                group = attr.__group__
+                if attr.__enabled__ and attr.__group__ == self.group:
+                    if attr.__pd_type__ == PDecoratorType.BeforeMethod:
+                        self.before_method = BeforeMethod(self, attr)
+                    elif attr.__pd_type__ == PDecoratorType.AfterMethod:
+                        self.after_method = AfterMethod(self, attr)
             except AttributeError:
-                continue
-            if is_enabled and self.group == group:
-                if pd_type == PDecoratorType.BeforeMethod:
-                    self.before_method = BeforeMethod(self, attr)
-                elif pd_type == PDecoratorType.AfterMethod:
-                    self.after_method = AfterMethod(self, attr)
+                pass
 
     def get_failed_setup_fixture(self):
         setup_fixture = self.test_group.get_failed_setup_fixture()
