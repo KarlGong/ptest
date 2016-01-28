@@ -74,17 +74,22 @@ def __raise_error(msg, error_msg):
 # -------------------------------------------
 # --------- "assert that" assertion ---------
 # -------------------------------------------
+from numbers import Number
+try:
+    StringTypes = (str, unicode)
+except NameError:
+    StringTypes = (str,)
+
+
 def assert_that(subject):
     if subject is None:
         return _NoneSubject(subject)
-    if isinstance(subject, str):
+    if isinstance(subject, StringTypes):
         return _StrSubject(subject)
     if isinstance(subject, bool):
         return _BoolSubject(subject)
-    if isinstance(subject, int):
-        return _IntSubject(subject)
-    if isinstance(subject, float):
-        return _FloatSubject(subject)
+    if isinstance(subject, Number):
+        return _NumericSubject(subject)
     return _ObjSubject(subject)
 
 
@@ -98,6 +103,7 @@ class _Subject:
         """
             Give a name to the subject.
         """
+
         self._subject_name = name
         return self
 
@@ -108,14 +114,10 @@ class _Subject:
         self._msg = message
         return self
 
-    @property
-    def subject_name(self):
-        if self._subject_name is not None:
-            return self._subject_name
-        return str(self._subject)
-
     def _raise_error(self, partial_error_msg):
-        error_msg = "The subject <%s> %s" % (self.subject_name, partial_error_msg)
+        subject_name = str(self._subject) if self._subject_name is None else self._subject_name
+        subject_type = type(self._subject).__name__
+        error_msg = "The %s <%s> %s" % (subject_type, subject_name, partial_error_msg)
         self._raise_raw_error(error_msg)
 
     def _raise_raw_error(self, error_msg):
@@ -135,14 +137,16 @@ class _ObjSubject(_Subject):
             Fails if the subject is not equal to other obj.
         """
         if not self._subject == other_obj:
-            self._raise_error("is not equal to <%s>." % other_obj)
+            self._raise_error("is not equal to %s <%s>." % (type(other_obj).__name__, other_obj))
+        return self
 
     def is_not_equal_to(self, other_obj):
         """
             Fails if the subject is equal to other obj.
         """
         if self._subject == other_obj:
-            self._raise_error("is equal to <%s>." % other_obj)
+            self._raise_error("is equal to %s <%s>." % (type(other_obj).__name__, other_obj))
+        return self
 
     def is_none(self):
         """
@@ -150,6 +154,7 @@ class _ObjSubject(_Subject):
         """
         if self._subject is not None:
             self._raise_error("is not <None>.")
+        return self
 
     def is_not_none(self):
         """
@@ -157,13 +162,14 @@ class _ObjSubject(_Subject):
         """
         if self._subject is None:
             self._raise_error("is <None>.")
+        return self
 
 class _NoneSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
     def __getattr__(self, item):
-        self._raise_error("is <None>. Cannot perform assertion.")
+        self._raise_error("is <None>. Cannot perform assertion '%s'." % item)
 
 
 class _StrSubject(_ObjSubject):
@@ -176,6 +182,7 @@ class _StrSubject(_ObjSubject):
         """
         if not self._subject == "":
             self._raise_error("is not empty.")
+        return self
 
     def is_not_empty(self):
         """
@@ -183,6 +190,7 @@ class _StrSubject(_ObjSubject):
         """
         if self._subject == "":
             self._raise_error("is empty.")
+        return self
 
     def is_blank(self):
         """
@@ -190,6 +198,7 @@ class _StrSubject(_ObjSubject):
         """
         if not self._subject.strip() == "":
             self._raise_error("is not blank.")
+        return self
 
     def is_not_blank(self):
         """
@@ -197,6 +206,7 @@ class _StrSubject(_ObjSubject):
         """
         if self._subject.strip() == "":
             self._raise_error("is blank.")
+        return self
 
     def has_length(self, expected_length):
         """
@@ -204,6 +214,7 @@ class _StrSubject(_ObjSubject):
         """
         if not len(self._subject) == expected_length:
             self._raise_error("doesn't have a length of <%s>. It is <%s>." % (expected_length, len(self._subject)))
+        return self
 
     def contains(self, string):
         """
@@ -211,6 +222,7 @@ class _StrSubject(_ObjSubject):
         """
         if string not in self._subject:
             self._raise_error("doesn't contain string <%s>." % string)
+        return self
 
     def does_not_contain(self, string):
         """
@@ -218,6 +230,7 @@ class _StrSubject(_ObjSubject):
         """
         if string in self._subject:
             self._raise_error("contains string <%s>." % string)
+        return self
 
     def starts_with(self, string):
         """
@@ -225,6 +238,7 @@ class _StrSubject(_ObjSubject):
         """
         if not self._subject.startswith(string):
             self._raise_error("doesn't start with string <%s>." % string)
+        return self
 
     def ends_with(self, string):
         """
@@ -232,6 +246,7 @@ class _StrSubject(_ObjSubject):
         """
         if not self._subject.endswith(string):
             self._raise_error("doesn't end with string <%s>." % string)
+        return self
 
     def matches(self, regex):
         """
@@ -241,6 +256,7 @@ class _StrSubject(_ObjSubject):
         """
         if not re.compile(regex).search(self._subject):
             self._raise_error("doesn't match regex <%s>." % regex)
+        return self
 
     def does_not_match(self, regex):
         """
@@ -250,6 +266,7 @@ class _StrSubject(_ObjSubject):
         """
         if re.compile(regex).search(self._subject):
             self._raise_error("matches regex <%s>." % regex)
+        return self
 
 
 class _BoolSubject(_ObjSubject):
@@ -262,6 +279,7 @@ class _BoolSubject(_ObjSubject):
         """
         if self._subject is not True:
             self._raise_error("is not <True>.")
+        return self
 
     def is_false(self):
         """
@@ -269,9 +287,10 @@ class _BoolSubject(_ObjSubject):
         """
         if self._subject is not False:
             self._raise_error("is not <False>.")
+        return self
 
 
-class _NumberSubject(_ObjSubject):
+class _NumericSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
@@ -281,6 +300,7 @@ class _NumberSubject(_ObjSubject):
         """
         if self._subject <= other_number:
             self._raise_error("is not greater than <%s>." % other_number)
+        return self
 
     def is_less_than(self, other_number):
         """
@@ -288,6 +308,7 @@ class _NumberSubject(_ObjSubject):
         """
         if self._subject >= other_number:
             self._raise_error("is not less than <%s>." % other_number)
+        return self
 
     def is_at_most(self, other_number):
         """
@@ -295,6 +316,7 @@ class _NumberSubject(_ObjSubject):
         """
         if self._subject > other_number:
             self._raise_error("is greater than <%s>." % other_number)
+        return self
 
     is_less_than_or_equal_to = is_at_most
 
@@ -304,18 +326,51 @@ class _NumberSubject(_ObjSubject):
         """
         if self._subject < other_number:
             self._raise_error("is less than <%s>." % other_number)
+        return self
 
     is_greater_than_or_equal_to = is_at_least
 
+    def is_zero(self):
+        """
+            Fails if the subject is not zero (0).
+        """
+        if self._subject != 0:
+            self._raise_error("is not <0>.")
+        return self
 
-class _IntSubject(_NumberSubject):
-    def __init__(self, subject):
-        _NumberSubject.__init__(self, subject)
+    def is_not_zero(self):
+        """
+            Fails if the subject is zero (0).
+        """
+        if self._subject == 0:
+            self._raise_error("is <0>.")
+        return self
 
+    def is_positive(self):
+        """
+            Fails if the subject is not positive.
+        """
+        if self._subject <= 0:
+            self._raise_error("is not positive.")
+        return self
 
-class _FloatSubject(_NumberSubject):
-    def __init__(self, subject):
-        _NumberSubject.__init__(self, subject)
+    def is_negative(self):
+        """
+            Fails if the subject is not negative.
+        """
+        if self._subject >= 0:
+            self._raise_error("is not negative.")
+        return self
+
+    def is_between(self, low, high):
+        """
+            Fails if the subject is not between low and high.
+
+            Note: low and high are included
+        """
+        if self._subject < low or self._subject > high:
+            self._raise_error("is not between low <%s> and high <%s>" % (low, high))
+        return self
 
 
 
