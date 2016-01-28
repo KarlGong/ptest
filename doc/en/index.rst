@@ -2,7 +2,7 @@
 ================
 ptest is a light test runner for Python. With ptest, you can tag test classes & test cases by decorators, execute test cases by command line, and get clear reports.
 
-Writing a test is typically a two-step process:
+Writing a test in ptest is typically a two-step process:
 
 1. Write the business logic of your test and insert `ptest decorators <#2---decorators>`_ in your code.
 
@@ -618,6 +618,18 @@ You can specify the tags by *tags* attribute.
 
 The default value is ``None``. The value type should be ``Exception Class`` or ``list`` or ``tuple`` or ``dict``.
 
+    ``Exception Class``:
+        expected_exceptions=AttributeError
+
+    Exception Class ``list`` or ``tuple``:
+        | expected_exceptions=[AttributeError, IndexError]
+        | expected_exceptions=(AttributeError, IndexError)
+
+    Exception Class and regular expression of expected message ``dict``:
+        expected_exceptions={AttributeError: '.*object has no attribute.*'}
+
+*Note:* If you want the regex to match the whole exception message, please use ``^`` and ``$`` in the regex.
+
 **Examples:**
 
 You can specify the expected exceptions by *expected_exceptions* attribute.
@@ -729,7 +741,7 @@ This documentation can be obtained by executing ``ptest --help`` in cmd.
 
 3.2 - Code
 ----------
-You can invoke the ptest by code:
+You can invoke ptest by code:
 
 .. code:: python
 
@@ -747,7 +759,7 @@ Find the latest version on github: https://github.com/KarlGong/ptest-pycharm-plu
 
 4 - Test Listeners
 ==================
-ptest provides a listener that allows you to be notified whenever ptest starts/finishs suite/class/group/test.
+ptest provides a listener that allows you to be notified whenever ptest starts/finishes suite/class/group/test.
 Your need to implement class TestListener in ptest.plistener
 
 Create a listener.py under workspace:
@@ -772,7 +784,7 @@ Then use ``-l(--listeners)`` to specify the path of test listener classes
 ================
 5.1 - Success, failure, skipped and assert
 ------------------------------------------
-A test is considered successful if it completed without throwing any exception or if it threw an exception that was expected (see the documentation for the *expected_exceptions* attribute found on the **@Test** decorator).
+A test is considered successful if it completed without throwing any exception or if it threw an exception that was expected (see the documentation for the `expected_exceptions <#2310---expected_exceptions>`_ attribute found on the **@Test** decorator).
 And it will be marked as skipped if its **@BeforeXXX** failed.
 
 Your test methods will typically be made of calls that can throw an exception, or of various assertions (using the Python ``assert`` keyword).  An ``assert`` failing will trigger an ``AssertionError``, which in turn will mark the method as failed.
