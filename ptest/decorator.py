@@ -153,7 +153,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", descr
                 expected_exceptions=(AttributeError, IndexError)
             Exception Class and regular expression of expected message dict:
                 expected_exceptions={AttributeError: '.*object has no attribute.*'}
-        Note: If you want the regex to match the whole exception message, please use "^" and "$" in the regex.
+        Note: If you want to match the entire exception message, just include anchors in the regex pattern.
     :param group: the group that this test belongs to.
     :param description: the description of this test.
     :param timeout: the timeout of this test (in seconds).

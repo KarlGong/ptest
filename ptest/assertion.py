@@ -448,7 +448,7 @@ class _StringSubject(_IterableSubject):
         """
             Fails if the string doesn't match the given regex.
 
-            Note: If you want the regex to match the full string, please use "^" and "$"  in the regex.
+            Note: If you want to match the entire string, just include anchors in the regex pattern.
         """
         if not re.compile(regex).search(self._subject):
             self._raise_error("doesn't match regex <%s>." % regex)
@@ -458,7 +458,7 @@ class _StringSubject(_IterableSubject):
         """
             Fails if the string match the given regex.
 
-            Note: If you want the regex to match the full string, please use "^" and "$"  in the regex.
+            Note: If you want to match the entire string, just include anchors in the regex pattern.
         """
         if re.compile(regex).search(self._subject):
             self._raise_error("matches regex <%s>." % regex)

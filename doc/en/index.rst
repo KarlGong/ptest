@@ -628,7 +628,7 @@ The default value is ``None``. The value type should be ``Exception Class`` or `
     Exception Class and regular expression of expected message ``dict``:
         expected_exceptions={AttributeError: '.*object has no attribute.*'}
 
-*Note:* If you want the regex to match the whole exception message, please use ``^`` and ``$`` in the regex.
+*Note:* If you want to match the entire exception message, just include anchors in the regex pattern.
 
 **Examples:**
 
