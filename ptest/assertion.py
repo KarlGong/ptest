@@ -75,6 +75,7 @@ def __raise_error(msg, error_msg):
 # --------- "assert that" assertion ---------
 # -------------------------------------------
 from numbers import Number
+from datetime import datetime, date
 try:
     StringTypes = (str, unicode)
 except NameError:
@@ -99,6 +100,10 @@ def assert_that(subject):
         return _SetSubject(subject)
     if isinstance(subject, dict):
         return _DictSubject(subject)
+    if isinstance(subject, datetime):
+        return _DateTimeSubject(subject)
+    if isinstance(subject, date):
+        return _DateSubject(subject)
     for subject_type, subject_class in SUBJECT_TYPE_MAP.items():
         if isinstance(subject, subject_type):
             return subject_class(subject)
@@ -548,4 +553,30 @@ class _DictSubject(_CollectionSubject):
         if uncontained_entries:
             self._raise_error("has entries <%s> not in %s <%s>." %
                               (_rb(uncontained_entries), _name(other_dict), other_dict))
+
+
+class _DateSubject(_ObjSubject):
+    def __init__(self, subject):
+        _ObjSubject.__init__(self, subject)
+
+    def is_after(self, other_day):
+        """
+            Fails if the day is not after other day.
+        """
+        if self._subject <= other_day:
+            self._raise_error("is not after <%s>." % other_day)
+        return self
+
+    def is_before(self, other_day):
+        """
+            Fails if the subject is not less than other number.
+        """
+        if self._subject >= other_day:
+            self._raise_error("is not before <%s>." % other_day)
+        return self
+
+
+class _DateTimeSubject(_DateSubject):
+    def __init__(self, subject):
+        _DateSubject.__init__(self, subject)
 
