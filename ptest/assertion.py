@@ -85,13 +85,28 @@ def assert_that(subject):
     if subject is None:
         return _NoneSubject(subject)
     if isinstance(subject, StringTypes):
-        return _StrSubject(subject)
+        return _StringSubject(subject)
     if isinstance(subject, bool):
         return _BoolSubject(subject)
     if isinstance(subject, Number):
         return _NumericSubject(subject)
+    if isinstance(subject, list):
+        return _ListSubject(subject)
+    if isinstance(subject, tuple):
+        return _TupleSubject(subject)
+    if isinstance(subject, set):
+        return _SetSubject(subject)
+    if isinstance(subject, dict):
+        return _DictSubject(subject)
     return _ObjSubject(subject)
 
+# this method is used to format the obj without square brackets
+def _rb(obj):
+    return str(obj)[1:-1]
+
+# this method is used to get the type name of the object
+def _name(obj):
+    return type(obj).__name__
 
 class _Subject:
     def __init__(self, subject):
@@ -115,9 +130,10 @@ class _Subject:
         return self
 
     def _raise_error(self, partial_error_msg):
-        subject_name = str(self._subject) if self._subject_name is None else self._subject_name
-        subject_type = type(self._subject).__name__
-        error_msg = "The %s <%s> %s" % (subject_type, subject_name, partial_error_msg)
+        if self._subject_name is None:
+            error_msg = "Unexpectedly that the %s <%s> %s" % (_name(self._subject), str(self._subject), partial_error_msg)
+        else:
+            error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_name(self._subject), self._subject_name, partial_error_msg)
         self._raise_raw_error(error_msg)
 
     def _raise_raw_error(self, error_msg):
@@ -137,7 +153,7 @@ class _ObjSubject(_Subject):
             Fails if the subject is not equal to other obj.
         """
         if not self._subject == other_obj:
-            self._raise_error("is not equal to %s <%s>." % (type(other_obj).__name__, other_obj))
+            self._raise_error("is not equal to %s <%s>." % (_name(other_obj), other_obj))
         return self
 
     def is_not_equal_to(self, other_obj):
@@ -145,7 +161,7 @@ class _ObjSubject(_Subject):
             Fails if the subject is equal to other obj.
         """
         if self._subject == other_obj:
-            self._raise_error("is equal to %s <%s>." % (type(other_obj).__name__, other_obj))
+            self._raise_error("is equal to %s <%s>." % (_name(other_obj), other_obj))
         return self
 
     def is_none(self):
@@ -164,109 +180,29 @@ class _ObjSubject(_Subject):
             self._raise_error("is <None>.")
         return self
 
+    def is_in(self, iterable):
+        """
+           Fails unless the subject is equal to any element in the given iterable.
+        """
+        if self._subject not in iterable:
+            self._raise_error("is not in %s <%s>." % (_name(iterable), iterable))
+        return self
+
+    def is_not_in(self, iterable):
+        """
+           Fails if the subject is equal to any element in the given iterable.
+        """
+        if self._subject in iterable:
+            self._raise_error("is in %s <%s>" % (_name(iterable), iterable))
+        return self
+
+
 class _NoneSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
     def __getattr__(self, item):
-        self._raise_error("is <None>. Cannot perform assertion '%s'." % item)
-
-
-class _StrSubject(_ObjSubject):
-    def __init__(self, subject):
-        _ObjSubject.__init__(self, subject)
-
-    def is_empty(self):
-        """
-            Fails if the string is not equal to the zero-length "".
-        """
-        if not self._subject == "":
-            self._raise_error("is not empty.")
-        return self
-
-    def is_not_empty(self):
-        """
-            Fails if the string is equal to the zero-length "".
-        """
-        if self._subject == "":
-            self._raise_error("is empty.")
-        return self
-
-    def is_blank(self):
-        """
-            Fails if the string is not blank.
-        """
-        if not self._subject.strip() == "":
-            self._raise_error("is not blank.")
-        return self
-
-    def is_not_blank(self):
-        """
-            Fails if the string is blank.
-        """
-        if self._subject.strip() == "":
-            self._raise_error("is blank.")
-        return self
-
-    def has_length(self, expected_length):
-        """
-            Fails if the string does not have the given length.
-        """
-        if not len(self._subject) == expected_length:
-            self._raise_error("doesn't have a length of <%s>. It is <%s>." % (expected_length, len(self._subject)))
-        return self
-
-    def contains(self, string):
-        """
-           Fails if the string does not contain the given string.
-        """
-        if string not in self._subject:
-            self._raise_error("doesn't contain string <%s>." % string)
-        return self
-
-    def does_not_contain(self, string):
-        """
-            Fails if the string contain the given string.
-        """
-        if string in self._subject:
-            self._raise_error("contains string <%s>." % string)
-        return self
-
-    def starts_with(self, string):
-        """
-            Fails if the string does not start with the given string.
-        """
-        if not self._subject.startswith(string):
-            self._raise_error("doesn't start with string <%s>." % string)
-        return self
-
-    def ends_with(self, string):
-        """
-            Fails if the string does not end with the given string.
-        """
-        if not self._subject.endswith(string):
-            self._raise_error("doesn't end with string <%s>." % string)
-        return self
-
-    def matches(self, regex):
-        """
-            Fails if the string doesn't match the given regex.
-
-            Note: If you want the regex to match the full string, please use "^" and "$"  in the regex.
-        """
-        if not re.compile(regex).search(self._subject):
-            self._raise_error("doesn't match regex <%s>." % regex)
-        return self
-
-    def does_not_match(self, regex):
-        """
-            Fails if the string match the given regex.
-
-            Note: If you want the regex to match the full string, please use "^" and "$"  in the regex.
-        """
-        if re.compile(regex).search(self._subject):
-            self._raise_error("matches regex <%s>." % regex)
-        return self
+        self._raise_raw_error("Cannot perform assertion \"%s\" for <None>." % item)
 
 
 class _BoolSubject(_ObjSubject):
@@ -310,7 +246,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not less than <%s>." % other_number)
         return self
 
-    def is_at_most(self, other_number):
+    def is_less_than_or_equal_to(self, other_number):
         """
             Fails if the subject is greater than other number.
         """
@@ -318,9 +254,9 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is greater than <%s>." % other_number)
         return self
 
-    is_less_than_or_equal_to = is_at_most
+    is_at_most = is_less_than_or_equal_to
 
-    def is_at_least(self, other_number):
+    def is_greater_than_or_equal_to(self, other_number):
         """
             Fails if the subject is less than other number.
         """
@@ -328,7 +264,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is less than <%s>." % other_number)
         return self
 
-    is_greater_than_or_equal_to = is_at_least
+    is_at_least = is_greater_than_or_equal_to
 
     def is_zero(self):
         """
@@ -372,9 +308,180 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not between low <%s> and high <%s>" % (low, high))
         return self
 
+class _IterableSubject(_ObjSubject):
+    def __init__(self, subject):
+        _ObjSubject.__init__(self, subject)
+
+    def is_empty(self):
+        """
+            Fails if the subject is empty.
+        """
+        if len(self._subject) != 0:
+            self._raise_error("is not empty.")
+        return self
+
+    def is_not_empty(self):
+        """
+            Fails if the subject is not empty.
+        """
+        if len(self._subject) == 0:
+            self._raise_error("is empty.")
+        return self
+
+    def has_length(self, expected_length):
+        """
+            Fails if the subject does not have the given length.
+        """
+        if not len(self._subject) == expected_length:
+            self._raise_error("doesn't have a length of <%s>. It is <%s>." % (expected_length, len(self._subject)))
+        return self
+
+    def contains(self, obj):
+        """
+            Fails if the subject doesn't contain the given object.
+        """
+        if obj not in self._subject:
+            self._raise_error("doesn't contain %s <%s>." % (_name(obj), obj))
+        return self
+
+    def does_not_contain(self, obj):
+        """
+            Fails if the subject contain the given object.
+        """
+        if obj in self._subject:
+            self._raise_error("contains %s <%s>." % (_name(obj), obj))
+        return self
+
+    def contains_all(self, *objs):
+        """
+            Fails unless the subject contains all of the given objects.
+        """
+        unmatched_objs = [obj for obj in objs if obj not in self._subject]
+        if unmatched_objs:
+            self._raise_error("doesn't contain elements <%s> in <%s>." % (_rb(unmatched_objs), _rb(list(objs))))
+        return self
+
+    def contains_any(self, *objs):
+        """
+            Fails unless the subject contains any of the given objects.
+        """
+        matched_objs = [obj for obj in objs if obj in self._subject]
+        if not matched_objs:
+            self._raise_error("doesn't contain any element in <%s>." % _rb(list(objs)))
+        return self
+
+    def contains_none(self, *objs):
+        """
+            Fails if the string contains any of the given strings.
+        """
+        matched_objs = [obj for obj in objs if obj in self._subject]
+        if matched_objs:
+            self._raise_error("contains elements <%s> in <%s>." % (_rb(matched_objs), _rb(list(objs))))
+        return self
 
 
+class _CollectionSubject(_IterableSubject):
+    def __init__(self, subject):
+        _IterableSubject.__init__(self, subject)
+
+    def is_equal_to(self, other_collection):
+        pass
+
+    def is_super_of(self, other_collection):
+        pass
+
+    def is_sub_of(self, other_collection):
+        pass
 
 
+class _StringSubject(_IterableSubject):
+    def __init__(self, subject):
+        _IterableSubject.__init__(self, subject)
 
+    def is_blank(self):
+        """
+            Fails if the string is not blank.
+        """
+        if not self._subject.strip() == "":
+            self._raise_error("is not blank.")
+        return self
+
+    def is_not_blank(self):
+        """
+            Fails if the string is blank.
+        """
+        if self._subject.strip() == "":
+            self._raise_error("is blank.")
+        return self
+
+    def starts_with(self, string):
+        """
+            Fails if the string does not start with the given string.
+        """
+        if not self._subject.startswith(string):
+            self._raise_error("doesn't start with string <%s>." % string)
+        return self
+
+    def ends_with(self, string):
+        """
+            Fails if the string does not end with the given string.
+        """
+        if not self._subject.endswith(string):
+            self._raise_error("doesn't end with string <%s>." % string)
+        return self
+
+    def matches(self, regex):
+        """
+            Fails if the string doesn't match the given regex.
+
+            Note: If you want the regex to match the full string, please use "^" and "$"  in the regex.
+        """
+        if not re.compile(regex).search(self._subject):
+            self._raise_error("doesn't match regex <%s>." % regex)
+        return self
+
+    def does_not_match(self, regex):
+        """
+            Fails if the string match the given regex.
+
+            Note: If you want the regex to match the full string, please use "^" and "$"  in the regex.
+        """
+        if re.compile(regex).search(self._subject):
+            self._raise_error("matches regex <%s>." % regex)
+        return self
+
+
+class _ListSubject(_CollectionSubject):
+    def __init__(self, subject):
+        _CollectionSubject.__init__(self, subject)
+
+    def are_elements_equal_to(self, other_list):
+        pass
+
+
+class _TupleSubject(_CollectionSubject):
+    def __init__(self, subject):
+        _CollectionSubject.__init__(self, subject)
+
+    def are_elements_equal_to(self, other_list):
+        pass
+
+
+class _SetSubject(_CollectionSubject):
+    def __init__(self, subject):
+        _CollectionSubject.__init__(self, subject)
+
+
+class _DictSubject(_CollectionSubject):
+    def __init__(self, subject):
+        _CollectionSubject.__init__(self, subject)
+
+    def is_equal_to(self, other_dict):
+        pass
+
+    def is_super_of(self, other_dict):
+        pass
+
+    def is_sub_of(self, other_dict):
+        pass
 
