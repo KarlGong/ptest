@@ -42,13 +42,17 @@ class PReporter:
     def __log(self, level, msg):
         from . import testexecutor
 
-        running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
-        running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})
+        try:
+            running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
+        except AttributeError:
+            sys.stdout.write("[%s] %s\n" % (logging.getLevelName(level), msg))
+        else:
+            running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})
 
-        if config.get_option("verbose"):
-            # output to pconsole
-            message = "[%s] %s" % (running_test_fixture.full_name, msg)
-            pconsole.write_line(message)
+            if config.get_option("verbose"):
+                # output to pconsole
+                message = "[%s] %s" % (running_test_fixture.full_name, msg)
+                pconsole.write_line(message)
 
 
 preporter = PReporter()
