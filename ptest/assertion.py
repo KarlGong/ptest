@@ -131,7 +131,7 @@ class _Subject:
 
     def _raise_error(self, partial_error_msg):
         if self._subject_name is None:
-            error_msg = "Unexpectedly that the %s <%s> %s" % (_name(self._subject), str(self._subject), partial_error_msg)
+            error_msg = "Unexpectedly that the %s <%s> %s" % (_name(self._subject), self._subject, partial_error_msg)
         else:
             error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_name(self._subject), self._subject_name, partial_error_msg)
         self._raise_raw_error(error_msg)
@@ -356,17 +356,17 @@ class _IterableSubject(_ObjSubject):
         """
             Fails unless the subject contains all of the given objects.
         """
-        unmatched_objs = [obj for obj in objs if obj not in self._subject]
-        if unmatched_objs:
-            self._raise_error("doesn't contain elements <%s> in <%s>." % (_rb(unmatched_objs), _rb(list(objs))))
+        uncontained_objs = [obj for obj in objs if obj not in self._subject]
+        if uncontained_objs:
+            self._raise_error("doesn't contain elements <%s> in <%s>." % (_rb(uncontained_objs), _rb(list(objs))))
         return self
 
     def contains_any(self, *objs):
         """
             Fails unless the subject contains any of the given objects.
         """
-        matched_objs = [obj for obj in objs if obj in self._subject]
-        if not matched_objs:
+        contained_objs = [obj for obj in objs if obj in self._subject]
+        if not contained_objs:
             self._raise_error("doesn't contain any element in <%s>." % _rb(list(objs)))
         return self
 
@@ -374,9 +374,9 @@ class _IterableSubject(_ObjSubject):
         """
             Fails if the string contains any of the given strings.
         """
-        matched_objs = [obj for obj in objs if obj in self._subject]
-        if matched_objs:
-            self._raise_error("contains elements <%s> in <%s>." % (_rb(matched_objs), _rb(list(objs))))
+        contained_objs = [obj for obj in objs if obj in self._subject]
+        if contained_objs:
+            self._raise_error("contains elements <%s> in <%s>." % (_rb(contained_objs), _rb(list(objs))))
         return self
 
 
@@ -384,14 +384,23 @@ class _CollectionSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
-    def is_equal_to(self, other_collection):
-        pass
-
     def is_super_of(self, other_collection):
-        pass
+        """
+            Fails unless the collection contains all elements in other collection.
+        """
+        uncontained_objs = [obj for obj in other_collection if obj not in self._subject]
+        if uncontained_objs:
+            self._raise_error("doesn't contain elements <%s> in %s <%s>." %
+                              (_rb(uncontained_objs), _name(other_collection), other_collection))
 
     def is_sub_of(self, other_collection):
-        pass
+        """
+            Fails unless all elements in collection are in other collection.
+        """
+        uncontained_objs = [obj for obj in self._subject if obj not in other_collection]
+        if uncontained_objs:
+            self._raise_error("has elements <%s> not in %s <%s>." %
+                              (_rb(uncontained_objs), _name(other_collection), other_collection))
 
 
 class _StringSubject(_IterableSubject):
@@ -455,16 +464,23 @@ class _ListSubject(_CollectionSubject):
     def __init__(self, subject):
         _CollectionSubject.__init__(self, subject)
 
-    def are_elements_equal_to(self, other_list):
-        pass
-
+    def has_same_elements_as(self, other_list):
+        """
+            Fails unless the list has the same elements as other list.
+        """
+        self.is_super_of(other_list)
+        self.is_sub_of(other_list)
 
 class _TupleSubject(_CollectionSubject):
     def __init__(self, subject):
         _CollectionSubject.__init__(self, subject)
 
-    def are_elements_equal_to(self, other_list):
-        pass
+    def has_same_elements_as(self, other_tuple):
+        """
+            Fails unless the list has the same elements as other list.
+        """
+        self.is_super_of(other_tuple)
+        self.is_sub_of(other_tuple)
 
 
 class _SetSubject(_CollectionSubject):
@@ -476,7 +492,16 @@ class _DictSubject(_CollectionSubject):
     def __init__(self, subject):
         _CollectionSubject.__init__(self, subject)
 
-    def is_equal_to(self, other_dict):
+    def contains_key(self, key):
+        pass
+
+    def does_not_contain_key(self, key):
+        pass
+
+    def contains_entry(self, key, value):
+        pass
+
+    def does_not_contain_entry(self, key, value):
         pass
 
     def is_super_of(self, other_dict):
