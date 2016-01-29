@@ -80,6 +80,7 @@ try:
 except NameError:
     StringTypes = (str,)
 
+SUBJECT_TYPE_MAP = {}
 
 def assert_that(subject):
     if subject is None:
@@ -98,6 +99,9 @@ def assert_that(subject):
         return _SetSubject(subject)
     if isinstance(subject, dict):
         return _DictSubject(subject)
+    for subject_type, subject_class in SUBJECT_TYPE_MAP.items():
+        if isinstance(subject, subject_type):
+            return subject_class(subject)
     return _ObjSubject(subject)
 
 # this method is used to format the obj without square brackets
@@ -308,6 +312,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not between low <%s> and high <%s>" % (low, high))
         return self
 
+
 class _IterableSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
@@ -411,7 +416,7 @@ class _StringSubject(_IterableSubject):
         """
             Fails if the string is not blank.
         """
-        if not self._subject.strip() == "":
+        if len(self._subject.strip()) != 0:
             self._raise_error("is not blank.")
         return self
 
@@ -419,7 +424,7 @@ class _StringSubject(_IterableSubject):
         """
             Fails if the string is blank.
         """
-        if self._subject.strip() == "":
+        if len(self._subject.strip()) == 0:
             self._raise_error("is blank.")
         return self
 
@@ -471,6 +476,7 @@ class _ListSubject(_CollectionSubject):
         self.is_super_of(other_list)
         self.is_sub_of(other_list)
 
+
 class _TupleSubject(_CollectionSubject):
     def __init__(self, subject):
         _CollectionSubject.__init__(self, subject)
@@ -493,20 +499,53 @@ class _DictSubject(_CollectionSubject):
         _CollectionSubject.__init__(self, subject)
 
     def contains_key(self, key):
-        pass
+        """
+            Fails if the dict doesn't contain the given key.
+        """
+        if key not in self._subject:
+            self._raise_error("doesn't contain key %s <%s>." % (_name(key), key))
+        return self
 
     def does_not_contain_key(self, key):
-        pass
+        """
+            Fails if the dict contains the given key.
+        """
+        if key in self._subject:
+            self._raise_error("contains key %s <%s>." % (_name(key), key))
+        return self
 
     def contains_entry(self, key, value):
-        pass
+        """
+           Fails if the dict doesn't contain the given entry.
+        """
+        if (key, value) not in self._subject.items():
+            self._raise_error("doesn't contain entry, key: %s <%s>, value: %s <%s>." % (_name(key), key, _name(value), value))
+        return self
 
     def does_not_contain_entry(self, key, value):
-        pass
+        """
+            Fails if the dict contain the given entry.
+        """
+        if (key, value) in self._subject.items():
+            self._raise_error("contains entry, key: %s <%s>, value: %s <%s>." % (_name(key), key, _name(value), value))
+        return self
 
     def is_super_of(self, other_dict):
-        pass
+        """
+            Fails unless the collection contains all elements in other collection.
+        """
+        uncontained_entries = [entry for entry in other_dict.items() if entry not in self._subject.items()]
+        if uncontained_entries:
+            self._raise_error("doesn't contain entries <%s> in %s <%s>." %
+                              (_rb(uncontained_entries), _name(other_dict), other_dict))
+
 
     def is_sub_of(self, other_dict):
-        pass
+        """
+            Fails unless all elements in collection are in other collection.
+        """
+        uncontained_entries = [entry for entry in self._subject.items() if entry not in other_dict.items()]
+        if uncontained_entries:
+            self._raise_error("has entries <%s> not in %s <%s>." %
+                              (_rb(uncontained_entries), _name(other_dict), other_dict))
 
