@@ -362,7 +362,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("contains %s <%s>." % (_name(obj), obj))
         return self
 
-    def contains_all(self, *objs):
+    def contains_all_of(self, *objs):
         """
             Fails unless the subject contains all of the given objects.
         """
@@ -371,7 +371,16 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't contain elements <%s> in <%s>." % (_rb(uncontained_objs), _rb(list(objs))))
         return self
 
-    def contains_any(self, *objs):
+    def contains_all_in(self, iterable):
+        """
+            Fails unless the subject contains all in the given iterable.
+        """
+        uncontained_objs = [obj for obj in iterable if obj not in self._subject]
+        if uncontained_objs:
+            self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_rb(uncontained_objs), _name(iterable), iterable))
+        return self
+
+    def contains_any_of(self, *objs):
         """
             Fails unless the subject contains any of the given objects.
         """
@@ -380,13 +389,31 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't contain any element in <%s>." % _rb(list(objs)))
         return self
 
-    def contains_none(self, *objs):
+    def contains_any_in(self, iterable):
         """
-            Fails if the string contains any of the given strings.
+            Fails unless the subject contains any in the given iterable.
+        """
+        contained_objs = [obj for obj in iterable if obj in self._subject]
+        if not contained_objs:
+            self._raise_error("doesn't contain any element in %s <%s>." % (_name(iterable), iterable))
+        return self
+
+    def contains_none_of(self, *objs):
+        """
+            Fails if the subject contains any of the given objects.
         """
         contained_objs = [obj for obj in objs if obj in self._subject]
         if contained_objs:
             self._raise_error("contains elements <%s> in <%s>." % (_rb(contained_objs), _rb(list(objs))))
+        return self
+
+    def contains_none_in(self, iterable):
+        """
+            Fails if the subject contains any in the given iterable.
+        """
+        contained_objs = [obj for obj in iterable if obj in self._subject]
+        if contained_objs:
+            self._raise_error("contains elements <%s> in %s <%s>." % (_rb(contained_objs), _name(iterable), iterable))
         return self
 
 
