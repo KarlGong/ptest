@@ -92,10 +92,8 @@ def assert_that(subject):
         return _BoolSubject(subject)
     if isinstance(subject, Number):
         return _NumericSubject(subject)
-    if isinstance(subject, list):
-        return _ListSubject(subject)
-    if isinstance(subject, tuple):
-        return _TupleSubject(subject)
+    if isinstance(subject, (list, tuple)):
+        return _ListOrTupleSubject(subject)
     if isinstance(subject, set):
         return _SetSubject(subject)
     if isinstance(subject, dict):
@@ -474,28 +472,28 @@ class _StringSubject(_IterableSubject):
         return self
 
 
-class _ListSubject(_IterableSubject):
+class _ListOrTupleSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
-    def has_same_elements_as(self, other_list):
+    def has_same_elements_as(self, other_list_or_tuple):
         """
-            Fails unless the list has the same elements as other list.
+            Fails unless this list/tuple has the same elements as other list/tuple.
         """
-        uncontained_objs = [obj for obj in other_list if obj not in self._subject]
+        uncontained_objs = [obj for obj in other_list_or_tuple if obj not in self._subject]
         if uncontained_objs:
             self._raise_error("doesn't contain elements <%s> in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_list), other_list))
+                              (_rb(uncontained_objs), _name(other_list_or_tuple), other_list_or_tuple))
             
-        uncontained_objs = [obj for obj in self._subject if obj not in other_list]
+        uncontained_objs = [obj for obj in self._subject if obj not in other_list_or_tuple]
         if uncontained_objs:
             self._raise_error("contains elements <%s> not in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_list), other_list))
+                              (_rb(uncontained_objs), _name(other_list_or_tuple), other_list_or_tuple))
         return self
 
     def contains_duplicates(self):
         """
-            Fails if the list does not contain duplicate elements.
+            Fails if this list/tuple does not contain duplicate elements.
         """
         if len(self._subject) == len(set(self._subject)):
             self._raise_error("doesn't contain duplicate elements.")
@@ -503,7 +501,7 @@ class _ListSubject(_IterableSubject):
 
     def does_not_contain_duplicates(self):
         """
-            Fails if the list contains duplicate elements.
+            Fails if this list/tuple contains duplicate elements.
         """
         element_counter = {}
         for element in self._subject:
@@ -516,48 +514,6 @@ class _ListSubject(_IterableSubject):
             self._raise_error("contains duplicate elements <%s>." % _rb(duplicates))
         return self
 
-
-class _TupleSubject(_IterableSubject):
-    def __init__(self, subject):
-        _IterableSubject.__init__(self, subject)
-
-    def has_same_elements_as(self, other_tuple):
-        """
-            Fails unless the tuple has the same elements as other tuple.
-        """
-        uncontained_objs = [obj for obj in other_tuple if obj not in self._subject]
-        if uncontained_objs:
-            self._raise_error("doesn't contain elements <%s> in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_tuple), other_tuple))
-            
-        uncontained_objs = [obj for obj in self._subject if obj not in other_tuple]
-        if uncontained_objs:
-            self._raise_error("contains elements <%s> not in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_tuple), other_tuple))
-        return self
-
-    def contains_duplicates(self):
-        """
-            Fails if the tuple does not contain duplicate elements.
-        """
-        if len(self._subject) == len(set(self._subject)):
-            self._raise_error("doesn't contain duplicate elements.")
-        return self
-
-    def does_not_contain_duplicates(self):
-        """
-            Fails if the tuple contains duplicate elements.
-        """
-        element_counter = {}
-        for element in self._subject:
-            if element in element_counter:
-                element_counter[element] += 1
-            else:
-                element_counter[element] = 0
-        duplicates = [element for element, count in element_counter.items() if count > 0]
-        if duplicates:
-            self._raise_error("contains duplicate elements <%s>." % _rb(duplicates))
-        return self
 
 
 class _SetSubject(_IterableSubject):
