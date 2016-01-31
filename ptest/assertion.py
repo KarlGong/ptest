@@ -3,7 +3,7 @@ import re
 __author__ = 'karl.gong'
 
 # -------------------------------------------
-# ----------- standard assertion ------------
+# ------------ simple assertion -------------
 # -------------------------------------------
 def assert_true(actual, msg=""):
     if actual is not True:

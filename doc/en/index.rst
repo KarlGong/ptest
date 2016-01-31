@@ -803,6 +803,8 @@ Here is an example test method:
 
 ptest also provides an assertion module which lets you perform assertions on complex objects:
 
+simple assertion:
+
 .. code:: python
 
     from ptest.decorator import TestClass, Test
@@ -813,6 +815,19 @@ ptest also provides an assertion module which lets you perform assertions on com
         @Test()
         def test(self):
             assert_list_elements_equal([1,2], [2,1,1])
+
+``assert_that`` assertion:
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test
+    from ptest.assertion import assert_that
+
+    @TestClass()
+    class PTestClass:
+        @Test()
+        def test(self):
+            assert_that([1,2,3]).contains(1).does_not_contain(4)
 
 5.2 - Logging and results
 =========================
