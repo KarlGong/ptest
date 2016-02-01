@@ -205,7 +205,7 @@ class _ObjSubject(_Subject):
 
     def s(self, attribute_name):
         """
-            Get the attribute of the subject. If the attribute does not exist, raise AttributeError.
+            Assert the attribute of this subject. If the attribute does not exist, raise AttributeError.
         """
         if not hasattr(self._subject, attribute_name):
             self._raise_error("doesn't have attribute <%s>." % attribute_name, error=AttributeError)
@@ -424,13 +424,13 @@ class _IterableSubject(_ObjSubject):
 
     def length(self):
         """
-            Get the length of the subject.
+            Assert the length of this subject.
         """
         return assert_that(len(self._subject))
 
     def each(self):
         """
-            For each obj in the subject.
+            For each obj in this subject.
         """
         return _IterableEachSubject(self._subject)
 
@@ -441,7 +441,7 @@ class _IterableEachSubject:
 
     def __getattr__(self, item):
         def each(*args, **kwargs):
-            if item in ["length", "index", "s"]:
+            if item in ["length", "index", "key", "s"]:
                 iterable_attrs = []
                 for subject in self._iterable:
                     iterable_attrs.append(getattr(assert_that(subject), item)(*args, **kwargs)._subject)
@@ -560,8 +560,10 @@ class _ListOrTupleSubject(_IterableSubject):
 
     def index(self, index):
         """
-            Get the obj of the subject by index.
+            Assert the obj of this list/tuple by index. If index doesn't exist, raise IndexError.
         """
+        if index >= len(self._subject) or index < 0:
+            self._raise_error("has no object of index <%s>." % index, error=IndexError)
         return assert_that(self._subject[index])
 
 
@@ -645,6 +647,14 @@ class _DictSubject(_IterableSubject):
             self._raise_error("contains entries <%s> not in %s <%s>." %
                               (_rb(uncontained_entries), _name(other_dict), other_dict))
         return self
+
+    def key(self, key):
+        """
+            Assert the value of this dict by key. If key doesn't exist, raise KeyError
+        """
+        if key not in self._subject:
+            self._raise_error("doesn't contain key %s <%s>." % (_name(key), key), error=KeyError)
+        return assert_that(self._subject[key])
 
     def each(self):
         """
