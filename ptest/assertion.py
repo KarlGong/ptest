@@ -115,7 +115,7 @@ def _rb(obj):
 def _name(obj):
     return type(obj).__name__
 
-class _Subject:
+class _Subject(object):
     def __init__(self, subject):
         self._subject = subject
         self._subject_name = None
@@ -154,6 +154,27 @@ class _Subject:
 class _ObjSubject(_Subject):
     def __init__(self, subject):
         _Subject.__init__(self, subject)
+
+    def is_instance_of(self, class_or_type_or_tuple):
+        """
+            Fails if the subject is not an instance of given class or type or tuple of types.
+
+            Assert whether an object is an instance of a class or of a subclass thereof.
+            With a type as second argument, return whether that is the object's type.
+            The form using a tuple, is_instance_of(x, (A, B, ...)), is a shortcut for
+            is_instance_of(x, A) or is_instance_of(x, B) or ... (etc.).
+        """
+        if not isinstance(self._subject, class_or_type_or_tuple):
+            self._raise_error("is not instance of <%s>." % _rb(class_or_type_or_tuple))
+        return self
+
+    def is_type_of(self, type_):
+        """
+           Fails if the subject is not of given type.
+        """
+        if type(self._subject) is not type_:
+            self._raise_error("is not type of %s." % type_)
+        return self
 
     def is_equal_to(self, other_obj):
         """
@@ -435,25 +456,25 @@ class _IterableSubject(_ObjSubject):
         return _IterableEachSubject(self._subject)
 
 
-class _IterableEachSubject:
-    def __init__(self, iterable):
-        self._iterable = iterable
+class _IterableEachSubject(object):
+    def __init__(self, iterable_subject):
+        self.__iterable_subject = iterable_subject
 
     def __getattr__(self, item):
         def each(*args, **kwargs):
             if item in ["length", "index", "key", "s"]:
-                iterable_attrs = []
-                for subject in self._iterable:
-                    iterable_attrs.append(getattr(assert_that(subject), item)(*args, **kwargs)._subject)
-                return _IterableEachSubject(iterable_attrs)
+                iterable_subject = []
+                for subject in self.__iterable_subject:
+                    iterable_subject.append(getattr(assert_that(subject), item)(*args, **kwargs)._subject)
+                return _IterableEachSubject(iterable_subject)
             elif item in ["each"]:
-                iterable_attrs = []
-                for subject in self._iterable:
-                    for inner_subject in subject:
-                        iterable_attrs.append(inner_subject)
-                return _IterableEachSubject(iterable_attrs)
+                iterable_subject = []
+                for iterable in self.__iterable_subject:
+                    for subject in iterable:
+                        iterable_subject.append(subject)
+                return _IterableEachSubject(iterable_subject)
             else:
-                for subject in self._iterable:
+                for subject in self.__iterable_subject:
                     getattr(assert_that(subject), item)(*args, **kwargs)
                 return self
         return each
