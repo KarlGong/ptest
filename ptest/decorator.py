@@ -212,7 +212,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", descr
     return handle_func
 
 
-def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0, **custom_args):
+def AfterMethod(enabled=True, always_run=True, group="DEFAULT", description="", timeout=0, **custom_args):
     """
         The AfterMethod test fixture, it will be executed after test finished.
 
@@ -239,7 +239,7 @@ def AfterMethod(enabled=True, always_run=False, group="DEFAULT", description="",
     return handle_func
 
 
-def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", timeout=0, **custom_args):
+def AfterGroup(enabled=True, always_run=True, group="DEFAULT", description="", timeout=0, **custom_args):
     """
         The AfterGroup test fixture, it will be executed after test group finished.
 
@@ -266,7 +266,7 @@ def AfterGroup(enabled=True, always_run=False, group="DEFAULT", description="", 
     return handle_func
 
 
-def AfterClass(enabled=True, always_run=False, description="", timeout=0, **custom_args):
+def AfterClass(enabled=True, always_run=True, description="", timeout=0, **custom_args):
     """
         The AfterClass test fixture, it will be executed after test class finished.
 
@@ -291,7 +291,7 @@ def AfterClass(enabled=True, always_run=False, description="", timeout=0, **cust
     return handle_func
 
 
-def AfterSuite(enabled=True, always_run=False, description="", timeout=0, **custom_args):
+def AfterSuite(enabled=True, always_run=True, description="", timeout=0, **custom_args):
     """
         The AfterSuite test fixture, it will be executed after test suite finished.
 

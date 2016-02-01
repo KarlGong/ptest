@@ -438,7 +438,7 @@ If the firefox is not setup in 30 seconds, the **@BeforeMethod** will be timed o
 ~~~~~~~~~~~~~~~~~~
 *always_run* attribute is for all **@AfterXXX** decorators. If set to ``true``, the decorated method will be run even if its corresponding **@BeforeXXX** is failed. Otherwise, the decorated method will be skipped.
 
-The default value is ``False``. The value type should be ``bool``.
+The default value is ``True``. The value type should be ``bool``.
 
 **Examples:**
 
@@ -460,7 +460,7 @@ The **@AfterMethod** will be run even if **@BeforeMethod** if failed.
         def test(self):
             assert_equals(1, self.expected)
 
-        @AfterMethod(always_run=True)
+        @AfterMethod()
         def teardown(self):
             self.expected = None
 
