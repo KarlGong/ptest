@@ -4,6 +4,8 @@ Change Log
 
 - Add documentation for ptest: https://github.com/KarlGong/ptest/wiki/documentation
 
+- Add "assert_that" assertion.
+
 - Ignore the test group if no group features are used.
 
 - Support run_group for @TestClass.
