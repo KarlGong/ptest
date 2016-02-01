@@ -107,7 +107,7 @@ def assert_that(subject):
             return subject_class(subject)
     return _ObjSubject(subject)
 
-# this method is used to format the obj without square brackets
+# this method is used to format the obj without brackets
 def _rb(obj):
     return str(obj)[1:-1]
 
@@ -136,19 +136,19 @@ class _Subject:
         self._msg = message
         return self
 
-    def _raise_error(self, partial_error_msg):
+    def _raise_error(self, partial_error_msg, error=AssertionError):
         if self._subject_name is None:
             error_msg = "Unexpectedly that the %s <%s> %s" % (_name(self._subject), self._subject, partial_error_msg)
         else:
             error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_name(self._subject), self._subject_name, partial_error_msg)
-        self._raise_raw_error(error_msg)
+        self._raise_raw_error(error_msg, error)
 
-    def _raise_raw_error(self, error_msg):
+    def _raise_raw_error(self, error_msg, error=AssertionError):
         if self._msg:
             raise_msg = "%s\n%s" % (self._msg, error_msg)
         else:
             raise_msg = "%s" % error_msg
-        raise AssertionError(raise_msg)
+        raise error(raise_msg)
 
 
 class _ObjSubject(_Subject):
@@ -203,13 +203,21 @@ class _ObjSubject(_Subject):
             self._raise_error("is in %s <%s>" % (_name(iterable), iterable))
         return self
 
+    def s(self, attribute_name):
+        """
+            Get the attribute of the subject. If the attribute does not exist, raise AttributeError.
+        """
+        if not hasattr(self._subject, attribute_name):
+            self._raise_error("doesn't have attribute <%s>." % attribute_name, error=AttributeError)
+        return assert_that(getattr(self._subject, attribute_name))
+
 
 class _NoneSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
     def __getattr__(self, item):
-        self._raise_raw_error("Cannot perform assertion \"%s\" for <None>." % item)
+        self._raise_raw_error("Cannot perform assertion \"%s\" for <None>." % item, error=AttributeError)
 
 
 class _BoolSubject(_ObjSubject):
@@ -414,6 +422,42 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("contains elements <%s> in %s <%s>." % (_rb(contained_objs), _name(iterable), iterable))
         return self
 
+    def length(self):
+        """
+            Get the length of the subject.
+        """
+        return assert_that(len(self._subject))
+
+    def each(self):
+        """
+            For each obj in the subject.
+        """
+        return _IterableEachSubject(self._subject)
+
+
+class _IterableEachSubject:
+    def __init__(self, iterable):
+        self._iterable = iterable
+
+    def __getattr__(self, item):
+        def each(*args, **kwargs):
+            if item in ["length", "index", "s"]:
+                iterable_attrs = []
+                for subject in self._iterable:
+                    iterable_attrs.append(getattr(assert_that(subject), item)(*args, **kwargs)._subject)
+                return _IterableEachSubject(iterable_attrs)
+            elif item in ["each"]:
+                iterable_attrs = []
+                for subject in self._iterable:
+                    for inner_subject in subject:
+                        iterable_attrs.append(inner_subject)
+                return _IterableEachSubject(iterable_attrs)
+            else:
+                for subject in self._iterable:
+                    getattr(assert_that(subject), item)(*args, **kwargs)
+                return self
+        return each
+
 
 class _StringSubject(_IterableSubject):
     def __init__(self, subject):
@@ -508,12 +552,17 @@ class _ListOrTupleSubject(_IterableSubject):
             if element in element_counter:
                 element_counter[element] += 1
             else:
-                element_counter[element] = 0
-        duplicates = [element for element, count in element_counter.items() if count > 0]
+                element_counter[element] = 1
+        duplicates = [element for element, count in element_counter.items() if count > 1]
         if duplicates:
             self._raise_error("contains duplicate elements <%s>." % _rb(duplicates))
         return self
 
+    def index(self, index):
+        """
+            Get the obj of the subject by index.
+        """
+        return assert_that(self._subject[index])
 
 
 class _SetSubject(_IterableSubject):
@@ -587,7 +636,6 @@ class _DictSubject(_IterableSubject):
                               (_rb(uncontained_entries), _name(other_dict), other_dict))
         return self
 
-
     def is_sub_of(self, other_dict):
         """
             Fails unless all entries of this dict are in other dict.
@@ -597,6 +645,12 @@ class _DictSubject(_IterableSubject):
             self._raise_error("contains entries <%s> not in %s <%s>." %
                               (_rb(uncontained_entries), _name(other_dict), other_dict))
         return self
+
+    def each(self):
+        """
+            For each entry in this dict.
+        """
+        return _IterableEachSubject(self._subject.items())
 
 
 class _DateSubject(_ObjSubject):
