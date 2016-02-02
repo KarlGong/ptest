@@ -280,39 +280,26 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
         windowWidth    = $(window).width();
         windowHeight   = $(window).height();
-        maxImageWidth  = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
-        maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
-
-          // is rotated 90?
+          // Is rotated 90?
           if (rotate % 180 == 0) {
-              // Is there a fitting issue?
-              if ((preloader.width > maxImageWidth) || (preloader.height > maxImageHeight)) {
-                  if ((preloader.width / maxImageWidth) > (preloader.height / maxImageHeight)) {
-                      imageWidth = maxImageWidth;
-                      imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
-                      $image.width(imageWidth);
-                      $image.height(imageHeight);
-                  } else {
-                      imageHeight = maxImageHeight;
-                      imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
-                      $image.width(imageWidth);
-                      $image.height(imageHeight);
-                  }
-              }
+              maxImageWidth = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
+              maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
           } else {
-              // Is there a fitting issue?
-                 if ((preloader.width > maxImageHeight) || (preloader.height > maxImageWidth)) {
-                  if ((preloader.width / maxImageHeight) > (preloader.height / maxImageWidth)) {
-                      imageWidth = maxImageHeight;
-                      imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
-                      $image.width(imageWidth);
-                      $image.height(imageHeight);
-                  } else {
-                      imageHeight = maxImageWidth;
-                      imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
-                      $image.width(imageWidth);
-                      $image.height(imageHeight);
-                  }
+              maxImageWidth = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
+              maxImageHeight = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
+          }
+          // Is there a fitting issue?
+          if ((preloader.width > maxImageWidth) || (preloader.height > maxImageHeight)) {
+              if ((preloader.width / maxImageWidth) > (preloader.height / maxImageHeight)) {
+                  imageWidth = maxImageWidth;
+                  imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
+                  $image.width(imageWidth);
+                  $image.height(imageHeight);
+              } else {
+                  imageHeight = maxImageHeight;
+                  imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
+                  $image.width(imageWidth);
+                  $image.height(imageHeight);
               }
           }
       }
@@ -322,16 +309,16 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         switch(rotate) {
             case 0: self.sizeContainer($image.width(), $image.height()); break;
             case 90:  $image.css({
-                    'transform-origin': $image.height() * 50 / $image.width() + '% 50% 0px'
+                    'transform-origin': $image.height() * 50 / $image.width() + '% 50%'
                 });self.sizeContainer($image.height(), $image.width());break;
             case 180:
                 $image.css({
-                    'transform-origin': '50% 50% 0px'
+                    'transform-origin': '50% 50%'
                 });
                 self.sizeContainer($image.width(), $image.height()); break;
             case 270:
                 $image.css({
-                     'transform-origin': '50% ' + $image.width() * 50 / $image.height() + '% 0px'
+                     'transform-origin': '50% ' + $image.width() * 50 / $image.height() + '%'
                 });self.sizeContainer($image.height(), $image.width());break;
         }
     };
