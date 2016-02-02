@@ -61,7 +61,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     fadeDuration: 500,
     fitImagesInViewport: true,
     positionFromTop: 50,
-    resizeDuration: 700,
+    resizeDuration: 0,
     showImageNumberLabel: true,
     wrapAround: false,
     disableScrolling: false
@@ -94,7 +94,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   // Attach event handlers to the new DOM elements. click click click
   Lightbox.prototype.build = function() {
     var self = this;
-    $('<div id="lightboxOverlay" class="lightboxOverlay"></div><div id="lightbox" class="lightbox"><div class="lb-outerContainer"><div class="lb-container"><img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" /><div class="lb-nav"><a class="lb-prev" href="" ></a><a class="lb-next" href="" ></a></div><div class="lb-loader"><a class="lb-cancel"></a></div></div></div><div class="lb-dataContainer"><div class="lb-data"><div class="lb-details"><span class="lb-caption"></span><span class="lb-number"></span></div><div class="lb-toolbar"><a class="lb-rotate-right"></a><a class="lb-rotate-left"></a></div></div></div></div>').appendTo($('body'));
+    $('<div id="lightboxOverlay" class="lightboxOverlay"></div><div id="lightbox" class="lightbox"><div class="lb-outerContainer"><div class="lb-container"><img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" /><div class="lb-nav"><a class="lb-prev" href="" ></a><a class="lb-rotate" href=""></a><a class="lb-next" href="" ></a></div><div class="lb-loader"><a class="lb-cancel"></a></div></div></div><div class="lb-dataContainer"><div class="lb-data"><div class="lb-details"><span class="lb-caption"></span><span class="lb-number"></span></div><div class="lb-closeContainer"><a class="lb-close"></a></div></div></div></div>').appendTo($('body'));
 
     // Cache jQuery objects
     this.$lightbox       = $('#lightbox');
@@ -146,21 +146,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       return false;
     });
 
-      this.$lightbox.find('.lb-rotate-left').on('click', function() {
-          if (self.album[self.currentImageIndex].rotate == 0) {
+      this.$lightbox.find('.lb-rotate').on('click', function() {
+          if (self.album[self.currentImageIndex].rotate === 0) {
               self.album[self.currentImageIndex].rotate = 270
           }else {
               self.album[self.currentImageIndex].rotate -= 90
-          }
-          self.changeImage(self.currentImageIndex);
-          return false;
-      });
-
-      this.$lightbox.find('.lb-rotate-right').on('click', function() {
-          if (self.album[self.currentImageIndex].rotate == 270) {
-              self.album[self.currentImageIndex].rotate = 0
-          } else {
-              self.album[self.currentImageIndex].rotate += 90;
           }
           self.changeImage(self.currentImageIndex);
           return false;
@@ -250,7 +240,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     this.$overlay.fadeIn(this.options.fadeDuration);
 
     $('.lb-loader').fadeIn('slow');
-    this.$lightbox.find('.lb-image, .lb-nav, .lb-prev, .lb-next, .lb-dataContainer, .lb-numbers, .lb-caption').hide();
+    this.$lightbox.find('.lb-image, .lb-nav, .lb-dataContainer, .lb-numbers, .lb-caption').hide();
+    this.$lightbox.find('.lb-prev, .lb-next').css('visibility','hidden');
 
     this.$outerContainer.addClass('animating');
 
@@ -281,7 +272,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         windowWidth    = $(window).width();
         windowHeight   = $(window).height();
           // Is rotated 90?
-          if (rotate % 180 == 0) {
+          if (rotate % 180 === 0) {
               maxImageWidth = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
               maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
           } else {
@@ -365,7 +356,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   // Display the image and its details and begin preload neighboring images.
   Lightbox.prototype.showImage = function() {
     this.$lightbox.find('.lb-loader').stop(true).hide();
-    this.$lightbox.find('.lb-image').fadeIn('slow');
+    this.$lightbox.find('.lb-image').show()
 
     this.updateNav();
     this.updateDetails();
@@ -535,13 +526,6 @@ String.prototype.format = function (args) {
     }
     return result;
 };
-
-$(document.body).ready(function () {
-    // set light box option
-    lightbox.option({
-        'resizeDuration': 0
-    });
-});
 
 // add listener for clicking expanded parent node
 $('.tree').on('click', 'li.parent.expanded>.item>.sign', function(e) {
