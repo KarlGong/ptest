@@ -316,21 +316,21 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
               }
           }
       }
+        $image.css({
+                'transform': 'rotate(' + rotate + 'deg)'
+                });
         switch(rotate) {
             case 0: self.sizeContainer($image.width(), $image.height()); break;
             case 90:  $image.css({
-                'transform': 'rotate(' + rotate + 'deg)',
                     'transform-origin': $image.height() * 50 / $image.width() + '% 50% 0px'
                 });self.sizeContainer($image.height(), $image.width());break;
             case 180:
                 $image.css({
-                'transform': 'rotate(' + rotate + 'deg)',
                     'transform-origin': '50% 50% 0px'
                 });
                 self.sizeContainer($image.width(), $image.height()); break;
             case 270:
                 $image.css({
-                'transform': 'rotate(' + rotate + 'deg)',
                      'transform-origin': '50% ' + $image.width() * 50 / $image.height() + '% 0px'
                 });self.sizeContainer($image.height(), $image.width());break;
         }
