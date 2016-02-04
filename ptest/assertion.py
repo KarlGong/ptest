@@ -447,7 +447,7 @@ class _IterableSubject(_ObjSubject):
         """
             Assert the length of this subject.
         """
-        return assert_that(len(self._subject))
+        return _NumericSubject(len(self._subject))
 
     def each(self):
         """
