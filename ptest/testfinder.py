@@ -77,7 +77,7 @@ class TestFinder:
             test_case_ref = getattr(test_class_ref(), class_element)
             try:
                 if test_case_ref.__pd_type__ == PDecoratorType.Test \
-                        and test_class_ref.__enabled__ \
+                        and test_case_ref.__enabled__ \
                         and self.test_case_filter_group.filter(test_case_ref):
                     self.found_test_case_count += 1
                     if not self.target_test_suite.add_test_case(test_case_ref):
