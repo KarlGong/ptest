@@ -1,5 +1,6 @@
 include license.txt
 include README.rst
+include CHANGELOG
 include setup.py
 graft examples
 graft doc
