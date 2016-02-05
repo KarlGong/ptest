@@ -72,7 +72,7 @@ class TestExecutor(threading.Thread):
 
     def release_worker(self):
         if self.parent_test_executor:
-            with self._lock:
+            with self.parent_test_executor._lock:
                 self.parent_test_executor.workers += self.workers
                 self.workers = 0
         else:
