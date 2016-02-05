@@ -26,7 +26,7 @@ class TestExecutor(threading.Thread):
         else:
             self.__properties = {}
         self.workers = 0
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def start_and_join(self):
         self.start()
