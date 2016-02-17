@@ -48,7 +48,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_suite_start(test_suite)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
 
     def on_test_suite_finish(self, test_suite):
@@ -57,7 +57,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_suite_finish(test_suite)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
         if self.__teamcity_test_listener:
             self.__teamcity_test_listener.on_test_suite_finish(test_suite)
@@ -70,7 +70,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_class_start(test_class)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
 
     def on_test_class_finish(self, test_class):
@@ -79,7 +79,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_class_finish(test_class)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
         if self.__teamcity_test_listener:
             self.__teamcity_test_listener.on_test_class_finish(test_class)
@@ -92,7 +92,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_group_start(test_group)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
 
     def on_test_group_finish(self, test_group):
@@ -101,7 +101,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_group_finish(test_group)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
         if self.__teamcity_test_listener:
             self.__teamcity_test_listener.on_test_group_finish(test_group)
@@ -114,7 +114,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_case_start(test_case)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
 
     def on_test_case_finish(self, test_case):
@@ -123,7 +123,7 @@ class TestListenerGroup(object):
                 test_listener.on_test_case_finish(test_case)
             except Exception:
                 from .plogger import pconsole
-                pconsole.write_line("The test listener %s.%s failed with following message:\n%s"
+                pconsole.write_line("The test listener %s.%s raised exception:\n%s"
                                     % (test_listener.__class__.__module__, test_listener.__class__.__name__, traceback.format_exc()))
         if self.__teamcity_test_listener:
             self.__teamcity_test_listener.on_test_case_finish(test_case)
