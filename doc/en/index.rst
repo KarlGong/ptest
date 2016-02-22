@@ -827,7 +827,8 @@ simple assertion:
     class PTestClass:
         @Test()
         def test(self):
-            assert_that([1,2,3]).contains(1).does_not_contain(4)
+            assert_that(1).is_positive()
+            assert_that([1,2,3]).each().is_positive()
 
 5.2 - Logging and results
 =========================
