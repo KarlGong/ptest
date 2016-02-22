@@ -125,15 +125,14 @@ class _Subject(object):
         """
             Give a name to the subject.
         """
-
-        self._subject_name = name
+        self._subject_name = str(name)
         return self
 
     def with_message(self, message):
         """
            Set custom message for this assertion.
         """
-        self._msg = message
+        self._msg = str(message)
         return self
 
     def _raise_error(self, partial_error_msg, error=AssertionError):
@@ -221,7 +220,23 @@ class _ObjSubject(_Subject):
            Fails if the subject is equal to any element in the given iterable.
         """
         if self._subject in iterable:
-            self._raise_error("is in %s <%s>" % (_name(iterable), iterable))
+            self._raise_error("is in %s <%s>." % (_name(iterable), iterable))
+        return self
+
+    def meets(self, func):
+        """
+            Fails if the subject doesn't meet the given function.
+            Note: The function must accepts one argument.
+
+            For Example:
+                 assert_that(99).meets(lambda x: x > 0)
+
+                 def is_positive(num):
+                    return num > 0
+                assert_that(99).meets(is_positive)
+        """
+        if not func(self._subject):
+            self._raise_error("doesn't meet function <%s>." % func.__name__)
         return self
 
     def s(self, attribute_name):
