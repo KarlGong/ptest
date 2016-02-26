@@ -229,9 +229,9 @@ class _ObjSubject(_Subject):
             Note: The function must accepts one argument.
 
             For Example:
-                 assert_that(99).meets(lambda x: x > 0)
+                assert_that(99).meets(lambda x: x > 0)
 
-                 def is_positive(num):
+                def is_positive(num):
                     return num > 0
                 assert_that(99).meets(is_positive)
         """
