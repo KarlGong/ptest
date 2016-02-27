@@ -1,8 +1,6 @@
 import errno
 import os
 
-__author__ = 'karl.gong'
-
 
 def make_dirs(dir_path):
     try:

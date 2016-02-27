@@ -1,6 +1,3 @@
-__author__ = 'KarlGong'
-
-
 class FilterGroup:
     def __init__(self):
         self.__filters = []

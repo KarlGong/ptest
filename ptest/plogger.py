@@ -3,8 +3,6 @@ import sys
 
 from . import config
 
-__author__ = 'karl.gong'
-
 
 class PConsole:
     def __init__(self, out):

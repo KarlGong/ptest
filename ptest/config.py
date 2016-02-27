@@ -3,8 +3,6 @@ import os
 import platform
 import re
 
-__author__ = 'karl.gong'
-
 _properties = {}
 _options = {}
 

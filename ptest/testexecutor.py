@@ -14,8 +14,6 @@ from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeG
     BeforeMethod, Test
 from .plistener import test_listeners
 
-__author__ = 'karl.gong'
-
 
 class TestExecutor(threading.Thread):
     def __init__(self, parent_test_executor):

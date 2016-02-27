@@ -1,6 +1,3 @@
-__author__ = 'KarlGong'
-
-
 class TestClassRunMode:
     SingleLine = "singleline"
     Parallel = "parallel"

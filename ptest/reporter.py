@@ -12,8 +12,6 @@ from .testsuite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
 from .utils import make_dirs, remove_tree
 
-__author__ = 'karl.gong'
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 

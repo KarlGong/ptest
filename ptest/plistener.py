@@ -1,7 +1,5 @@
 import traceback
 
-__author__ = 'karl.gong'
-
 
 class TestListener(object):
     def on_test_suite_start(self, test_suite):

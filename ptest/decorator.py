@@ -10,8 +10,6 @@ except ImportError:
 
 from .enumeration import PDecoratorType, TestClassRunMode
 
-__author__ = 'karl.gong'
-
 
 def TestClass(enabled=True, run_mode="parallel", run_group=None, description="", **custom_args):
     """

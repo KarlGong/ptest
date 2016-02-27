@@ -7,8 +7,6 @@ from xml.dom import minidom
 
 from .utils import make_dirs, remove_tree
 
-__author__ = 'karl.gong'
-
 
 def get_rerun_targets(xml_file):
     test_targets = []

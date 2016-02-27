@@ -5,7 +5,6 @@ import pkgutil
 from .enumeration import PDecoratorType
 from .testfilter import TestClassNameFilter, TestCaseNameFilter
 
-__author__ = 'karl.gong'
 
 class TestFinder:
     def __init__(self, test_target, test_class_filter_group, test_case_filter_group, target_test_suite):

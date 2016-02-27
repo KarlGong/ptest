@@ -1,5 +1,3 @@
-__author__ = 'karl.gong'
-
 class PTestException(Exception):
     pass
 

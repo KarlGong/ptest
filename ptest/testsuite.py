@@ -2,8 +2,6 @@ from functools import cmp_to_key
 
 from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode
 
-__author__ = 'karl.gong'
-
 SECOND_MICROSECOND_CONVERSION_FACTOR = 1000000.0
 
 

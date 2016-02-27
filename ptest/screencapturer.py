@@ -6,8 +6,6 @@ from . import config
 from .exceptions import ScreenshotError
 from .plogger import preporter
 
-__author__ = 'karl.gong'
-
 # ----------------------------------------------------------------------
 # -------- [ cross-platform multiple screenshots module ] --------------
 # ----------------------------------------------------------------------
