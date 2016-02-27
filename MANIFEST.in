@@ -1,4 +1,4 @@
-include license.txt
+include LICENSE
 include README.rst
 include CHANGELOG
 include setup.py
