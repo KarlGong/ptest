@@ -277,52 +277,58 @@ def take_screenshot():
         return
 
     from . import testexecutor
-    active_web_driver = testexecutor.current_executor().get_property("web_driver")
+    web_drivers = testexecutor.current_executor().get_property("web_drivers")
     running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
 
-    if active_web_driver is not None:
-        def capture_screen():
-            running_test_fixture.screenshot["source"] = "Web Driver"
-            running_test_fixture.screenshot["path"] = running_test_fixture.full_name + ".png"
+    if web_drivers:
+        for index, web_driver in enumerate(web_drivers):
+            screenshot = {
+                "source": "Web Driver",
+                "path": "%s-%s.png" % (running_test_fixture.full_name, index + 1)
+            }
+            running_test_fixture.screenshots.append(screenshot)
 
             try:
-                running_test_fixture.screenshot["alert"] = active_web_driver.switch_to.alert.text
+                screenshot["alert"] = web_driver.switch_to.alert.text
             except Exception:
                 pass
 
             while True:
                 try:
-                    active_web_driver.switch_to.alert.dismiss()
+                    web_driver.switch_to.alert.dismiss()
                 except Exception:
                     break
 
             try:
-                running_test_fixture.screenshot["url"] = active_web_driver.current_url
+                screenshot["url"] = web_driver.current_url
             except Exception:
                 pass
 
             try:
-                running_test_fixture.screenshot["title"] = active_web_driver.title
+                screenshot["title"] = web_driver.title
             except Exception:
                 pass
 
-            with open(os.path.join(config.get_option("temp"), running_test_fixture.screenshot["path"]), mode="wb") as f:
-                f.write(active_web_driver.get_screenshot_as_png())
+            try:
+                with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
+                    f.write(web_driver.get_screenshot_as_png())
+            except Exception:
+                preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
     else:
         if system() == 'Darwin' and not pyobjc_installed:
             preporter.warn("The package pyobjc is necessary for taking screenshot of desktop, please install it.")
             return
 
-        def capture_screen():
-            running_test_fixture.screenshot["source"] = "Desktop"
-            running_test_fixture.screenshot["path"] = running_test_fixture.full_name + ".png"
+        screenshot = {
+            "source": "Desktop",
+            "path": "%s.png" % running_test_fixture.full_name
+        }
+        running_test_fixture.screenshots.append(screenshot)
 
-            output = BytesIO()
+        output = BytesIO()
+        try:
             mss().save(output=output, screen=-1)  # -1 means all monitors
-            with open(os.path.join(config.get_option("temp"), running_test_fixture.screenshot["path"]), mode="wb") as f:
+            with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
                 f.write(output.getvalue())
-
-    try:
-        capture_screen()
-    except Exception:
-        preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
+        except Exception:
+            preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())

@@ -203,7 +203,7 @@ def _get_test_fixture_dict(test_fixture):
         "endTime": str(test_fixture.end_time),
         "elapsedTime": test_fixture.elapsed_time,
         "logs": escaped_logs,
-        "screenshot": test_fixture.screenshot,
+        "screenshots": test_fixture.screenshots,
         "description": test_fixture.description
     }
     return repr_dict

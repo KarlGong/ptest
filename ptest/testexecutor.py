@@ -19,10 +19,13 @@ class TestExecutor(threading.Thread):
     def __init__(self, parent_test_executor):
         threading.Thread.__init__(self)
         self.parent_test_executor = parent_test_executor
+        self.__properties = {}
         if self.parent_test_executor:
-            self.__properties = copy(self.parent_test_executor.get_properties())
-        else:
-            self.__properties = {}
+            for key, value in self.parent_test_executor.get_properties().items():
+                if isinstance(value, list):
+                    self.__properties[key] = copy(value)
+                else:
+                    self.__properties[key] = value
         self.workers = 0
         self._lock = threading.RLock()
 

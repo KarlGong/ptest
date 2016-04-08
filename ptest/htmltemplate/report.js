@@ -287,21 +287,23 @@ renderTestFixturePanel = function (detailPanel, data) {
         var log = $('<span class="log-level">[{0}] </span><span class="{0}">{1}</span><br/>'.format(level, message));
         logGroup.append(log);
     }
-    if (data.screenshot.source) {
-        var screenshot = $('<tr class="screenshot"><td>Screenshot</td><td><div class="container"><a class="link" href="{0}" data-lightbox="{0}"><img class="image" src="{0}" /></a></div><table class="property"></table></td></td></tr>'.format(data.screenshot.path));
-
-        var screenshot_properties = screenshot.find('.property');
-        screenshot_properties.append($('<tr><td>Source </td><td>{0}</td></tr>'.format(data.screenshot.source)));
-        if (data.screenshot.title) {
-            screenshot_properties.append($('<tr><td>Title </td><td>{0}</td></tr>'.format(data.screenshot.title)));
+    if (data.screenshots.length) {
+        for (var i = 0; i < data.screenshots.length; i++) {
+            var screenshotData = data.screenshots[i];
+            var screenshot = $('<tr class="screenshot"><td>Screenshot_{0}</td><td><div class="container"><a class="link" href="{1}" data-lightbox="{1}"><img class="image" src="{1}" /></a></div><table class="property"></table></td></td></tr>'.format(i + 1, screenshotData.path));
+            var screenshotProperties = screenshot.find('.property');
+            screenshotProperties.append($('<tr><td>Source </td><td>{0}</td></tr>'.format(screenshotData.source)));
+            if (screenshotData.title) {
+                screenshotProperties.append($('<tr><td>Title </td><td>{0}</td></tr>'.format(screenshotData.title)));
+            }
+            if (screenshotData.alert) {
+                screenshotProperties.append($('<tr><td>Alert Text </td><td>{0}</td></tr>'.format(screenshotData.alert)));
+            }
+            if (screenshotData.url) {
+                screenshotProperties.append($('<tr><td>Url </td><td>{0}</td></tr>'.format(screenshotData.url)));
+            }
+            fieldTable.append(screenshot);
         }
-        if (data.screenshot.alert) {
-            screenshot_properties.append($('<tr><td>Alert Text </td><td>{0}</td></tr>'.format(data.screenshot.alert)));
-        }
-        if (data.screenshot.url) {
-            screenshot_properties.append($('<tr><td>Url </td><td>{0}</td></tr>'.format(data.screenshot.url)));
-        }
-        fieldTable.append(screenshot);
     }
 
     detailPanel.append(testFixturePanel);

@@ -186,20 +186,31 @@ def main(args=None):
     except ImportError:
         pass
     else:
+        def add_web_driver(executor, web_driver):
+            web_drivers = executor.get_property("web_drivers")
+            if web_drivers is None:
+                web_drivers = []
+                executor.update_properties({"web_drivers": web_drivers})
+            web_drivers.append(web_driver)
         def new_start_client(self):
             try:
                 current_executor = testexecutor.current_executor()
-                current_executor.update_properties({"web_driver": self})
-                current_executor.parent_test_executor.update_properties({"web_driver": self})
-                current_executor.parent_test_executor.parent_test_executor.update_properties({"web_driver": self})
+                add_web_driver(current_executor, self)
+                add_web_driver(current_executor.parent_test_executor, self)
+                add_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
             except AttributeError:
                 pass
+
+        def remove_web_driver(executor, web_driver):
+            web_drivers = executor.get_property("web_drivers")
+            if web_drivers:
+                web_drivers.remove(web_driver)
         def new_stop_client(self):
             try:
                 current_executor = testexecutor.current_executor()
-                current_executor.update_properties({"web_driver": None})
-                current_executor.parent_test_executor.update_properties({"web_driver": None})
-                current_executor.parent_test_executor.parent_test_executor.update_properties({"web_driver": None})
+                remove_web_driver(current_executor, self)
+                remove_web_driver(current_executor.parent_test_executor, self)
+                remove_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
             except AttributeError:
                 pass
         WebDriver.start_client = new_start_client
