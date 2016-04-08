@@ -22,7 +22,7 @@ class TestExecutor(threading.Thread):
         self.__properties = {}
         if self.parent_test_executor:
             for key, value in self.parent_test_executor.get_properties().items():
-                if isinstance(value, list):
+                if isinstance(value, (list, tuple, set, dict)):
                     self.__properties[key] = copy(value)
                 else:
                     self.__properties[key] = value
