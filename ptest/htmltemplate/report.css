@@ -81,7 +81,6 @@ body {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
@@ -269,22 +268,24 @@ body {
     box-sizing: border-box;
     position: absolute;
     width: 100%;
-    height: 48px;
+    min-height: 48px;
     z-index: 1;
 }
 
 .detail>.panel-heading.fixed {
     position: fixed;
-    height: 49px;
+    min-height: 49px;
     top: 0;
+    width: calc(100% - 406px);
 }
 
-.detail .panel-heading .text {
+.detail>.panel-heading .text {
     font-size: 16px;
     font-weight: bold;
+    word-wrap: break-word;
 }
 
-.detail .panel-heading .badge {
+.detail>.panel-heading .badge {
     display: inline-block;
     margin-left: 12px;
     padding-right: 4px;
@@ -296,7 +297,8 @@ body {
 }
 
 .detail>.panel-body {
-    margin-top: 50px;
+    margin-top: 48px;
+    box-sizing: border-box;
 }
 
 .detail td {

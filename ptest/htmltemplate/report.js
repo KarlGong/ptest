@@ -94,19 +94,25 @@ $('.navigation .toolbar .collapse-all').on('click', function (e) {
 
 // add listener for selecting node
 $('.tree').on('click', 'li > .item', function (e) {
-        // calculate min height of detail panel
-        var navigationBodyHeight = $('.navigation .panel-body')[0].offsetHeight;
-        $('.detail .panel-body').css('min-height', navigationBodyHeight - 32 + 'px');
-        var maxTop = 76;
-        if ($(window).scrollTop() > maxTop) {
-            $(window).scrollTop(maxTop);
-        }
+    var oldScrollTop = $(window).scrollTop();
+    // render detail panel
+    renderDetailPanel($(this).parent().data("data"));
+    // calculate margin top and min height of detail panel
+    var detailPanelHeader = $('.detail>.panel-heading');
+    var detailPanelBody = $('.detail>.panel-body');
+    detailPanelBody.css("margin-top", detailPanelHeader.outerHeight() + 'px');
+    detailPanelBody.css('min-height', $('.navigation').outerHeight() - detailPanelHeader.outerHeight() - 2 + 'px'); // minus the border of detail panel
 
-        // render detail panel
-        renderDetailPanel($(this).parent().data("data"));
-        $('.tree li .selected').removeClass('selected');
-        $(this).addClass('selected');
-        e.stopPropagation();
+    $('.tree li .selected').removeClass('selected');
+    $(this).addClass('selected');
+    e.stopPropagation();
+
+    var maxTop = 76;
+    if (oldScrollTop > maxTop) {
+        $(window).scrollTop(maxTop);
+    } else {
+        $(window).scrollTop(oldScrollTop);
+    }
 });
 
 // calculate the "top" of navigation
@@ -125,9 +131,9 @@ $(window).scroll(function () {
 // remove default mousewheel event when inner scroll bar is up to top or bottom
 $('.navigation .panel-body').mousewheel(function(event, delta){
     var panelBody = $(this);
-    var panelBodyOffsetHeight = panelBody[0].offsetHeight;
-    var panelBodyScrollHeight = panelBody[0].scrollHeight;
-    var scrollTop = panelBody[0].scrollTop;
+    var panelBodyOffsetHeight = panelBody.outerHeight();
+    var panelBodyScrollHeight = panelBody.get(0).scrollHeight;
+    var scrollTop = panelBody.scrollTop();
     var isPreventOuterScroll = (delta < 0 && scrollTop === panelBodyScrollHeight - panelBodyOffsetHeight) ||
                                (delta > 0 && scrollTop === 0);
     if(isPreventOuterScroll){
