@@ -54,8 +54,9 @@ class TestSuite(TestContainer):
     def init_test_fixtures(self):
         # reflect the before suite and after suite
         for test_class in self.test_classes:
-            for element in dir(test_class.test_class_ref):
-                attr = getattr(test_class.test_class_ref, element)
+            test_class_ref = test_class.test_class_ref.__class__()
+            for element in dir(test_class_ref):
+                attr = getattr(test_class_ref, element)
                 try:
                     if attr.__enabled__:
                         if attr.__pd_type__ == PDecoratorType.BeforeSuite:
