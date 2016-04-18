@@ -80,7 +80,7 @@ For more options, please use -h.
 
     $ ptest -h
 
-For more examples, please refer to the ``examples`` folder in source distribution.
+For more code examples, please refer to the ``examples`` folder in source distribution or visit https://github.com/KarlGong/ptest/tree/master/examples
 
 Contact me
 ----------
