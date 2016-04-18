@@ -54,7 +54,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `custom_args <#233---custom_args>`_ - the custom arguments of this test
 
-`@BeforeSuite <#225---beforesuite,-aftersuite-and-inherit>`_ - the decorated method will be executed before test suite started
+`@BeforeSuite <#225---beforesuite-aftersuite-and-inheritance>`_ - the decorated method will be executed before test suite started
 
 - `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
@@ -64,7 +64,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-`@AfterSuite <#225---beforesuite,-aftersuite-and-inherit>`_ - the decorated method will be executed after test suite finished
+`@AfterSuite <#225---beforesuite-aftersuite-and-inheritance>`_ - the decorated method will be executed after test suite finished
 
 - `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
@@ -76,7 +76,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-`@BeforeClass <#224---beforeclass-and-afterClass>`_ - the decorated method will be executed before test class started
+`@BeforeClass <#224---beforeclass-and-afterclass>`_ - the decorated method will be executed before test class started
 
 - `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
@@ -86,7 +86,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `custom_args <#233---custom_args>`_ - the custom arguments of this test fixture
 
-`@AfterClass <#224---beforeclass-and-afterClass>`_ - the decorated method will be executed after test class finished
+`@AfterClass <#224---beforeclass-and-afterclass>`_ - the decorated method will be executed after test class finished
 
 - `enabled <#231---enabled>`_ - whether this test fixture is enabled
 
@@ -270,8 +270,8 @@ Method which is decorated by **@AfterClass** will be executed after test class f
         def after_class(self):
             self.expected = None
 
-2.2.5 - BeforeSuite, AfterSuite and inherit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.2.5 - BeforeSuite, AfterSuite and inheritance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Method which is decorated by **@BeforeSuite** will be executed before test suite started.
 Method which is decorated by **@AfterSuite** will be executed after test suite finished.
 
