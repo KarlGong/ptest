@@ -1,5 +1,11 @@
 Change Log
 ----------
+1.6.0 (compared to 1.5.3)
+
+- Add meets() in ObjSubject of assert_that assertion.
+
+- Support taking screenshots for multiple selenium webdrivers.
+
 1.5.3 (compared to 1.5.2)
 
 - Fix the issue that "enabled" attribute for @Test doesn't work.
