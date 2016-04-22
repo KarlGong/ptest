@@ -132,9 +132,10 @@ def main(args=None):
         test_case_filter_group.append_filter(TestCaseExcludeTagsFilter(exclude_tags))
     if include_groups is not None:
         test_case_filter_group.append_filter(TestCaseIncludeGroupsFilter(include_groups))
-    if include_tags is not None or exclude_tags is not None or include_groups is not None:
+    if test_case_filter_group:
         pconsole.write_line("Test filters:")
-        pconsole.write_line(" %s" % test_case_filter_group)
+        for test_case_filter in test_case_filter_group:
+            pconsole.write_line(" %s" % test_case_filter)
 
     # get test targets
     test_targets = config.get_option("test_targets")

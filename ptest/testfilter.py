@@ -13,11 +13,14 @@ class FilterGroup:
     def append_filter(self, filter):
         self.__filters.append(filter)
 
-    def __str__(self):
-        filter_strs = []
-        for ft in self.__filters:
-            filter_strs.append(str(ft))
-        return "\n ".join(filter_strs)
+    def __bool__(self):
+        return len(self.__filters) != 0
+
+    def __len__(self):
+        return len(self.__filters)
+
+    def __getitem__(self, item):
+        return self.__filters[item]
 
 
 class TestClassNameFilter:
@@ -44,7 +47,7 @@ class TestCaseIncludeTagsFilter:
         return self._tags is None or len([val for val in self._tags if val in test_case_ref.__tags__]) != 0
 
     def __str__(self):
-        return "Include Tags: %s" % self._tags
+        return "Include Tags: %s" % ",".join(self._tags)
 
 
 class TestCaseExcludeTagsFilter:
@@ -55,7 +58,7 @@ class TestCaseExcludeTagsFilter:
         return self._tags is None or len([val for val in self._tags if val in test_case_ref.__tags__]) == 0
 
     def __str__(self):
-        return "Exclude Tags: %s" % self._tags
+        return "Exclude Tags: %s" % ",".join(self._tags)
 
 
 class TestCaseIncludeGroupsFilter:
@@ -66,4 +69,4 @@ class TestCaseIncludeGroupsFilter:
         return self._groups is None or test_case_ref.__group__ in self._groups
 
     def __str__(self):
-        return "Include Groups: %s" % self._groups
+        return "Include Groups: %s" % ",".join(self._groups)
