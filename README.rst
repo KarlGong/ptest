@@ -62,6 +62,8 @@ Then start to execute all the testcases in module *mytest.py* with 2 threads.
 Use -w to specify the workspace, -t to specify the target and -n to specify the number of test executors(threads).
 In this case, workspace is *c:\\folder*, target is *mytest* and number of test executors is *2*.
 
+*Note:* If you are using Windows, please confirm that **%python_installation_dir%\\Scripts** (e.g., C:\\Python27\\Scripts) is added to the PATH environment variable.
+
 ::
 
     $ ptest -w c:\folder -t mytest -n 2

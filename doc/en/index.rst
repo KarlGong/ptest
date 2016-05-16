@@ -676,6 +676,13 @@ ptest can be invoked in different ways:
 
 3.1 - Command line
 ------------------
+Usage:
+::
+
+    $ ptest [options] [properties]
+
+*Note:* If you are using Windows, please confirm that **%python_installation_dir%\\Scripts** (e.g., C:\\Python27\\Scripts) is added to the PATH environment variable.
+
 ptest command line parameters:
 
 +--------------------------+----------------------------------+----------------------------------------------------------------------------------------------+
