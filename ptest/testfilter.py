@@ -13,9 +13,6 @@ class FilterGroup:
     def append_filter(self, filter):
         self.__filters.append(filter)
 
-    def __bool__(self):
-        return len(self.__filters) != 0
-
     def __len__(self):
         return len(self.__filters)
 
