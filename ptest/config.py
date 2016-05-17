@@ -1,7 +1,8 @@
-from optparse import OptionParser, OptionGroup
 import os
 import platform
 import re
+from codecs import open
+from optparse import OptionParser, OptionGroup
 
 _properties = {}
 _options = {}
@@ -64,7 +65,7 @@ def load(args):
 def _load_properties_from_file():
     property_file = get_option("property_file")
     if property_file is not None:
-        file_object = open(property_file)
+        file_object = open(property_file, encoding="utf-8")
         try:
             property_regex_str = r"^([^;#].*?)=(.*?)$"
             property_regex = re.compile(property_regex_str)

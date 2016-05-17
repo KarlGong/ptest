@@ -3,8 +3,9 @@ import os
 import platform
 import shutil
 import traceback
-from xml.dom import minidom
+from codecs import open
 from datetime import datetime
+from xml.dom import minidom
 
 from . import config
 from .plogger import pconsole
@@ -52,7 +53,7 @@ def generate_xunit_xml(xml_file_path):
     else:
         make_dirs(os.path.dirname(xml_file_path))
 
-    f = open(xml_file_path, "w")
+    f = open(xml_file_path, mode="w", encoding="utf-8")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
         pconsole.write_line("xunit report is generated at %s" % xml_file_path)
@@ -88,7 +89,7 @@ def generate_html_report(report_dir):
         if os.path.isfile(file_full_path) and file_ext == ".png":
             shutil.copy(file_full_path, report_dir)
 
-    with open(os.path.join(html_template_dir, "index.html")) as f:
+    with open(os.path.join(html_template_dir, "index.html"), encoding="utf-8") as f:
         index_page_template = f.read()
 
     current_time = datetime.now()
@@ -97,7 +98,7 @@ def generate_html_report(report_dir):
     index_page_content = index_page_template.format(current_time=current_time, system_info=system_info,
                                                     test_suite_json=test_suite_json)
 
-    f = open(os.path.join(report_dir, "index.html"), mode="w")
+    f = open(os.path.join(report_dir, "index.html"), mode="w", encoding="utf-8")
     try:
         f.write(index_page_content)
         pconsole.write_line("html report is generated at %s" % os.path.abspath(report_dir))

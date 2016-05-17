@@ -1,8 +1,8 @@
 import importlib
 import os
 import shlex
-import sys
 import traceback
+from codecs import open
 from xml.dom import minidom
 
 from .utils import make_dirs, remove_tree
@@ -67,7 +67,7 @@ def merge_xunit_xmls(xml_files, to_file):
     else:
         make_dirs(os.path.dirname(to_file))
 
-    f = open(to_file, "w")
+    f = open(to_file, mode="w", encoding="utf-8")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
         pconsole.write_line("Merged xunit xml is generated at %s" % to_file)
@@ -78,6 +78,14 @@ def merge_xunit_xmls(xml_files, to_file):
 
 
 def main(args=None):
+    # fix encoding issue in python 2.x
+    try:
+        import sys
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
+    except NameError:
+        pass
+
     from . import config
     # load arguments
     if args is None:
