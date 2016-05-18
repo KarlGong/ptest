@@ -281,38 +281,83 @@ So we recommend you to put **@BeforeSuite** or **@AfterSuite** into a base class
 
 .. code:: python
 
-    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod, BeforeSuite, AfterSuite
+    from ptest.decorator import TestClass, Test, BeforeSuite, AfterSuite
     from ptest.assertion import assert_true
 
     class PTestBase:
         @BeforeSuite()
         def before_suite(self):
-            self.max = 999
+            self.max = 100
 
         @AfterSuite()
         def after_suite(self):
             self.max = None
 
-        @BeforeMethod()
-        def setup_data(self):
-            self.now = 10
-
-        @AfterMethod()
-        def clean_up_data(self):
-            self.now = None
-
     @TestClass()
     class PTestClass1(PTestBase):
         @Test()
         def test(self):
-            assert_true(self.max > self.now)
+            self.max = 1
+            assert_true(self.max == 1) # self.max in this context is changed, so pass
 
     @TestClass()
     class PTestClass2(PTestBase):
         @Test()
         def test(self):
-            self.now = 10000
-            assert_true(self.max > self.now)
+            assert_true(self.max == 100) # self.max in this context is not changed, so pass
+
+Inherit **@BeforeXXX** and **@AfterXXX**.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
+    from ptest.assertion import assert_true
+
+    class PTestBase:
+        @BeforeMethod()
+        def before_method(self):
+            self.max = 100
+
+        @AfterMethod()
+        def after_method(self):
+            self.max = None
+
+    @TestClass()
+    class PTestClass(PTestBase):
+        @Test()
+        def test1(self):
+            assert_true(self.max == 1) # fail
+
+        @Test()
+        def test2(self):
+            assert_true(self.max == 100) # pass
+
+Inherit **@TestClass**.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeMethod
+    from ptest.assertion import assert_true
+
+    @TestClass(run_mode="singleline")
+    class PTestBase:
+        @BeforeMethod()
+        def before_method(self):
+            self.max = 100
+
+    # The @TestClass is also inherited, this class is treated as a test class.
+    # All of the arguments (run_mode, run_group, description...) are inherited.
+    class PTestClass1(PTestBase):
+        @Test()
+        def test(self):
+            assert_true(self.max == 100)
+
+    # ALL of the arguments (run_mode, run_group, description...) from super @TestClass are override.
+    @TestClass()
+    class PTestClass2(PTestBase):
+        @Test()
+        def test(self):
+            assert_true(self.max == 100)
 
 2.3 - Attributes
 ----------------
