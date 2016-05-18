@@ -63,7 +63,7 @@ class TestSuite(TestContainer):
                             self.before_suite = BeforeSuite(self, attr)
                         elif attr.__pd_type__ == PDecoratorType.AfterSuite:
                             self.after_suite = AfterSuite(self, attr)
-                except AttributeError:
+                except AttributeError as e:
                     pass
 
     def init_test_class_run_groups(self):
@@ -108,6 +108,8 @@ class TestSuite(TestContainer):
 
     def add_test_case(self, test_case_ref):
         test_class_ref = test_case_ref.__self__.__class__
+        # for the @TestClass can be inherited, so set full name here
+        test_class_ref.__full_name__ = "%s.%s" % (test_class_ref.__module__, test_class_ref.__name__)
         test_class = self.get_test_class(test_class_ref.__full_name__)
         if test_class is None:
             test_class = TestClass(self, test_class_ref())
@@ -152,7 +154,7 @@ class TestClass(TestContainer):
                         self.before_class = BeforeClass(self, attr)
                     elif attr.__pd_type__ == PDecoratorType.AfterClass:
                         self.after_class = AfterClass(self, attr)
-            except AttributeError:
+            except AttributeError as e:
                 pass
 
     def get_failed_setup_fixture(self):
@@ -196,7 +198,7 @@ class TestGroup(TestContainer):
                         self.before_group = BeforeGroup(self, attr)
                     elif attr.__pd_type__ == PDecoratorType.AfterGroup:
                         self.after_group = AfterGroup(self, attr)
-            except AttributeError:
+            except AttributeError as e:
                 pass
 
     def get_failed_setup_fixture(self):
@@ -221,7 +223,7 @@ class TestCase:
         self.test_suite = self.test_class.test_suite
         self.test_case_ref = test_case_ref
         self.name = test_case_ref.__name__
-        self.full_name = "%s.%s" % (self.test_group.test_class.full_name, self.name)
+        self.full_name = "%s.%s" % (self.test_class.full_name, self.name)
         self.start_time = None
         self.end_time = None
 
@@ -245,7 +247,7 @@ class TestCase:
                         self.before_method = BeforeMethod(self, attr)
                     elif attr.__pd_type__ == PDecoratorType.AfterMethod:
                         self.after_method = AfterMethod(self, attr)
-            except AttributeError:
+            except AttributeError as e:
                 pass
 
     def get_failed_setup_fixture(self):

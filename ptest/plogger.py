@@ -42,7 +42,7 @@ class PReporter:
 
         try:
             running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
-        except AttributeError:
+        except AttributeError as e:
             pconsole.write_line("[%s] %s" % (logging.getLevelName(level), msg))
         else:
             running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})

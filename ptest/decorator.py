@@ -23,7 +23,6 @@ def TestClass(enabled=True, run_mode="parallel", run_group=None, description="",
     """
 
     def tracer(cls):
-        cls.__full_name__ = "%s.%s" % (cls.__module__, cls.__name__)
         cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
         if run_mode.lower() in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:

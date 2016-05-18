@@ -68,7 +68,7 @@ class TestFinder:
                         and test_class_ref.__module__ == module_ref.__name__ \
                         and self.test_class_filter_group.filter(test_class_ref):
                     self.find_test_cases_in_class(test_class_ref)
-            except AttributeError:
+            except AttributeError as e:
                 pass
 
     def find_test_cases_in_class(self, test_class_ref):
@@ -81,5 +81,5 @@ class TestFinder:
                     self.found_test_case_count += 1
                     if not self.target_test_suite.add_test_case(test_case_ref):
                         self.repeated_test_case_count += 1
-            except AttributeError:
+            except AttributeError as e:
                 pass
