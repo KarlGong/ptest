@@ -391,7 +391,7 @@ You can specify the description by *description* attribute.
 
 **Examples:**
 
-You can use *custom_args* to do some record things.
+You can use *custom_args* to do some record things and the *custom_args* can be accessed in `test listeners <#4---test-listeners>`_.
 
 .. code:: python
 
@@ -777,6 +777,7 @@ Create a listener.py under workspace:
 
     class MyTestListener(TestListener):
         def on_test_case_finish(self, test_case):
+            print(test_case.custom_args) # print custom_args of the finished test case
             print(test_case.status)
 
 *Note:* The listener class must be thread safe if you set ``-n(--testexecutornumber)`` greater than 1.
