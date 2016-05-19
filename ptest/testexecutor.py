@@ -329,28 +329,30 @@ class TestFixtureSubExecutor(TestExecutor):
         self.test_fixture = test_fixture_executor.test_fixture
         self.setDaemon(True)
 
-    def run(self):
-        if isinstance(self.test_fixture, Test) and self.test_fixture.expected_exceptions:
+    def run_test(self):
+        if self.test_fixture.expected_exceptions:
             expected_exceptions = self.test_fixture.expected_exceptions
-            expected_exceptions_names =str(["%s.%s" % (e.__module__, e.__name__) for e in expected_exceptions.keys()])
+            expected_exceptions_names = str(["%s.%s" % (e.__module__, e.__name__) for e in expected_exceptions.keys()])
             try:
-                if self.test_fixture.arguments_count == 1:
+                if self.test_fixture.data is None:
                     self.test_fixture.test_fixture_ref.__call__()
-                elif self.test_fixture.arguments_count == 2:
-                    self.test_fixture.test_fixture_ref.__call__(self.test_fixture.context)
+                else:
+                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.data)
             except Exception as e:
                 exception = e.__class__
                 exception_name = "%s.%s" % (exception.__module__, exception.__name__)
-                matched_exceptions = [expected_exception for expected_exception in expected_exceptions.keys() if issubclass(exception, expected_exception)]
+                matched_exceptions = [expected_exception for expected_exception in expected_exceptions.keys() if
+                                      issubclass(exception, expected_exception)]
                 if matched_exceptions:
                     def cmp_matched_exception(exception_a, exception_b):
                         return -1 if issubclass(exception_a, exception_b) else 1
+
                     matched_exception = sorted(matched_exceptions, key=cmp_to_key(cmp_matched_exception))[0]
                     if not expected_exceptions[matched_exception] or expected_exceptions[matched_exception].search(str(e)):
                         self.test_fixture.status = TestFixtureStatus.PASSED
                     else:
                         self.test_fixture.status = TestFixtureStatus.FAILED
-                        self.test_fixture.failure_message = "The exception <%s> was thrown with the wrong message: Expected message regex: <%s>, Actual message: <%s>."\
+                        self.test_fixture.failure_message = "The exception <%s> was thrown with the wrong message: Expected message regex: <%s>, Actual message: <%s>." \
                                                             % (exception_name, expected_exceptions[matched_exception].pattern, str(e))
                         self.test_fixture.failure_type = "WrongExceptionMessageError"
                         self.test_fixture.stack_trace = self.test_fixture.failure_message
@@ -358,7 +360,7 @@ class TestFixtureSubExecutor(TestExecutor):
                         screencapturer.take_screenshot()
                 else:
                     self.test_fixture.status = TestFixtureStatus.FAILED
-                    self.test_fixture.failure_message = "Expected exception: one of %s, Actual exception: <%s>."\
+                    self.test_fixture.failure_message = "Expected exception: one of %s, Actual exception: <%s>." \
                                                         % (expected_exceptions_names, exception_name)
                     self.test_fixture.failure_type = "WrongExceptionThrownError"
                     self.test_fixture.stack_trace = self.test_fixture.failure_message
@@ -366,7 +368,7 @@ class TestFixtureSubExecutor(TestExecutor):
                     screencapturer.take_screenshot()
             else:
                 self.test_fixture.status = TestFixtureStatus.FAILED
-                self.test_fixture.failure_message = "Expected exception: one of %s, Actual: NO exception was thrown."\
+                self.test_fixture.failure_message = "Expected exception: one of %s, Actual: NO exception was thrown." \
                                                     % expected_exceptions_names
                 self.test_fixture.failure_type = "NoExceptionThrownError"
                 self.test_fixture.stack_trace = self.test_fixture.failure_message
@@ -374,10 +376,10 @@ class TestFixtureSubExecutor(TestExecutor):
                 screencapturer.take_screenshot()
         else:
             try:
-                if self.test_fixture.arguments_count == 1:
+                if self.test_fixture.data is None:
                     self.test_fixture.test_fixture_ref.__call__()
-                elif self.test_fixture.arguments_count == 2:
-                    self.test_fixture.test_fixture_ref.__call__(self.test_fixture.context)
+                else:
+                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.data)
             except Exception as e:
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
@@ -387,6 +389,28 @@ class TestFixtureSubExecutor(TestExecutor):
                 screencapturer.take_screenshot()
             else:
                 self.test_fixture.status = TestFixtureStatus.PASSED
+
+    def run_test_configuration(self):
+        try:
+            if self.test_fixture.arguments_count == 1:
+                self.test_fixture.test_fixture_ref.__call__()
+            elif self.test_fixture.arguments_count == 2:
+                self.test_fixture.test_fixture_ref.__call__(self.test_fixture.context)
+        except Exception as e:
+            self.test_fixture.status = TestFixtureStatus.FAILED
+            self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
+            self.test_fixture.failure_type = "%s.%s" % (e.__class__.__module__, e.__class__.__name__)
+            self.test_fixture.stack_trace = traceback.format_exc()
+            preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
+            screencapturer.take_screenshot()
+        else:
+            self.test_fixture.status = TestFixtureStatus.PASSED
+
+    def run(self):
+        if isinstance(self.test_fixture, Test):
+            self.run_test()
+        else:
+            self.run_test_configuration()
 
 
 def current_executor():

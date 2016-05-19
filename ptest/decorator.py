@@ -55,7 +55,7 @@ def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -78,7 +78,7 @@ def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -103,7 +103,7 @@ def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **cust
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -128,13 +128,13 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
 
 
-def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", description="", timeout=0, **custom_args):
+def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, group="DEFAULT", description="", timeout=0, **custom_args):
     """
         The Test decorator, it is used to mark a test as Test.
 
@@ -162,7 +162,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", descr
         func.__enabled__ = enabled
         func.__group__ = group
         func.__description__ = description
-        # process tags
+        # deal with tags
         if not tags:
             func.__tags__ = []
         else:
@@ -174,7 +174,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", descr
                 raise ValueError(
                     "Tags type %s is not supported. Please use string (separated by comma) or list or tuple." % type(tags))
             func.__tags__ = sorted([str(tag).strip() for tag in tag_list if str(tag).strip()])
-        # process expected exceptions
+        # deal with expected exceptions
         if not expected_exceptions:
             func.__expected_exceptions__ = None
         else:
@@ -197,13 +197,35 @@ def Test(enabled=True, tags=[], expected_exceptions=None, group="DEFAULT", descr
                     else:
                         raise ValueError("Expected exception should be a sub class of Exception.")
             else:
-                raise ValueError("Expected exceptions type %s is not supported. Please use class or list or tuple or dict." % type(expected_exceptions))
+                raise ValueError("Expected exceptions type %s is not supported. Please use class or list or tuple or dict."
+                                 % type(expected_exceptions))
             func.__expected_exceptions__ = exceptions
 
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test(func)
+        func.__data__ = None
+        func.__data_list__ = []
+        # deal with data provider
+        if data_provider:
+            for index, data in enumerate(data_provider):
+                if isinstance(data, (list, tuple)):
+                    if len(data) == func.__arguments_count__ - 1:
+                        func.__data_list__.append(data)
+                    else:
+                        raise TypeError("The data provider is trying to pass %s parameters but %s() takes %s."
+                                        % (len(data), func.__name__, func.__arguments_count__ - 1))
+                else:
+                    if func.__arguments_count__ == 2:
+                        func.__data_list__.append([data])
+                    else:
+                        raise TypeError("The data provider is trying to pass 1 parameters but %s() takes %s."
+                                        % (func.__name__, func.__arguments_count__ - 1))
+        else:
+            if func.__arguments_count__ != 1:
+                raise TypeError("Since data provider is not specified, %s() cannot be declared with %s arguments. Please declare with only 1 argument."
+                                % (func.__name__, func.__arguments_count__))
         return func
 
     return handle_func
@@ -230,7 +252,7 @@ def AfterMethod(enabled=True, always_run=True, group="DEFAULT", description="", 
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -257,7 +279,7 @@ def AfterGroup(enabled=True, always_run=True, group="DEFAULT", description="", t
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -282,7 +304,7 @@ def AfterClass(enabled=True, always_run=True, description="", timeout=0, **custo
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -307,18 +329,24 @@ def AfterSuite(enabled=True, always_run=True, description="", timeout=0, **custo
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count(func)
+        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
         return func
 
     return handle_func
+
 
 def __get_location(func):
     file_path = os.path.abspath(inspect.getfile(func))
     _, line_no = inspect.getsourcelines(func)
     return urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
 
-def __get_arguments_count(func):
+
+def __get_arguments_count_of_test_configuration(func):
     arguments_count = len(inspect.getargspec(func)[0])
     if arguments_count not in [1, 2]:
-        raise TypeError("arguments number of %s() is not acceptable. Please give 1 or 2 arguments." % func.__name__)
+        raise TypeError("%s() cannot be declared with %s arguments. Please declare with 1 or 2 arguments." % (func.__name__, arguments_count))
     return arguments_count
+
+
+def __get_arguments_count_of_test(func):
+    return len(inspect.getargspec(func)[0])

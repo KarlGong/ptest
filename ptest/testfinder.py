@@ -2,6 +2,7 @@ import copy
 import importlib
 import pkgutil
 
+from .utils import mock_func
 from .enumeration import PDecoratorType
 from .testfilter import TestClassNameFilter, TestCaseNameFilter
 
@@ -73,13 +74,25 @@ class TestFinder:
 
     def find_test_cases_in_class(self, test_class_ref):
         for class_element in dir(test_class_ref):
-            test_case_ref = getattr(test_class_ref(), class_element)
+            test_case_func = getattr(test_class_ref, class_element)
             try:
-                if test_case_ref.__pd_type__ == PDecoratorType.Test \
-                        and test_case_ref.__enabled__ \
-                        and self.test_case_filter_group.filter(test_case_ref):
-                    self.found_test_case_count += 1
-                    if not self.target_test_suite.add_test_case(test_case_ref):
-                        self.repeated_test_case_count += 1
+                if test_case_func.__pd_type__ == PDecoratorType.Test \
+                        and test_case_func.__enabled__:
+                    test_case_names = []
+                    if test_case_func.__data_list__:
+                        for index, data in enumerate(test_case_func.__data_list__):
+                            mock = mock_func(test_case_func)
+                            mock.__name__ = "%s___%s" % (class_element, index + 1)
+                            mock.__data__ = data
+                            setattr(test_class_ref, mock.__name__, mock)
+                            test_case_names.append(mock.__name__)
+                    else:
+                        test_case_names.append(class_element)
+                    for test_case_name in test_case_names:
+                        test_case_ref = getattr(test_class_ref(), test_case_name)
+                        if self.test_case_filter_group.filter(test_case_func) or self.test_case_filter_group.filter(test_case_ref):
+                            self.found_test_case_count += 1
+                            if not self.target_test_suite.add_test_case(test_case_ref):
+                                self.repeated_test_case_count += 1
             except AttributeError as e:
                 pass

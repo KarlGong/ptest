@@ -1,5 +1,6 @@
 import errno
 import os
+from functools import wraps
 
 
 def make_dirs(dir_path):
@@ -19,3 +20,11 @@ def remove_tree(dir_path, remove_root=True):
                 os.rmdir(os.path.join(root, name))
         if remove_root is True:
             os.rmdir(dir_path)
+
+
+def mock_func(func):
+    @wraps(func)
+    def mock(self, *args, **kwargs):
+        func(self, *args, **kwargs)
+
+    return mock
