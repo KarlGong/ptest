@@ -107,17 +107,17 @@ class TestSuite(TestContainer):
         return None
 
     def add_test_case(self, test_case_ref):
-        test_class_ref = test_case_ref.__self__.__class__
+        test_class_cls = test_case_ref.__self__.__class__
         # for the @TestClass can be inherited, so set full name here
-        test_class_ref.__full_name__ = "%s.%s" % (test_class_ref.__module__, test_class_ref.__name__)
-        test_class = self.get_test_class(test_class_ref.__full_name__)
+        test_class_cls.__full_name__ = "%s.%s" % (test_class_cls.__module__, test_class_cls.__name__)
+        test_class = self.get_test_class(test_class_cls.__full_name__)
         if test_class is None:
-            test_class = TestClass(self, test_class_ref())
+            test_class = TestClass(self, test_class_cls())
             self.test_classes.append(test_class)
 
         test_group = test_class.get_test_group(test_case_ref.__group__)
         if test_group is None:
-            test_group = TestGroup(test_class, test_case_ref.__group__, test_class_ref())
+            test_group = TestGroup(test_class, test_case_ref.__group__, test_class_cls())
             test_class.test_groups.append(test_group)
 
         test_case = test_group.get_test_case(test_case_ref.__name__)
@@ -231,7 +231,7 @@ class TestCase:
 
         self.tags = self.test.tags
         self.expected_exceptions = self.test.expected_exceptions
-        self.data = self.test.data
+        self.parameters = self.test.parameters
         self.group = self.test.group
         self.description = self.test.description
         self.custom_args = self.test.custom_args
@@ -367,7 +367,7 @@ class Test(TestFixture):
         self.test_suite = self.test_case.test_suite
         self.tags = test_fixture_ref.__tags__
         self.expected_exceptions = test_fixture_ref.__expected_exceptions__
-        self.data = test_fixture_ref.__data__
+        self.parameters = test_fixture_ref.__parameters__
         self.group = test_fixture_ref.__group__
 
 

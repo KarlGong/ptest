@@ -1,3 +1,5 @@
+import re
+
 class FilterGroup:
     def __init__(self):
         self.__filters = []
@@ -33,7 +35,7 @@ class TestCaseNameFilter:
         self._name = name
 
     def filter(self, test_case_ref):
-        return self._name == test_case_ref.__name__
+        return self._name == test_case_ref.__name__ or re.search(r"^%s__\d+$" % test_case_ref.__name__, self._name)
 
 
 class TestCaseIncludeTagsFilter:

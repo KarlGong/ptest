@@ -210,27 +210,17 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, gr
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
         func.__arguments_count__ = __get_arguments_count_of_test(func)
-        func.__data__ = None
-        func.__data_list__ = []
-        # deal with data provider
+        func.__parameters__ = None
+        func.__data_provider__ = None
+        func.__unzipped__ = {"value": True}
+        func.__mock_funcs__ = [func]
         if data_provider:
-            for data in data_provider:
-                if isinstance(data, (list, tuple)):
-                    if len(data) == func.__arguments_count__ - 1:
-                        func.__data_list__.append(data)
-                    else:
-                        raise TypeError("The data provider is trying to pass %s parameters but %s() takes %s."
-                                        % (len(data), func.__name__, func.__arguments_count__ - 1))
-                else:
-                    if func.__arguments_count__ == 2:
-                        func.__data_list__.append([data])
-                    else:
-                        raise TypeError("The data provider is trying to pass 1 parameters but %s() takes %s."
-                                        % (func.__name__, func.__arguments_count__ - 1))
-        else:
-            if func.__arguments_count__ != 1:
-                raise TypeError("Since data provider is not specified, %s() cannot be declared with %s arguments. Please declare with only 1 argument."
-                                % (func.__name__, func.__arguments_count__))
+            func.__data_provider__ = data_provider
+            func.__unzipped__ = {"value": False}
+            func.__mock_funcs__ = []
+        elif func.__arguments_count__ != 1:
+            raise TypeError("Since data provider is not specified, %s() cannot be declared with %s arguments. Please declare with only 1 argument."
+                            % (func.__name__, func.__arguments_count__))
         return func
 
     return handle_func

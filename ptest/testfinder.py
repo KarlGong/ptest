@@ -2,9 +2,9 @@ import copy
 import importlib
 import pkgutil
 
-from .utils import mock_func
 from .enumeration import PDecoratorType
 from .testfilter import TestClassNameFilter, TestCaseNameFilter
+from .utils import mock_func
 
 
 class TestFinder:
@@ -62,37 +62,50 @@ class TestFinder:
 
     def find_test_cases_in_module(self, module_ref):
         for module_element in dir(module_ref):
-            test_class_ref = getattr(module_ref, module_element)
+            test_class_cls = getattr(module_ref, module_element)
             try:
-                if test_class_ref.__pd_type__ == PDecoratorType.TestClass \
-                        and test_class_ref.__enabled__ \
-                        and test_class_ref.__module__ == module_ref.__name__ \
-                        and self.test_class_filter_group.filter(test_class_ref):
-                    self.find_test_cases_in_class(test_class_ref)
+                if test_class_cls.__pd_type__ == PDecoratorType.TestClass \
+                        and test_class_cls.__enabled__ \
+                        and test_class_cls.__module__ == module_ref.__name__ \
+                        and self.test_class_filter_group.filter(test_class_cls):
+                    self.find_test_cases_in_class(test_class_cls)
             except AttributeError as e:
                 pass
 
-    def find_test_cases_in_class(self, test_class_ref):
-        for class_element in dir(test_class_ref):
-            test_case_func = getattr(test_class_ref, class_element)
+    def find_test_cases_in_class(self, test_class_cls):
+        for class_element in dir(test_class_cls):
+            test_case_func = getattr(test_class_cls, class_element)
             try:
                 if test_case_func.__pd_type__ == PDecoratorType.Test \
-                        and test_case_func.__enabled__:
-                    test_case_names = []
-                    if test_case_func.__data_list__:
-                        for index, data in enumerate(test_case_func.__data_list__):
-                            mock = mock_func(test_case_func)
-                            mock.__name__ = "%s__%s" % (class_element, index + 1)
-                            mock.__data__ = data
-                            setattr(test_class_ref, mock.__name__, mock)
-                            test_case_names.append(mock.__name__)
-                    else:
-                        test_case_names.append(class_element)
-                    for test_case_name in test_case_names:
-                        test_case_ref = getattr(test_class_ref(), test_case_name)
-                        if self.test_case_filter_group.filter(test_case_func) or self.test_case_filter_group.filter(test_case_ref):
-                            self.found_test_case_count += 1
-                            if not self.target_test_suite.add_test_case(test_case_ref):
-                                self.repeated_test_case_count += 1
+                        and test_case_func.__enabled__ \
+                        and self.test_case_filter_group.filter(test_case_func):
+                    for func in unzip_func(test_case_func):
+                        self.found_test_case_count += 1
+                        if not self.target_test_suite.add_test_case(getattr(test_class_cls(), func.__name__)):
+                            self.repeated_test_case_count += 1
             except AttributeError as e:
                 pass
+
+
+def unzip_func(test_case_func):
+    if not test_case_func.__unzipped__["value"]:
+        for index, data in enumerate(test_case_func.__data_provider__):
+            if isinstance(data, (list, tuple)):
+                parameters_number = len(data)
+                parameters = data
+            else:
+                parameters_number = 1
+                parameters = [data]
+            if parameters_number == test_case_func.__arguments_count__ - 1:
+                mock = mock_func(test_case_func)
+                mock.__name__ = "%s__%s" % (test_case_func.__name__, index + 1)
+                mock.__parameters__ = parameters
+                mock.__unzipped__["value"] = True
+                mock.__mock_funcs__ = [mock]
+                test_case_func.__mock_funcs__.append(mock)
+                setattr(test_case_func.im_class, mock.__name__, mock)
+            else:
+                raise TypeError("The data provider is trying to pass %s parameters but %s() takes %s."
+                                % (parameters_number, test_case_func.__name__, test_case_func.__arguments_count__ - 1))
+        test_case_func.__unzipped__["value"] = True
+    return test_case_func.__mock_funcs__

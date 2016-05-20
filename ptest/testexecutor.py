@@ -334,10 +334,10 @@ class TestFixtureSubExecutor(TestExecutor):
             expected_exceptions = self.test_fixture.expected_exceptions
             expected_exceptions_names = str(["%s.%s" % (e.__module__, e.__name__) for e in expected_exceptions.keys()])
             try:
-                if self.test_fixture.data is None:
+                if self.test_fixture.parameters is None:
                     self.test_fixture.test_fixture_ref.__call__()
                 else:
-                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.data)
+                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.parameters)
             except Exception as e:
                 exception = e.__class__
                 exception_name = "%s.%s" % (exception.__module__, exception.__name__)
@@ -376,10 +376,10 @@ class TestFixtureSubExecutor(TestExecutor):
                 screencapturer.take_screenshot()
         else:
             try:
-                if self.test_fixture.data is None:
+                if self.test_fixture.parameters is None:
                     self.test_fixture.test_fixture_ref.__call__()
                 else:
-                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.data)
+                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.parameters)
             except Exception as e:
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
