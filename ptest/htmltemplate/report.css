@@ -152,7 +152,7 @@ body {
     cursor: pointer;
     border: 1px solid rgb(204, 204, 204);
     border-radius: 5px;
-    width: 165px;
+    width: 220px;
     height: 26px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
@@ -186,11 +186,11 @@ body {
 }
 
 .tree .parent>.item>.name {
-    width: 101px;
+    width: 158px;
 }
 
 .tree .leaf>.item>.name {
-    width: 129px;
+    width: 186px;
 }
 
 .tree .badge {
@@ -207,7 +207,7 @@ body {
 
 .tree .rate-container {
     left: 32px;
-    width: 139px;
+    width: 194px;
     position: absolute;
 }
 
