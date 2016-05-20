@@ -9,7 +9,6 @@ except ImportError:
     from urllib.request import pathname2url
 
 from .enumeration import PDecoratorType, TestClassRunMode
-from .utils import mock_func
 
 
 def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):
@@ -34,17 +33,6 @@ def TestClass(enabled=True, run_mode="singleline", run_group=None, description="
         cls.__run_group__ = None if run_group is None else str(run_group)
         cls.__description__ = description
         cls.__custom_args__ = custom_args
-        for class_element in dir(cls):
-            attr = getattr(cls, class_element)
-            try:
-                if attr.__pd_type__ == PDecoratorType.Test and attr.__data_list__:
-                    for index, data in enumerate(attr.__data_list__):
-                        mock = mock_func(attr)
-                        mock.__name__ = "%s__%s" % (class_element, index + 1)
-                        mock.__data__ = data
-                        setattr(cls, mock.__name__, mock)
-            except AttributeError as e:
-                pass
         return cls
 
     return tracer
