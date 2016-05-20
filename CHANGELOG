@@ -1,5 +1,11 @@
 Change Log
 ----------
+1.7.0 (compared to 1.6.0)
+
+- Support data provider for @Test.
+
+- Fix encoding issue.
+
 1.6.0 (compared to 1.5.3)
 
 - Add meets() in ObjSubject of assert_that assertion.
