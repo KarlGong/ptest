@@ -11,12 +11,12 @@ except ImportError:
 from .enumeration import PDecoratorType, TestClassRunMode
 
 
-def TestClass(enabled=True, run_mode="parallel", run_group=None, description="", **custom_args):
+def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):
     """
         The TestClass decorator, it is used to mark a class as TestClass.
 
     :param enabled: enable or disable this test class.
-    :param run_mode: the run mode of all the test cases in this test class. If set to "parallel", all the test cases will be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
+    :param run_mode: the run mode of all the test cases in this test class. If set to "parallel", all the test cases can be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
     :param run_group: the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one. If not, this test class will be belong to it own run group.
     :param description: the description of this test class.
     :param custom_args: the custom arguments of this test class.

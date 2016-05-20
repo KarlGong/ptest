@@ -30,7 +30,7 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `enabled <#231---enabled>`_ - whether this test class is enabled
 
-- `run_mode <#237---run_mode>`_ - the run mode of all the test cases in this test class. If set to "parallel", all the test cases will be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
+- `run_mode <#237---run_mode>`_ - the run mode of all the test cases in this test class. If set to "parallel", all the test cases can be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
 
 - `run_group <#238---run_group>`_ - the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one. If not, this test class will be belong to it own run group.
 
@@ -559,9 +559,9 @@ In following case, the **@BeforeMethod** *before_cn* and *after_cn* are belong t
 
 2.3.7 - run_mode
 ~~~~~~~~~~~~~~~~
-*run_mode* attribute is only for **@TestClass** decorator. This attribute is used to specify the run mode of all the test cases in the test class. If set to ``"parallel"``, all the test cases will be run by multiple threads. If set to ``"singleline"``, all the test cases will be only run by one thread.
+*run_mode* attribute is only for **@TestClass** decorator. This attribute is used to specify the run mode of all the test cases in the test class. If set to ``"parallel"``, all the test cases can be run by multiple threads. If set to ``"singleline"``, all the test cases will be only run by one thread.
 
-The default value is ``"parallel"``. The value type should be ``str`` and it must be ``"singleline"`` or ``"parallel"``.
+The default value is ``"singleline"``. The value type should be ``str`` and it must be ``"singleline"`` or ``"parallel"``.
 
 **Examples:**
 
@@ -597,6 +597,37 @@ In following case, all the test cases use the same browser, so they should only 
         @AfterClass()
         def teardown(self):
             self.browser.quit()
+
+In following case, all the test cases are standalone, so they can be run by multiple threads.
+
+*Note:* If you want to run following test cases parallel, you must set ``-n(--testexecutornumber)`` greater than 1.
+
+.. code:: python
+
+    from ptest.decorator import TestClass, Test, BeforeClass, AfterClass
+    from ptest.assertion import assert_that
+
+    @TestClass(run_mode="parallel")
+    class PTestClass:
+        @BeforeClass()
+        def setup(self):
+            self.expected = 100
+
+        @Test()
+        def test1(self):
+            assert_that(50 + 50).is_equal_to(self.expected)
+
+        @Test()
+        def test2(self):
+            assert_that(200 - 100).is_equal_to(self.expected)
+
+        @Test()
+        def test3(self):
+            assert_that(10 * 10).is_equal_to(self.expected)
+
+        @AfterClass()
+        def teardown(self):
+            self.expected = None
 
 2.3.8 - run_group
 ~~~~~~~~~~~~~~~~~
