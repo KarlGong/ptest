@@ -151,6 +151,11 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, gr
             Exception Class and regular expression of expected message dict:
                 expected_exceptions={AttributeError: '.*object has no attribute.*'}
         Note: If you want to match the entire exception message, just include anchors in the regex pattern.
+    :param data_provider: the data provider for this test, the data provider must be iterable.
+        Following test will be run four times with the test data supplied from data provider.
+            @Test(data_provider=[(1, 1, 2), (2, 3, 5), (4, 5, 9), (9, 9, 18)])
+            def test_add(self, number1, number2, sum_):
+                assert_that(number1 + number2).is_equal_to(sum_)
     :param group: the group that this test belongs to.
     :param description: the description of this test.
     :param timeout: the timeout of this test (in seconds).
@@ -209,7 +214,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, gr
         func.__data_list__ = []
         # deal with data provider
         if data_provider:
-            for index, data in enumerate(data_provider):
+            for data in data_provider:
                 if isinstance(data, (list, tuple)):
                     if len(data) == func.__arguments_count__ - 1:
                         func.__data_list__.append(data)

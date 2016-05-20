@@ -46,6 +46,8 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `expected_exceptions <#2310---expected_exceptions>`_ - the expected exceptions of this test fixture. If no exception or a different one is thrown, this test will be marked as failed.
 
+- `data_provider <#2311---data_provider>`_ - the data provider for this test, the data provider must be iterable.
+
 - `group <#236---group>`_ - the group that this test belongs to
 
 - `description <#232---description>`_ - the description of this test
@@ -622,7 +624,6 @@ In following case, the ``PTestClass1`` and ``PTestClass2`` will be run one by on
         def test2(self):
             pass
 
-
     @TestClass(run_group=RUN_GROUP)
     class PTestClass2:
         @Test()
@@ -708,6 +709,56 @@ You can specify the expected exceptions by *expected_exceptions* attribute.
         @Test(expected_exceptions={AttributeError: '.*object has no attribute.*'})
         def test6(self):
             diff = self.x - self.y # failed, the AttributeError is thrown but the message doesnt' match
+
+2.3.11 - data_provider
+~~~~~~~~~~~~~~~~~~~~~~
+*data_provider* attribute is only for **@Test** decorator. This attribute is used to provide test case with test data.
+
+The default value is ``None``. The value must be iterable.
+
+**Examples:**
+
+You can specify a list of tuples as data provider.
+
+.. code:: python
+
+    from ptest.assertion import assert_that
+    from ptest.decorator import TestClass, Test
+
+    @TestClass()
+    class PTestClass:
+        @Test(data_provider=[(1, 1, 2), (2, 3, 5), (4, 5, 9), (9, 9, 18)])
+        def test_add(self, number1, number2, _sum): # this test will be run four times
+            assert_that(number1 + number2).is_equal_to(_sum)
+
+You can specify a generator as data provider.
+
+.. code:: python
+
+    from ptest.assertion import assert_that
+    from ptest.decorator import TestClass, Test
+
+    def generate_test_data():
+        n = 0
+        for _ in range(5):
+            yield n, n ** 2
+        return
+
+    @TestClass()
+    class PTestClass:
+        @Test(data_provider=generate_test_data())
+        def test_square(self, number, square): # this test will be run five times
+            assert_that(number * number).is_equal_to(square)
+
+If you want to run above test case with all test data supplied from the data provider. e.g., the python file name is *abc.py*.
+::
+
+    $ ptest -t abc.PTestClass.test_square
+
+If you want to run above test case with 4th test data supplied from the data provider.
+::
+
+    $ ptest -t abc.PTestClass.test_square__4
 
 3 - Running ptest
 =================
