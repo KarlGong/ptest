@@ -16,6 +16,9 @@ def get_option(option):
 
 
 def get_property(key, default=None):
+    """
+        Get property value. If no property found, default value will be returned.
+    """
     try:
         return _properties[key]
     except KeyError:
@@ -23,6 +26,9 @@ def get_property(key, default=None):
 
 
 def get_int_property(key, default=None):
+    """
+        Get property value and convert it to int. If no property found, default value will be returned.
+    """
     try:
         return int(_properties[key])
     except KeyError:
@@ -30,6 +36,9 @@ def get_int_property(key, default=None):
 
 
 def get_float_property(key, default=None):
+    """
+        Get property value and convert it to float. If no property found, default value will be returned.
+    """
     try:
         return float(_properties[key])
     except KeyError:
@@ -37,6 +46,9 @@ def get_float_property(key, default=None):
 
 
 def get_boolean_property(key, default=None):
+    """
+        Get property value and convert it to boolean. If no property found, default value will be returned.
+    """
     try:
         value = _properties[key]
         if value.lower() == "true":
@@ -49,6 +61,9 @@ def get_boolean_property(key, default=None):
 
 
 def get_list_property(key, default=None, sep=","):
+    """
+        Get property value and convert it to list. If no property found, default value will be returned.
+    """
     try:
         return _properties[key].split(sep)
     except KeyError:
