@@ -739,9 +739,8 @@ You can specify a generator as data provider.
     from ptest.decorator import TestClass, Test
 
     def generate_test_data():
-        n = 0
-        for _ in range(5):
-            yield n, n ** 2
+        for i in range(5):
+            yield i, i ** 2
         return
 
     @TestClass()
