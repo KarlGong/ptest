@@ -82,7 +82,7 @@ class TestFinder:
                     if test_case_func.__data_list__:
                         for index, data in enumerate(test_case_func.__data_list__):
                             mock = mock_func(test_case_func)
-                            mock.__name__ = "%s___%s" % (class_element, index + 1)
+                            mock.__name__ = "%s__%s" % (class_element, index + 1)
                             mock.__data__ = data
                             setattr(test_class_ref, mock.__name__, mock)
                             test_case_names.append(mock.__name__)
