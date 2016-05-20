@@ -17,7 +17,8 @@ def get_option(option):
 
 def get_property(key, default=None):
     """
-        Get property value. If no property found, default value will be returned.
+        Get property value.
+        If no property found, default value will be returned.
     """
     try:
         return _properties[key]
@@ -27,7 +28,8 @@ def get_property(key, default=None):
 
 def get_int_property(key, default=None):
     """
-        Get property value and convert it to int. If no property found, default value will be returned.
+        Get property value and convert it to int.
+        If no property found, default value will be returned.
     """
     try:
         return int(_properties[key])
@@ -37,7 +39,8 @@ def get_int_property(key, default=None):
 
 def get_float_property(key, default=None):
     """
-        Get property value and convert it to float. If no property found, default value will be returned.
+        Get property value and convert it to float.
+        If no property found, default value will be returned.
     """
     try:
         return float(_properties[key])
@@ -47,7 +50,8 @@ def get_float_property(key, default=None):
 
 def get_boolean_property(key, default=None):
     """
-        Get property value and convert it to boolean. If no property found, default value will be returned.
+        Get property value and convert it to boolean.
+        If no property found, default value will be returned.
     """
     try:
         value = _properties[key]
