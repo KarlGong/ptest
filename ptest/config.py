@@ -70,7 +70,7 @@ def _load_properties_from_file():
             property_regex_str = r"^([^;#].*?)=(.*?)$"
             property_regex = re.compile(property_regex_str)
             for line in file_object:
-                property_match = property_regex.search(line)
+                property_match = property_regex.search(line.strip())
                 if property_match:
                     _properties[property_match.group(1)] = property_match.group(2)
         finally:
