@@ -1,5 +1,11 @@
 Change Log
 ----------
+1.7.1 (compared to 1.7.0)
+
+- Improve performance of data provider.
+
+- Fix read property file issue.
+
 1.7.0 (compared to 1.6.0)
 
 - Support data provider for @Test.
