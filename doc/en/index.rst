@@ -772,7 +772,6 @@ You can specify a generator as data provider.
     def generate_test_data():
         for i in range(5):
             yield i, i ** 2
-        return
 
     @TestClass()
     class PTestClass:
@@ -788,7 +787,7 @@ If you want to run above test case with all test data supplied from the data pro
 If you want to run above test case with 4th test data supplied from the data provider.
 ::
 
-    $ ptest -t abc.PTestClass.test_square__4
+    $ ptest -t abc.PTestClass.test_square__p4
 
 3 - Running ptest
 =================

@@ -36,8 +36,8 @@ class TestCaseNameFilter:
 
     def filter(self, test_case_ref):
         return self._name == test_case_ref.__name__ \
-            or re.search(r"^%s__\d+$" % test_case_ref.__name__, self._name) \
-            or re.search(r"^%s__\d+$" % self._name, test_case_ref.__name__)
+            or re.search(r"^%s__p\d+$" % test_case_ref.__name__, self._name) \
+            or re.search(r"^%s__p\d+$" % self._name, test_case_ref.__name__)
 
 
 class TestCaseIncludeTagsFilter:
