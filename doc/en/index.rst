@@ -764,19 +764,27 @@ You can specify a list of tuples as data provider.
 
 You can specify a generator as data provider.
 
+*Note:* If your data is from a file or io stream, please use generator for better performance.
+
 .. code:: python
 
     from ptest.assertion import assert_that
     from ptest.decorator import TestClass, Test
 
-    def generate_test_data():
+    def test_data_list():
+        test_data = []
+        for i in range(5):
+            test_data.append((i, i ** 2))
+        return test_data
+
+    def test_data_generator():
         for i in range(5):
             yield i, i ** 2
 
     @TestClass()
     class PTestClass:
-        @Test(data_provider=generate_test_data())
-        def test_square(self, number, square): # this test will be run five times
+        @Test(data_provider=test_data_generator()) # use generator for better performance
+        def test_square(self, number, square):  # this test will be run five times
             assert_that(number * number).is_equal_to(square)
 
 If you want to run above test case with all test data supplied from the data provider. e.g., the python file name is *abc.py*.
