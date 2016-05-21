@@ -210,17 +210,17 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, gr
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
         func.__arguments_count__ = __get_arguments_count_of_test(func)
+        # for data provider
+        #                     normal   unzipped     mocked
+        # __parameters__       None      None      not None
+        # __data_provider__    None    not None    not None
+        # __funcs__           [func]      []        [mock]
         func.__parameters__ = None
         func.__data_provider__ = None
-        func.__unzipped__ = True
-        func.__mock_funcs__ = [func]
+        func.__funcs__ = [func]
         if data_provider:
             func.__data_provider__ = data_provider
-            func.__unzipped__ = False
-            func.__mock_funcs__ = []
-        elif func.__arguments_count__ != 1:
-            raise TypeError("Since data provider is not specified, %s() cannot be declared with %s arguments. Please declare with only 1 argument."
-                            % (func.__name__, func.__arguments_count__))
+            func.__funcs__ = []
         return func
 
     return handle_func
