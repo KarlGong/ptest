@@ -63,29 +63,23 @@ class TestFinder:
     def find_test_cases_in_module(self, module_ref):
         for module_element in dir(module_ref):
             test_class_cls = getattr(module_ref, module_element)
-            try:
-                if test_class_cls.__pd_type__ == PDecoratorType.TestClass \
-                        and test_class_cls.__enabled__ \
-                        and test_class_cls.__module__ == module_ref.__name__ \
-                        and self.test_class_filter_group.filter(test_class_cls):
-                    self.find_test_cases_in_class(test_class_cls)
-            except AttributeError as e:
-                pass
+            if hasattr(test_class_cls, "__pd_type__") and test_class_cls.__pd_type__ == PDecoratorType.TestClass \
+                    and hasattr(test_class_cls, "__enabled__") and test_class_cls.__enabled__ \
+                    and test_class_cls.__module__ == module_ref.__name__ \
+                    and self.test_class_filter_group.filter(test_class_cls):
+                self.find_test_cases_in_class(test_class_cls)
 
     def find_test_cases_in_class(self, test_class_cls):
         for class_element in dir(test_class_cls):
             test_case_func = getattr(test_class_cls, class_element)
-            try:
-                if test_case_func.__pd_type__ == PDecoratorType.Test \
-                        and test_case_func.__enabled__ \
-                        and self.test_case_filter_group.filter(test_case_func):
-                    for func in unzip_func(test_case_func):
-                        if self.test_case_filter_group.filter(func):
-                            self.found_test_case_count += 1
-                            if not self.target_test_suite.add_test_case(getattr(test_class_cls(), func.__name__)):
-                                self.repeated_test_case_count += 1
-            except AttributeError as e:
-                pass
+            if hasattr(test_case_func, "__pd_type__") and test_case_func.__pd_type__ == PDecoratorType.Test \
+                    and hasattr(test_case_func, "__enabled__") and test_case_func.__enabled__ \
+                    and self.test_case_filter_group.filter(test_case_func):
+                for func in unzip_func(test_case_func):
+                    if self.test_case_filter_group.filter(func):
+                        self.found_test_case_count += 1
+                        if not self.target_test_suite.add_test_case(getattr(test_class_cls(), func.__name__)):
+                            self.repeated_test_case_count += 1
 
 
 def unzip_func(test_case_func):

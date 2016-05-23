@@ -57,14 +57,12 @@ class TestSuite(TestContainer):
             test_class_ref = test_class.test_class_ref.__class__()
             for element in dir(test_class_ref):
                 attr = getattr(test_class_ref, element)
-                try:
-                    if attr.__enabled__:
-                        if attr.__pd_type__ == PDecoratorType.BeforeSuite:
-                            self.before_suite = BeforeSuite(self, attr)
-                        elif attr.__pd_type__ == PDecoratorType.AfterSuite:
-                            self.after_suite = AfterSuite(self, attr)
-                except AttributeError as e:
-                    pass
+                if hasattr(attr, "__enabled__") and attr.__enabled__ \
+                        and hasattr(attr, "__pd_type__"):
+                    if attr.__pd_type__ == PDecoratorType.BeforeSuite:
+                        self.before_suite = BeforeSuite(self, attr)
+                    elif attr.__pd_type__ == PDecoratorType.AfterSuite:
+                        self.after_suite = AfterSuite(self, attr)
 
     def init_test_class_run_groups(self):
         run_groups = {}
@@ -148,14 +146,12 @@ class TestClass(TestContainer):
         # reflect the before class and after class
         for element in dir(test_class_ref):
             attr = getattr(test_class_ref, element)
-            try:
-                if attr.__enabled__:
-                    if attr.__pd_type__ == PDecoratorType.BeforeClass:
-                        self.before_class = BeforeClass(self, attr)
-                    elif attr.__pd_type__ == PDecoratorType.AfterClass:
-                        self.after_class = AfterClass(self, attr)
-            except AttributeError as e:
-                pass
+            if hasattr(attr, "__enabled__") and attr.__enabled__ \
+                    and hasattr(attr, "__pd_type__"):
+                if attr.__pd_type__ == PDecoratorType.BeforeClass:
+                    self.before_class = BeforeClass(self, attr)
+                elif attr.__pd_type__ == PDecoratorType.AfterClass:
+                    self.after_class = AfterClass(self, attr)
 
     def get_failed_setup_fixture(self):
         setup_fixture = self.test_suite.get_failed_setup_fixture()
@@ -192,14 +188,13 @@ class TestGroup(TestContainer):
         # reflect the before group and after group
         for element in dir(test_class_ref):
             attr = getattr(test_class_ref, element)
-            try:
-                if attr.__enabled__ and attr.__group__ == self.name:
-                    if attr.__pd_type__ == PDecoratorType.BeforeGroup:
-                        self.before_group = BeforeGroup(self, attr)
-                    elif attr.__pd_type__ == PDecoratorType.AfterGroup:
-                        self.after_group = AfterGroup(self, attr)
-            except AttributeError as e:
-                pass
+            if hasattr(attr, "__enabled__") and attr.__enabled__ \
+                    and hasattr(attr, "__group__") and attr.__group__ == self.name \
+                    and hasattr(attr, "__pd_type__"):
+                if attr.__pd_type__ == PDecoratorType.BeforeGroup:
+                    self.before_group = BeforeGroup(self, attr)
+                elif attr.__pd_type__ == PDecoratorType.AfterGroup:
+                    self.after_group = AfterGroup(self, attr)
 
     def get_failed_setup_fixture(self):
         setup_fixture = self.test_class.get_failed_setup_fixture()
@@ -242,14 +237,13 @@ class TestCase:
         # reflect the before method and after method
         for element in dir(test_case_ref.__self__):
             attr = getattr(test_case_ref.__self__, element)
-            try:
-                if attr.__enabled__ and attr.__group__ == self.group:
-                    if attr.__pd_type__ == PDecoratorType.BeforeMethod:
-                        self.before_method = BeforeMethod(self, attr)
-                    elif attr.__pd_type__ == PDecoratorType.AfterMethod:
-                        self.after_method = AfterMethod(self, attr)
-            except AttributeError as e:
-                pass
+            if hasattr(attr, "__enabled__") and attr.__enabled__ \
+                    and hasattr(attr, "__group__") and attr.__group__ == self.group \
+                    and hasattr(attr, "__pd_type__"):
+                if attr.__pd_type__ == PDecoratorType.BeforeMethod:
+                    self.before_method = BeforeMethod(self, attr)
+                elif attr.__pd_type__ == PDecoratorType.AfterMethod:
+                    self.after_method = AfterMethod(self, attr)
 
     def get_failed_setup_fixture(self):
         setup_fixture = self.test_group.get_failed_setup_fixture()
