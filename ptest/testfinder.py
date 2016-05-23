@@ -75,14 +75,14 @@ class TestFinder:
             if hasattr(test_case_func, "__pd_type__") and test_case_func.__pd_type__ == PDecoratorType.Test \
                     and hasattr(test_case_func, "__enabled__") and test_case_func.__enabled__ \
                     and self.test_case_filter_group.filter(test_case_func):
-                for func in unzip_func(test_case_func):
+                for func in unzip_func(test_class_cls, test_case_func):
                     if self.test_case_filter_group.filter(func):
                         self.found_test_case_count += 1
                         if not self.target_test_suite.add_test_case(getattr(test_class_cls(), func.__name__)):
                             self.repeated_test_case_count += 1
 
 
-def unzip_func(test_case_func):
+def unzip_func(test_class_cls, test_case_func):
     if not test_case_func.__funcs__: # unzipped
         for index, data in enumerate(test_case_func.__data_provider__):
             if isinstance(data, (list, tuple)):
@@ -97,12 +97,15 @@ def unzip_func(test_case_func):
                 mock.__parameters__ = parameters
                 mock.__funcs__ = [mock]
                 test_case_func.__funcs__.append(mock)
-                setattr(test_case_func.im_class, mock.__name__, mock)
+                setattr(test_class_cls, mock.__name__, mock)
             else:
                 raise TypeError("The data provider is trying to pass %s parameters but %s.%s() takes %s."
-                                % (parameters_number, test_case_func.im_class.__name__, test_case_func.__name__, test_case_func.__arguments_count__ - 1))
-        test_case_func.__func__.__name__ = "_a_lonely_" + test_case_func.__name__ # retire it when unzipped
+                                % (parameters_number, test_class_cls.__name__, test_case_func.__name__, test_case_func.__arguments_count__ - 1))
+        if hasattr(test_case_func, "__func__"): # retire it when unzipped
+            test_case_func.__func__.__name__ = "_a_lonely_" + test_case_func.__name__ # py 2
+        else:
+            test_case_func.__name__ = "_a_lonely_" + test_case_func.__name__  # py 3
     elif not test_case_func.__data_provider__ and test_case_func.__arguments_count__ != 1: # normal
         raise TypeError("Since data provider is not specified, %s.%s() cannot be declared with %s arguments. Please declare with only 1 argument."
-                        % (test_case_func.im_class.__name__, test_case_func.__name__, test_case_func.__arguments_count__))
+                        % (test_class_cls.__name__, test_case_func.__name__, test_case_func.__arguments_count__))
     return test_case_func.__funcs__
