@@ -9,13 +9,14 @@ class PConsole:
         self.out = out
 
     def write(self, msg):
-        self.out.write(msg)
+        self.out.write(str(msg))
 
     def write_line(self, msg):
-        self.write(msg + "\n")
+        self.out.write(str(msg) + "\n")
 
 
 pconsole = PConsole(sys.stdout)
+pconsole_err = PConsole(sys.stderr)
 
 
 class PReporter:

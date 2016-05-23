@@ -9,7 +9,7 @@ from datetime import datetime
 
 from . import screencapturer
 from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
-from .plogger import preporter, pconsole
+from .plogger import preporter, pconsole, pconsole_err
 from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
     BeforeMethod, Test
 from .plistener import test_listeners
@@ -251,6 +251,10 @@ class TestFixtureExecutor(TestExecutor):
         if self.test_fixture.timeout > 0:
             test_fixture_sub_executor.join(self.test_fixture.timeout)
             if test_fixture_sub_executor.isAlive():
+                try:
+                    kill_thread(test_fixture_sub_executor)
+                except Exception as e:
+                    pconsole_err.write_line(e)
                 from .plogger import preporter
                 from . import screencapturer
                 self.test_fixture.status = TestFixtureStatus.FAILED
@@ -259,7 +263,6 @@ class TestFixtureExecutor(TestExecutor):
                 self.test_fixture.stack_trace = self.test_fixture.failure_message
                 preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
                 screencapturer.take_screenshot()
-                kill_thread(test_fixture_sub_executor)
         else:
             test_fixture_sub_executor.join()
 
@@ -433,3 +436,11 @@ def kill_thread(thread):
         # and you should call it again with exc=NULL to revert the effect"""
         ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
         raise SystemError("PyThreadState_SetAsyncExc failed")
+
+    start_time = time.time()
+    while (time.time() - start_time) <= 30:
+        if not thread.isAlive():
+            return
+        time.sleep(1)
+
+    raise SystemError("Timed out waiting for thread <%s> to be killed." % thread)
