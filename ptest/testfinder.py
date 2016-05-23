@@ -78,7 +78,7 @@ class TestFinder:
                 for func in unzip_func(test_class_cls, test_case_func):
                     if self.test_case_filter_group.filter(func):
                         self.found_test_case_count += 1
-                        if not self.target_test_suite.add_test_case(getattr(test_class_cls(), func.__name__)):
+                        if not self.target_test_suite.add_test_case(test_class_cls, func):
                             self.repeated_test_case_count += 1
 
 

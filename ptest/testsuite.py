@@ -104,8 +104,7 @@ class TestSuite(TestContainer):
                 return test_class
         return None
 
-    def add_test_case(self, test_case_ref):
-        test_class_cls = test_case_ref.__self__.__class__
+    def add_test_case(self, test_class_cls, test_case_func):
         # for the @TestClass can be inherited, so set full name here
         test_class_cls.__full_name__ = "%s.%s" % (test_class_cls.__module__, test_class_cls.__name__)
         test_class = self.get_test_class(test_class_cls.__full_name__)
@@ -113,14 +112,14 @@ class TestSuite(TestContainer):
             test_class = TestClass(self, test_class_cls())
             self.test_classes.append(test_class)
 
-        test_group = test_class.get_test_group(test_case_ref.__group__)
+        test_group = test_class.get_test_group(test_case_func.__group__)
         if test_group is None:
-            test_group = TestGroup(test_class, test_case_ref.__group__, test_class_cls())
+            test_group = TestGroup(test_class, test_case_func.__group__, test_class_cls())
             test_class.test_groups.append(test_group)
 
-        test_case = test_group.get_test_case(test_case_ref.__name__)
+        test_case = test_group.get_test_case(test_case_func.__name__)
         if test_case is None:
-            test_case = TestCase(test_group, test_case_ref)
+            test_case = TestCase(test_group, getattr(test_class_cls(), test_case_func.__name__))
             test_group.test_cases.append(test_case)
             test_class.test_cases.append(test_case)
             self.test_cases.append(test_case)
