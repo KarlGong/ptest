@@ -472,23 +472,23 @@ class _IterableSubject(_ObjSubject):
 
 class _IterableEachSubject(object):
     def __init__(self, iterable_subject):
-        self.__iterable_subject = iterable_subject
+        self._iterable_subject = iterable_subject
 
     def __getattr__(self, item):
         def each(*args, **kwargs):
             if item in ["length", "index", "key", "s"]:
                 iterable_subject = []
-                for subject in self.__iterable_subject:
+                for subject in self._iterable_subject:
                     iterable_subject.append(getattr(assert_that(subject), item)(*args, **kwargs)._subject)
                 return _IterableEachSubject(iterable_subject)
-            elif item in ["each"]:
+            elif item in ["each", "each_key", "each_value"]:
                 iterable_subject = []
-                for iterable in self.__iterable_subject:
-                    for subject in iterable:
+                for iterable in self._iterable_subject:
+                    for subject in getattr(assert_that(iterable), item)(*args, **kwargs)._iterable_subject:
                         iterable_subject.append(subject)
                 return _IterableEachSubject(iterable_subject)
             else:
-                for subject in self.__iterable_subject:
+                for subject in self._iterable_subject:
                     getattr(assert_that(subject), item)(*args, **kwargs)
                 return self
         return each
@@ -696,6 +696,18 @@ class _DictSubject(_IterableSubject):
             For each entry in this dict.
         """
         return _IterableEachSubject(self._subject.items())
+
+    def each_key(self):
+        """
+            For each key in this dict.
+        """
+        return _IterableEachSubject(self._subject.keys())
+
+    def each_value(self):
+        """
+            For each value in this dict.
+        """
+        return _IterableEachSubject(self._subject.values())
 
 
 class _DateSubject(_ObjSubject):
