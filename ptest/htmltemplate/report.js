@@ -141,8 +141,8 @@ $('.navigation .panel-body').mousewheel(function(event, delta){
     }
 });
 
-renderTree = function (testSuite, statusFilter) {
-    appendToNode = function (parentNode, data, visible) {
+function renderTree(testSuite, statusFilter) {
+    function appendToNode(parentNode, data, visible) {
         var node = null;
         if (data.type == "testcase") {
             switch (statusFilter){
@@ -265,7 +265,7 @@ renderTree = function (testSuite, statusFilter) {
     }
 };
 
-renderTestFixturePanel = function (detailPanel, data) {
+function renderTestFixturePanel(detailPanel, data) {
     var testFixturePanel = $('<div class="test-fixture panel"><div class="panel-heading"></div><div class="panel-body"><table></table></div></div>');
     var panelHeader = testFixturePanel.find('.panel-heading');
     panelHeader.addClass(data.status);
@@ -315,7 +315,7 @@ renderTestFixturePanel = function (detailPanel, data) {
     detailPanel.append(testFixturePanel);
 };
 
-renderDetailPanel = function (data) {
+function renderDetailPanel(data) {
     var detailPanel = $('.detail');
     var detailPanelHeader = detailPanel.find('.panel-heading');
     var detailPanelBody = detailPanel.find('.panel-body');
@@ -433,7 +433,7 @@ renderDetailPanel = function (data) {
     }
 };
 
-renderDashBoard = function(data) {
+function renderDashBoard(data) {
     var detailPanel = $('.detail');
     var detailPanelHeader = detailPanel.find('.panel-heading');
     var detailPanelBody = detailPanel.find('.panel-body');
