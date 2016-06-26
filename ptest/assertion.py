@@ -475,23 +475,30 @@ class _IterableEachSubject(object):
         self._iterable_subject = iterable_subject
 
     def __getattr__(self, item):
-        def each(*args, **kwargs):
-            if item in ["length", "index", "key", "s"]:
+        if item in ["length", "index", "key", "s"]:
+            def each_attr(*args, **kwargs):
                 iterable_subject = []
                 for subject in self._iterable_subject:
                     iterable_subject.append(getattr(assert_that(subject), item)(*args, **kwargs)._subject)
                 return _IterableEachSubject(iterable_subject)
-            elif item in ["each", "each_key", "each_value"]:
+
+            return each_attr
+        elif item in ["each", "each_key", "each_value"]:
+            def each_each(*args, **kwargs):
                 iterable_subject = []
                 for iterable in self._iterable_subject:
                     for subject in getattr(assert_that(iterable), item)(*args, **kwargs)._iterable_subject:
                         iterable_subject.append(subject)
                 return _IterableEachSubject(iterable_subject)
-            else:
+
+            return each_each
+        else:
+            def assert_each(*args, **kwargs):
                 for subject in self._iterable_subject:
                     getattr(assert_that(subject), item)(*args, **kwargs)
                 return self
-        return each
+
+            return assert_each
 
 
 class _StringSubject(_IterableSubject):
