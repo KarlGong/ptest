@@ -1,3 +1,4 @@
+import types
 from functools import cmp_to_key
 
 from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode
@@ -119,7 +120,13 @@ class TestSuite(TestContainer):
 
         test_case = test_group.get_test_case(test_case_func.__name__)
         if test_case is None:
-            test_case = TestCase(test_group, getattr(test_class_cls(), test_case_func.__name__))
+            if hasattr(test_class_cls, test_case_func.__name__): #normal
+                test_case = TestCase(test_group, getattr(test_class_cls(), test_case_func.__name__))
+            else: # mocked
+                test_class_ref = test_class_cls()
+                mock_func = types.MethodType(test_case_func, test_class_ref)
+                setattr(test_class_ref, test_case_func.__name__, mock_func)
+                test_case = TestCase(test_group, mock_func)
             test_group.test_cases.append(test_case)
             test_class.test_cases.append(test_case)
             self.test_cases.append(test_case)
