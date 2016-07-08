@@ -98,9 +98,9 @@ def unzip_func(test_class_cls, test_case_func):
                 mock.__funcs__ = [mock]
                 test_case_func.__funcs__.append(mock)
             else:
-                raise TypeError("The data provider is trying to pass %s parameters but %s.%s() takes %s."
+                raise TypeError("The data provider is trying to pass %s extra parameters but %s.%s() takes %s."
                                 % (parameters_number, test_class_cls.__name__, test_case_func.__name__, test_case_func.__arguments_count__ - 1))
     elif not test_case_func.__data_provider__ and test_case_func.__arguments_count__ != 1: # normal
-        raise TypeError("Since data provider is not specified, %s.%s() cannot be declared with %s arguments. Please declare with only 1 argument."
+        raise TypeError("Since data provider is not specified, %s.%s() cannot be declared with %s arguments. Please declare with only 1 argument (self)."
                         % (test_class_cls.__name__, test_case_func.__name__, test_case_func.__arguments_count__))
     return test_case_func.__funcs__
