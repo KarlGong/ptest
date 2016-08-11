@@ -79,8 +79,8 @@ def merge_xunit_xmls(xml_files, to_file):
 
 def main(args=None):
     # fix encoding issue in python 2.x
+    import sys
     try:
-        import sys
         reload(sys)
         sys.setdefaultencoding('utf-8')
     except NameError:
