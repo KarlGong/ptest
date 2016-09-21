@@ -323,7 +323,7 @@ def take_screenshot():
                         new_log["count"] = 1
                         log_dict[log_hash] = new_log
 
-                screenshot["logs"] = log_dict.values()
+                screenshot["logs"] = list(log_dict.values()) or None
             except Exception:
                 pass
 
