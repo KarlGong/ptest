@@ -1,3 +1,4 @@
+from copy import copy
 import os
 import traceback
 from io import BytesIO
@@ -5,6 +6,7 @@ from io import BytesIO
 from . import config
 from .exceptions import ScreenshotError
 from .plogger import preporter
+from .utils import escape
 
 # ----------------------------------------------------------------------
 # -------- [ cross-platform multiple screenshots module ] --------------
@@ -306,6 +308,22 @@ def take_screenshot():
 
             try:
                 screenshot["title"] = web_driver.title
+            except Exception:
+                pass
+
+            try:
+                log_dict = {}
+                logs = [{"message": escape(log["message"]), "level": log["level"]} for log in web_driver.get_log("browser")]
+                for log in logs:
+                    log_hash = str(log)
+                    if log_hash in log_dict:
+                        log_dict[log_hash]["count"] += 1
+                    else:
+                        new_log = copy(log)
+                        new_log["count"] = 1
+                        log_dict[log_hash] = new_log
+
+                screenshot["logs"] = log_dict.values()
             except Exception:
                 pass
 

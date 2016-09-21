@@ -296,7 +296,7 @@ function renderTestFixturePanel(detailPanel, data) {
     if (data.screenshots.length) {
         for (var i = 0; i < data.screenshots.length; i++) {
             var screenshotData = data.screenshots[i];
-            var screenshot = $('<tr class="screenshot"><td>Screenshot_{0}</td><td><div class="container"><a class="link" href="{1}" data-lightbox="{1}"><img class="image" src="{1}" /></a></div><table class="property"></table></td></td></tr>'.format(i + 1, screenshotData.path));
+            var screenshot = $('<tr class="screenshot"><td>Screenshot_{0}</td><td><table><tr><td><div class="container"><a class="link" href="{1}" data-lightbox="{1}"><img class="image" src="{1}" /></a></div></td><td><table class="property"></table></td></tr></table></td></tr>'.format(i + 1, screenshotData.path));
             var screenshotProperties = screenshot.find('.property');
             screenshotProperties.append($('<tr><td>Source </td><td>{0}</td></tr>'.format(screenshotData.source)));
             if (screenshotData.title) {
@@ -307,6 +307,14 @@ function renderTestFixturePanel(detailPanel, data) {
             }
             if (screenshotData.url) {
                 screenshotProperties.append($('<tr><td>Url </td><td>{0}</td></tr>'.format(screenshotData.url)));
+            }
+            if (screenshotData.logs) {
+                var browserLogStr = "";
+                for (var l = 0; l < screenshotData.logs.length; l++) {
+                    var log = screenshotData.logs[l];
+                    browserLogStr += "<b>({0})[{1}]</b> {2}<br/>".format(log["count"], log["level"], log["message"]);
+                }
+                screenshotProperties.append($('<tr><td>Logs </td><td>{0}</td></tr>'.format(browserLogStr)));
             }
             fieldTable.append(screenshot);
         }

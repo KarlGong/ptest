@@ -192,8 +192,6 @@ def _get_test_case_dict(test_case):
 
 
 def _get_test_fixture_dict(test_fixture):
-    escaped_logs = [{"level": log["level"], "message": log["message"].replace("&", "&amp;").replace("<", "&lt;")
-        .replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")} for log in test_fixture.logs]
     repr_dict = {
         "name": test_fixture.name,
         "fullName": test_fixture.full_name,
@@ -203,7 +201,7 @@ def _get_test_fixture_dict(test_fixture):
         "startTime": str(test_fixture.start_time),
         "endTime": str(test_fixture.end_time),
         "elapsedTime": test_fixture.elapsed_time,
-        "logs": escaped_logs,
+        "logs": test_fixture.logs,
         "screenshots": test_fixture.screenshots,
         "description": test_fixture.description
     }

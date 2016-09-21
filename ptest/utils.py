@@ -28,3 +28,7 @@ def mock_func(func):
         func(self, *args, **kwargs)
 
     return mock
+
+def escape(value):
+    return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")\
+        .replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")
