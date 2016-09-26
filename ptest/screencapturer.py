@@ -6,7 +6,6 @@ from io import BytesIO
 from . import config
 from .exceptions import ScreenshotError
 from .plogger import preporter
-from .utils import escape
 
 # ----------------------------------------------------------------------
 # -------- [ cross-platform multiple screenshots module ] --------------
@@ -313,7 +312,7 @@ def take_screenshot():
 
             try:
                 log_dict = {}
-                logs = [{"message": escape(log["message"]), "level": log["level"]} for log in web_driver.get_log("browser")]
+                logs = [{"message": log["message"], "level": log["level"]} for log in web_driver.get_log("browser")]
                 for log in logs:
                     log_hash = str(log)
                     if log_hash in log_dict:

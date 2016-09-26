@@ -2,7 +2,6 @@ import logging
 import sys
 
 from . import config
-from .utils import escape
 
 
 class PConsole:
@@ -47,7 +46,7 @@ class PReporter:
         except AttributeError as e:
             pconsole.write_line("[%s] %s" % (logging.getLevelName(level), msg))
         else:
-            running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": escape(str(msg))})
+            running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})
 
             if config.get_option("verbose"):
                 # output to pconsole

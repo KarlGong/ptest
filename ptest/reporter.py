@@ -11,7 +11,7 @@ from . import config
 from .plogger import pconsole
 from .testsuite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
-from .utils import make_dirs, remove_tree
+from .utils import make_dirs, remove_tree, escape
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -201,8 +201,8 @@ def _get_test_fixture_dict(test_fixture):
         "startTime": str(test_fixture.start_time),
         "endTime": str(test_fixture.end_time),
         "elapsedTime": test_fixture.elapsed_time,
-        "logs": test_fixture.logs,
-        "screenshots": test_fixture.screenshots,
+        "logs": escape(test_fixture.logs),
+        "screenshots": escape(test_fixture.screenshots),
         "description": test_fixture.description
     }
     return repr_dict

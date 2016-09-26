@@ -1,5 +1,7 @@
 import re
 
+from .utils import StringTypes
+
 
 # -------------------------------------------
 # ------------ simple assertion -------------
@@ -75,10 +77,7 @@ def __raise_error(msg, error_msg):
 # -------------------------------------------
 from numbers import Number
 from datetime import datetime, date
-try:
-    StringTypes = (str, unicode)
-except NameError:
-    StringTypes = (str,)
+
 
 SUBJECT_TYPE_MAP = {}
 

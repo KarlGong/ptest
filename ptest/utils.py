@@ -2,6 +2,10 @@ import errno
 import os
 from functools import wraps
 
+try:
+    StringTypes = (str, unicode)
+except NameError:
+    StringTypes = (str,)
 
 def make_dirs(dir_path):
     try:
@@ -29,6 +33,13 @@ def mock_func(func):
 
     return mock
 
-def escape(value):
-    return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")\
-        .replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")
+
+def escape(obj):
+    if isinstance(obj, dict):
+        return {key: escape(value) for key, value in obj.items()}
+    if isinstance(obj, list):
+        return [escape(item) for item in obj]
+    if isinstance(obj, StringTypes):
+        return obj.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") \
+            .replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")
+    return obj
