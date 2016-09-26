@@ -70,7 +70,7 @@ class MSS(object):
         zcompr = compress
         len_sl = width * 3
         scanlines = b''.join(
-            [b'0' + data[y * len_sl:y * len_sl + len_sl]
+            [pack(b'>B', 0) + data[y * len_sl:y * len_sl + len_sl]
              for y in range(height)])
 
         magic = pack(b'>8B', 137, 80, 78, 71, 13, 10, 26, 10)
