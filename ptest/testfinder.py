@@ -83,7 +83,7 @@ class TestFinder:
 
 
 def unzip_func(test_class_cls, test_case_func):
-    if not test_case_func.__funcs__: # unzipped
+    if not test_case_func.__funcs__: # zipped
         for index, data in enumerate(test_case_func.__data_provider__):
             if isinstance(data, (list, tuple)):
                 parameters_number = len(data)
