@@ -755,12 +755,15 @@ You can specify a list of tuples as data provider.
 
     from ptest.assertion import assert_that
     from ptest.decorator import TestClass, Test
+    from ptest.plogger import preporter
 
     @TestClass()
     class PTestClass:
         @Test(data_provider=[(1, 1, 2), (2, 3, 5), (4, 5, 9), (9, 9, 18)])
-        def test_add(self, number1, number2, _sum): # this test will be run four times
-            assert_that(number1 + number2).is_equal_to(_sum)
+        def test_add(self, number1, number2, expected_sum):  # this test will be run four times
+            preporter.info("The input number is %s and %s." % (number1, number2))
+            preporter.info("The expected sum is %s." % expected_sum)
+            assert_that(number1 + number2).is_equal_to(expected_sum)
 
 You can specify a generator as data provider.
 
@@ -783,9 +786,9 @@ You can specify a generator as data provider.
 
     @TestClass()
     class PTestClass:
-        @Test(data_provider=test_data_generator()) # use generator for better performance
-        def test_square(self, number, square):  # this test will be run five times
-            assert_that(number * number).is_equal_to(square)
+        @Test(data_provider=test_data_generator())  # use generator for better performance
+        def test_square(self, number, expected_number):  # this test will be run five times
+            assert_that(number * number).is_equal_to(expected_number)
 
 If you want to run above test case with all test data supplied from the data provider. e.g., the python file name is *abc.py*.
 ::
@@ -796,6 +799,35 @@ If you want to run above test case with 4th test data supplied from the data pro
 ::
 
     $ ptest -t abc.PTestClass.test_square__p4
+
+2.4 - Extra Decorators
+----------------------
+If you want to add extra decorators to ptest test, the extra decorators must be put above **@Test**.
+
+**Examples:**
+
+.. code:: python
+
+    from functools import wraps
+
+    from ptest.assertion import assert_equals
+    from ptest.decorator import TestClass, Test
+    from ptest.plogger import preporter
+
+    def log(func):
+        @wraps(func) # @wraps(func) is necessary
+        def wrapper(*args, **kwargs):
+            preporter.info("start testing")
+            func(*args, **kwargs)
+        return wrapper
+
+    @TestClass()
+    class PTestClass:
+        @log # put extra decorators above @Test
+        @Test()
+        def test(self):
+            expected = 10
+            assert_equals(10, expected)
 
 3 - Running ptest
 =================
