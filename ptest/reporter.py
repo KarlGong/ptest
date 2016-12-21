@@ -57,7 +57,7 @@ def generate_xunit_xml(xml_file_path):
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
         pconsole.write_line("xunit report is generated at %s" % xml_file_path)
-    except Exception:
+    except Exception as e:
         pconsole.write_line("Failed to generate xunit report.\n%s" % traceback.format_exc())
     finally:
         f.close()
@@ -102,35 +102,77 @@ def generate_html_report(report_dir):
     try:
         f.write(index_page_content)
         pconsole.write_line("html report is generated at %s" % os.path.abspath(report_dir))
-    except Exception:
+    except Exception as e:
         pconsole.write_line("Failed to generate html report.\n%s" % traceback.format_exc())
     finally:
         f.close()
 
 
 def _get_test_suite_dict(test_suite):
-    repr_dict = {
+    test_suite_dict = {
         "name": test_suite.name,
         "fullName": test_suite.full_name,
-        "type": "testsuite",
-        "testClasses": [_get_test_class_dict(test_class) for test_class in test_suite.test_classes],
+        "type": "suite",
+        "testModules": _get_test_module_dicts(test_suite.test_classes),
         "startTime": str(test_suite.start_time),
         "endTime": str(test_suite.end_time),
         "elapsedTime": test_suite.elapsed_time,
-        "statusCount": test_suite.status_count,
+        "total": test_suite.status_count[TestCaseCountItem.TOTAL],
+        "passed": test_suite.status_count[TestCaseCountItem.PASSED],
+        "failed": test_suite.status_count[TestCaseCountItem.FAILED],
+        "skipped": test_suite.status_count[TestCaseCountItem.SKIPPED]
     }
     if not test_suite.before_suite.is_empty:
-        repr_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
+        test_suite_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
     if not test_suite.after_suite.is_empty:
-        repr_dict["afterSuite"] =_get_test_fixture_dict(test_suite.after_suite)
-    return repr_dict
+        test_suite_dict["afterSuite"] =_get_test_fixture_dict(test_suite.after_suite)
+    return test_suite_dict
+
+
+def _get_test_module_dicts(test_classes):
+    root_test_module_dict = {
+        "name": "root",
+        "testModules": []
+    }
+
+    def get_or_new_module(modules, module_full_name):
+        for module in modules:
+            if module_full_name == module["fullName"]:
+                return module
+        new_module = {
+            "name": module_full_name.split(".")[-1],
+            "fullName": module_full_name,
+            "type": "module",
+            "testModules": [],
+            "testClasses": [],
+            "total": 0,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 0
+        }
+        modules.append(new_module)
+        return new_module
+
+    for test_class_dict in [_get_test_class_dict(test_class) for test_class in test_classes]:
+        current_test_module_dict = root_test_module_dict
+        splitted_full_name = test_class_dict["fullName"].split(".")[:-1]
+        for i in range(len(splitted_full_name)):
+            test_module_dict = get_or_new_module(current_test_module_dict["testModules"],
+                                                 ".".join(splitted_full_name[:i + 1]))
+            test_module_dict["total"] += test_class_dict["total"]
+            test_module_dict["passed"] += test_class_dict["passed"]
+            test_module_dict["failed"] += test_class_dict["failed"]
+            test_module_dict["skipped"] += test_class_dict["skipped"]
+            current_test_module_dict = test_module_dict
+        current_test_module_dict["testClasses"].append(test_class_dict)
+    return root_test_module_dict["testModules"]
 
 
 def _get_test_class_dict(test_class):
-    repr_dict = {
+    test_class_dict = {
             "name": test_class.name,
             "fullName": test_class.full_name,
-            "type": "testclass",
+            "type": "class",
             "runMode": test_class.run_mode,
             "runGroup": test_class.run_group,
             "description": test_class.description,
@@ -138,43 +180,49 @@ def _get_test_class_dict(test_class):
             "startTime": str(test_class.start_time),
             "endTime": str(test_class.end_time),
             "elapsedTime": test_class.elapsed_time,
-            "statusCount": test_class.status_count,
+            "total": test_class.status_count[TestCaseCountItem.TOTAL],
+            "passed": test_class.status_count[TestCaseCountItem.PASSED],
+            "failed": test_class.status_count[TestCaseCountItem.FAILED],
+            "skipped": test_class.status_count[TestCaseCountItem.SKIPPED]
         }
     if test_class.is_group_feature_used:
-        repr_dict["testGroups"] = [_get_test_group_dict(test_group) for test_group in test_class.test_groups]
+        test_class_dict["testGroups"] = [_get_test_group_dict(test_group) for test_group in test_class.test_groups]
     else:
-        repr_dict["testCases"] = [_get_test_case_dict(test_case) for test_case in test_class.test_cases]
+        test_class_dict["testCases"] = [_get_test_case_dict(test_case) for test_case in test_class.test_cases]
 
     if not test_class.before_class.is_empty:
-        repr_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
+        test_class_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
     if not test_class.after_class.is_empty:
-        repr_dict["afterClass"] =_get_test_fixture_dict(test_class.after_class)
-    return repr_dict
+        test_class_dict["afterClass"] =_get_test_fixture_dict(test_class.after_class)
+    return test_class_dict
 
 
 def _get_test_group_dict(test_group):
-    repr_dict = {
+    test_group_dict = {
         "name": test_group.name,
         "fullName": test_group.full_name,
-        "type": "testgroup",
+        "type": "group",
         "testCases": [_get_test_case_dict(test_case) for test_case in test_group.test_cases],
         "startTime": str(test_group.start_time),
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
-        "statusCount": test_group.status_count,
+        "total": test_group.status_count[TestCaseCountItem.TOTAL],
+        "passed": test_group.status_count[TestCaseCountItem.PASSED],
+        "failed": test_group.status_count[TestCaseCountItem.FAILED],
+        "skipped": test_group.status_count[TestCaseCountItem.SKIPPED]
     }
     if not test_group.before_group.is_empty:
-        repr_dict["beforeGroup"] = _get_test_fixture_dict(test_group.before_group)
+        test_group_dict["beforeGroup"] = _get_test_fixture_dict(test_group.before_group)
     if not test_group.after_group.is_empty:
-        repr_dict["afterGroup"] = _get_test_fixture_dict(test_group.after_group)
-    return repr_dict
+        test_group_dict["afterGroup"] = _get_test_fixture_dict(test_group.after_group)
+    return test_group_dict
 
 
 def _get_test_case_dict(test_case):
-    repr_dict = {
+    test_case_dict = {
         "name": test_case.name,
         "fullName": test_case.full_name,
-        "type": "testcase",
+        "type": "case",
         "startTime": str(test_case.start_time),
         "endTime": str(test_case.end_time),
         "elapsedTime": test_case.elapsed_time,
@@ -185,17 +233,17 @@ def _get_test_case_dict(test_case):
         "test": _get_test_fixture_dict(test_case.test),
     }
     if not test_case.before_method.is_empty:
-        repr_dict["beforeMethod"] = _get_test_fixture_dict(test_case.before_method)
+        test_case_dict["beforeMethod"] = _get_test_fixture_dict(test_case.before_method)
     if not test_case.after_method.is_empty:
-        repr_dict["afterMethod"] = _get_test_fixture_dict(test_case.after_method)
-    return repr_dict
+        test_case_dict["afterMethod"] = _get_test_fixture_dict(test_case.after_method)
+    return test_case_dict
 
 
 def _get_test_fixture_dict(test_fixture):
-    repr_dict = {
+    test_fixture_dict = {
         "name": test_fixture.name,
         "fullName": test_fixture.full_name,
-        "type": "testfixture",
+        "type": "fixture",
         "status": test_fixture.status,
         "fixtureType": test_fixture.fixture_type,
         "startTime": str(test_fixture.start_time),
@@ -205,4 +253,4 @@ def _get_test_fixture_dict(test_fixture):
         "screenshots": escape(test_fixture.screenshots),
         "description": test_fixture.description
     }
-    return repr_dict
+    return test_fixture_dict

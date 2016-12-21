@@ -157,6 +157,14 @@ body {
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
+.tree .item:after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin-left: 22px;
+}
+
 .tree .item:hover {
     border: 1px solid #BAE0F3;
     box-shadow: 0 1px 1px #BAE0F3;
@@ -402,36 +410,6 @@ body {
 
 .test-fixture .screenshot .property td:nth-child(2) {
     word-break: break-all;
-}
-
-.pieChart {
-    float: left;
-    width: 200px;
-    height: 200px;
-    margin: 10px;
-}
-
-.legend-group {
-    float: left;
-    margin-top: 20px;
-    margin-left: 40px;
-
-}
-
-.legend {
-    height: 18px;
-}
-
-.legend .icon {
-    float: left;
-    width: 13px;
-    height: 13px;
-}
-
-.legend .text {
-    float: left;
-    margin-top: -1px;
-    margin-left: 4px;
 }
 
 /*
