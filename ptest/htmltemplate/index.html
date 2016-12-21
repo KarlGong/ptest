@@ -16,10 +16,10 @@
 <div class="main-container">
     <div class="panel navigation">
         <div class="panel-heading">
-            <div class="btn all selected" filter="all">ALL<span class="badge"></span></div>
-            <div class="btn passed" filter="passed">PASS<span class="badge"></span></div>
-            <div class="btn failed" filter="failed">FAIL<span class="badge"></span></div>
-            <div class="btn skipped" filter="skipped">SKIP<span class="badge"></span></div>
+            <div class="filter-btn all" filter="all">ALL<span class="badge"></span></div>
+            <div class="filter-btn passed" filter="passed">PASS<span class="badge"></span></div>
+            <div class="filter-btn failed" filter="failed">FAIL<span class="badge"></span></div>
+            <div class="filter-btn skipped" filter="skipped">SKIP<span class="badge"></span></div>
         </div>
         <div class="panel-body">
             <div class="toolbar"><span class="expand-all">ExpandAll</span> <span class="collapse-all">CollapseAll</span></div>
@@ -37,27 +37,6 @@
 <script type="text/javascript">
     // init test suite data
     var testSuite = {test_suite_json};
-
-    // init filter for tree
-    $('.navigation .all .badge').text(testSuite.statusCount['total']);
-    $('.navigation .passed .badge').text(testSuite.statusCount['passed']);
-    $('.navigation .failed .badge').text(testSuite.statusCount['failed']);
-    $('.navigation .skipped .badge').text(testSuite.statusCount['skipped']);
-
-    // render tree
-    renderTree(testSuite, "all");
-
-    // add listener for tree filter
-    $('.navigation .btn').on('click', function (e) {{
-        if(!$(this).hasClass('selected')) {{
-            $('.navigation .btn.selected').removeClass('selected');
-            $(this).addClass('selected');
-            renderTree(testSuite, $(this).attr('filter'));
-         }}
-    }});
-
-    // render dashboard
-    renderDashBoard(testSuite);
 </script>
 </body>
 </html>

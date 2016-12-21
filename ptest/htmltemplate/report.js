@@ -60,6 +60,28 @@ String.prototype.format = function (args) {
     return result;
 };
 
+$(function() {
+    // init filter for tree
+    $('.navigation .all .badge').text(testSuite.statusCount['total']);
+    $('.navigation .passed .badge').text(testSuite.statusCount['passed']);
+    $('.navigation .failed .badge').text(testSuite.statusCount['failed']);
+    $('.navigation .skipped .badge').text(testSuite.statusCount['skipped']);
+
+    // select all by default
+    $('.navigation .filter-btn.all').click();
+    // render dashboard
+    renderDashBoard(testSuite);
+});
+
+// add listener for tree filter
+$('.navigation .filter-btn').on('click', function (e) {{
+    if(!$(this).hasClass('selected')) {{
+        $('.navigation .filter-btn.selected').removeClass('selected');
+        $(this).addClass('selected');
+        renderTree(testSuite, $(this).attr('filter'));
+     }}
+}});
+
 // add listener for clicking expanded parent node
 $('.tree').on('click', 'li.parent.expanded>.item>.sign', function(e) {
     var node = $(this).parent().parent();

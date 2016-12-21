@@ -29,7 +29,7 @@ body {
     background-color: #FFB626 !important;
 }
 
-.btn {
+.filter-btn {
     display: inline-block;
     padding: 5px 6px;
     margin-left: 3px;
@@ -44,36 +44,36 @@ body {
     opacity: 0.4;
 }
 
-.btn:hover {
+.filter-btn:hover {
     opacity: 0.6;
 }
 
-.btn.selected {
+.filter-btn.selected {
     opacity: 1;
     border: 1px solid #43a3d0;
     box-shadow: 0 1px 1px #43a3d0;
 }
 
-.btn .badge {
+.filter-btn .badge {
     margin-left: 4px;
     padding: 2px 6px;
     border-radius: 10px;
     background-color: #fff;
 }
 
-.btn.all .badge {
+.filter-btn.all .badge {
     color: #43a3d0;
 }
 
-.btn.passed .badge {
+.filter-btn.passed .badge {
     color: #5FB65F;
 }
 
-.btn.failed .badge {
+.filter-btn.failed .badge {
     color: #FF6E6E;
 }
 
-.btn.skipped .badge {
+.filter-btn.skipped .badge {
     color: #FFB626;
 }
 
