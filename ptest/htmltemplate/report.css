@@ -137,7 +137,7 @@ body {
 }
 
 .tree {
-    margin-top: -10px;
+    margin-top: -6px;
 }
 
 .tree > ul {
@@ -191,7 +191,8 @@ body {
     padding-left: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap
+    white-space: nowrap;
+    width: 186px;
 }
 
 .tree .item .type {
@@ -204,24 +205,14 @@ body {
     background-color: #fff;
 }
 
-.tree .parent>.item>.name {
-    width: 158px;
-}
-
-.tree .leaf>.item>.name {
-    width: 186px;
-}
-
-.tree .item .badge {
-    text-align: center;
-    margin-top: 2px;
-    font-size: 11px;
-    float: right;
-    margin-right: 3px;
-    padding: 2px 4px;
-    border-radius: 10px;
-    color: #fff;
-    min-width: 10px;
+.tree .item .number {
+    position: absolute;
+    right: 10px;
+    top: -8px;
+    font-size: 12px;
+    padding: 0 3px;
+    color: #43a3d0;
+    background-color: #fff;
 }
 
 .tree .item .rate-container {
@@ -231,9 +222,9 @@ body {
 }
 
 .tree .item .rate {
-    display: inline-block;
-    margin-top: 21px;
-    height: 5px;
+    float: left;
+    margin-top: 23px;
+    height: 3px;
     box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
 }
 
