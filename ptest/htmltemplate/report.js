@@ -180,11 +180,12 @@ function renderTreePanel(testSuite, statusFilter) {
                 return null;
             }
             // test container
-            var nodeContent = '<li class="node parent {expandClass}"><div class="item" title="{name}"><div class="sign" title="Click to expand/collapse.">{sign}</div><div class="name">{name}</div><div class="{status} badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
+            var nodeContent = '<li class="node parent {expandClass}"><div class="item" title="{name}"><div class="sign" title="Click to expand/collapse.">{sign}</div><div class="name">{name}</div><div class="{status} badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div><div class="type">{type}</div></div><ul></ul></li>';
             var nodeContentFormatter = {
                 "name": data.name,
-                "sign": expanded ? '-': '+',
                 "expandClass": expanded ? 'expanded': 'collapsed',
+                "sign": expanded ? '-': '+',
+                "type": data.type,
                 "status": statusFilter,
                 "total": 0,
                 "passRate": 0,
