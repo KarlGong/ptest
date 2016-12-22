@@ -416,31 +416,41 @@ body {
 /*
  * dashboard
 */
-.pieChart {
+.dashboard {
+    margin-bottom: 15px;
+}
+
+.dashboard:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.dashboard .pieChart {
     float: left;
     width: 200px;
     height: 200px;
     margin: 10px;
 }
 
-.legend-group {
+.dashboard .legend-group {
     float: left;
     margin-top: 20px;
     margin-left: 40px;
 
 }
 
-.legend {
+.dashboard .legend {
     height: 18px;
 }
 
-.legend .icon {
+.dashboard .legend .icon {
     float: left;
     width: 13px;
     height: 13px;
 }
 
-.legend .text {
+.dashboard .legend .text {
     float: left;
     margin-top: -1px;
     margin-left: 4px;

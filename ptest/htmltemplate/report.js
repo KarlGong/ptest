@@ -69,8 +69,7 @@ $(function() {
 
     // select all by default
     $('.navigation .filter-btn.all').click();
-    // render dashboard
-    renderDashBoard(testSuite);
+    $('.navigation li > .item')[0].click();
 });
 
 // add listener for tree filter
@@ -331,8 +330,8 @@ function renderTestFixturePanel(detailPanel, data) {
 
 function renderDetailPanel(data) {
     var detailPanel = $('.detail');
-    var detailPanelHeader = detailPanel.find('.panel-heading');
-    var detailPanelBody = detailPanel.find('.panel-body');
+    var detailPanelHeader = detailPanel.find(' > .panel-heading');
+    var detailPanelBody = detailPanel.find(' > .panel-body');
     detailPanelHeader.empty();
     detailPanelBody.empty();
 
@@ -374,8 +373,7 @@ function renderDetailPanel(data) {
             var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
             var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
             detailPanelHeader.append(number);
-
-
+            renderDashBoard(detailPanelBody, data);
             break;
         case "suite":
             var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
@@ -392,6 +390,7 @@ function renderDetailPanel(data) {
             fieldTable.append(duration);
 
             detailPanelBody.append(fieldTable);
+            renderDashBoard(detailPanelBody, data);
             if (data.beforeSuite) {
                 renderTestFixturePanel(detailPanelBody, data.beforeSuite);
             }
@@ -454,15 +453,12 @@ function renderDetailPanel(data) {
     }
 };
 
-function renderDashBoard(data) {
-    var detailPanel = $('.detail');
-    var detailPanelHeader = detailPanel.find('.panel-heading');
-    var detailPanelBody = detailPanel.find('.panel-body');
-    detailPanelHeader.empty();
-    detailPanelBody.empty();
+function renderDashBoard(parentPanel, data) {
+    var panel = $('<div class="dashboard"></div>');
+    parentPanel.append(panel);
 
-    detailPanelHeader.append($('<span class="text">Dashboard</span>'));
-    detailPanelBody.append($('<canvas class="pieChart"></canvas>'));
+    var pieChart = $('<canvas class="pieChart"></canvas>');
+    panel.append(pieChart);
     var pieChartData = [
     {
         value: data.passed,
@@ -483,7 +479,7 @@ function renderDashBoard(data) {
         label: "Skipped"
     }
     ];
-    var ctx = $(".pieChart").get(0).getContext("2d");
+    var ctx = pieChart.get(0).getContext("2d");
     var pieChart = new Chart(ctx).Pie(pieChartData, {animationEasing: 'easeOutQuart', tooltipTemplate: "<%= label %>: <%= value %> (<%= Math.round(circumference * 1000 / 6.283) / 10 %>%)"});
-    detailPanelBody.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
+    panel.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
 };
