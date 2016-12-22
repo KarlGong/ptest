@@ -151,7 +151,7 @@ $('.navigation .panel-body').mousewheel(function(event, delta){
 });
 
 function renderTreePanel(testSuite, statusFilter) {
-    function appendToNode(parentNode, data, visible) {
+    function appendToNode(parentNode, data, visible, expanded) {
         var node = null;
         if (data.type == "case") {
             if (statusFilter != data.status && statusFilter != "all") {
@@ -163,16 +163,17 @@ function renderTreePanel(testSuite, statusFilter) {
                 "name": data.name,
                 "status": data.status
             }));
-        }
-        else {
+        } else {
             if (data[statusFilter] == 0 && statusFilter != "all") {
                 return null;
             }
             // test container
-            var nodeContent = '<li class="node parent"><div class="item" title="{name}"><div class="sign" title="Click to expand/collapse."></div><div class="name">{name}</div><div class="{statusFilter} badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
+            var nodeContent = '<li class="node parent {expandClass}"><div class="item" title="{name}"><div class="sign" title="Click to expand/collapse.">{sign}</div><div class="name">{name}</div><div class="{status} badge">{total}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div></div><ul></ul></li>';
             var nodeContentFormatter = {
                 "name": data.name,
-                "statusFilter": statusFilter,
+                "sign": expanded ? '-': '+',
+                "expandClass": expanded ? 'expanded': 'collapsed',
+                "status": statusFilter,
                 "total": 0,
                 "passRate": 0,
                 "failRate": 0,
@@ -208,9 +209,7 @@ function renderTreePanel(testSuite, statusFilter) {
     };
 
     function renderTree(parentNode, data) {
-        var currentNode = appendToNode(parentNode, data, true);
-        currentNode.find(' > .item > .sign').text('-');
-        currentNode.addClass('expanded');
+        var currentNode = appendToNode(parentNode, data, true, true);
         if (currentNode == null) {
             return;
         }
@@ -222,22 +221,18 @@ function renderTreePanel(testSuite, statusFilter) {
         if (data.testClasses) {
             for (var i = 0; i < data.testClasses.length; i++) {
                 var testClass = data.testClasses[i];
-                var testClassNode = appendToNode(currentNode, testClass, true);
+                var testClassNode = appendToNode(currentNode, testClass, true, false);
                 if (testClassNode == null) {
                     continue;
                 }
-                testClassNode.find(' > .item > .sign').text('+');
-                testClassNode.addClass('collapsed');
 
-                if (testClass.isGroupFeatureUsed) {
+                if (testClass.testGroups) {
                     for (var j = 0; j < testClass.testGroups.length; j++) {
                         var testGroup = testClass.testGroups[j];
-                        var testGroupNode = appendToNode(testClassNode, testGroup, false);
+                        var testGroupNode = appendToNode(testClassNode, testGroup, false, false);
                         if (testGroupNode == null) {
                             continue;
                         }
-                        testGroupNode.find(' > .item > .sign').text('+');
-                        testGroupNode.addClass('collapsed');
 
                         for (var k = 0; k < testGroup.testCases.length; k++) {
                             var testCase = testGroup.testCases[k];

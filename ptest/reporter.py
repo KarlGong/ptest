@@ -151,6 +151,7 @@ def _get_test_module_dicts(test_classes):
             "skipped": 0
         }
         modules.append(new_module)
+        modules.sort(key=lambda m: m["name"])
         return new_module
 
     for test_class_dict in [_get_test_class_dict(test_class) for test_class in test_classes]:
@@ -165,30 +166,30 @@ def _get_test_module_dicts(test_classes):
             test_module_dict["skipped"] += test_class_dict["skipped"]
             current_test_module_dict = test_module_dict
         current_test_module_dict["testClasses"].append(test_class_dict)
+        current_test_module_dict["testClasses"].sort(key=lambda c: c["name"])
     return root_test_module_dict["testModules"]
 
 
 def _get_test_class_dict(test_class):
     test_class_dict = {
-            "name": test_class.name,
-            "fullName": test_class.full_name,
-            "type": "class",
-            "runMode": test_class.run_mode,
-            "runGroup": test_class.run_group,
-            "description": test_class.description,
-            "isGroupFeatureUsed": test_class.is_group_feature_used,
-            "startTime": str(test_class.start_time),
-            "endTime": str(test_class.end_time),
-            "elapsedTime": test_class.elapsed_time,
-            "total": test_class.status_count[TestCaseCountItem.TOTAL],
-            "passed": test_class.status_count[TestCaseCountItem.PASSED],
-            "failed": test_class.status_count[TestCaseCountItem.FAILED],
-            "skipped": test_class.status_count[TestCaseCountItem.SKIPPED]
-        }
+        "name": test_class.name,
+        "fullName": test_class.full_name,
+        "type": "class",
+        "runMode": test_class.run_mode,
+        "runGroup": test_class.run_group,
+        "description": test_class.description,
+        "startTime": str(test_class.start_time),
+        "endTime": str(test_class.end_time),
+        "elapsedTime": test_class.elapsed_time,
+        "total": test_class.status_count[TestCaseCountItem.TOTAL],
+        "passed": test_class.status_count[TestCaseCountItem.PASSED],
+        "failed": test_class.status_count[TestCaseCountItem.FAILED],
+        "skipped": test_class.status_count[TestCaseCountItem.SKIPPED]
+    }
     if test_class.is_group_feature_used:
-        test_class_dict["testGroups"] = [_get_test_group_dict(test_group) for test_group in test_class.test_groups]
+        test_class_dict["testGroups"] = sorted([_get_test_group_dict(test_group) for test_group in test_class.test_groups], key=lambda g: g["name"])
     else:
-        test_class_dict["testCases"] = [_get_test_case_dict(test_case) for test_case in test_class.test_cases]
+        test_class_dict["testCases"] = sorted([_get_test_case_dict(test_case) for test_case in test_class.test_cases], key=lambda c: c["name"])
 
     if not test_class.before_class.is_empty:
         test_class_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
@@ -202,7 +203,7 @@ def _get_test_group_dict(test_group):
         "name": test_group.name,
         "fullName": test_group.full_name,
         "type": "group",
-        "testCases": [_get_test_case_dict(test_case) for test_case in test_group.test_cases],
+        "testCases": sorted([_get_test_case_dict(test_case) for test_case in test_group.test_cases], key=lambda c: c["name"]),
         "startTime": str(test_group.start_time),
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
