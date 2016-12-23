@@ -13,6 +13,15 @@ body {
     color: #666666;
 }
 
+#splitter {
+    position: absolute;
+    cursor: col-resize;
+    top: 0;
+    right: -10px;
+    height: 100%;
+    width: 10px;
+}
+
 .all {
     background-color: #43a3d0 !important;
 }
@@ -51,7 +60,7 @@ body {
 }
 
 .navigation {
-    width: 380px;
+    width: 350px;
     position: fixed;
 	top: 76px;
 	bottom: 2px;
@@ -59,11 +68,7 @@ body {
 
 .navigation .panel-heading {
     overflow: hidden;
-}
-
-.filter {
     display: flex;
-    justify-content: space-between;
 }
 
 .filter-btn {
@@ -165,9 +170,10 @@ body {
 .tree .item:after {
     content: "";
     display: block;
+    pointer-events: none;
     width: 100%;
     height: 100%;
-    margin-left: 25px;
+    margin-left: 26px;
 }
 
 .tree .item:hover {
@@ -270,11 +276,11 @@ body {
 }
 
 .detail {
-    width: calc(100% - 390px);
+    width: calc(100% - 360px);
     float: left;
     position: relative;
     margin-top: 12px;
-    margin-left: 390px;
+    margin-left: 360px;
     bottom: 2px;
 }
 
