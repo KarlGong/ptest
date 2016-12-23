@@ -92,10 +92,12 @@ $(function() {
 
     $('#splitter').on('mousedown', function (e) {
         mousedown = true;
+        e.preventDefault();
     }).on('dblclick', function (e) {
         width = 350;
         resize();
         localStorage.ptestWidth = width;
+        e.preventDefault();
     });
 
     $(window).on('mousemove', function (e) {
@@ -108,6 +110,7 @@ $(function() {
         if (mousedown) {
             mousedown = false;
             localStorage.ptestWidth = width;
+            e.preventDefault();
         }
     });
 })(window);
