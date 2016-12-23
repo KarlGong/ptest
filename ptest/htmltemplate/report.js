@@ -75,31 +75,40 @@ $(function() {
 // add listener for splitter
 (function (window) {
     var mousedown = false;
+    var width = 0;
     var leftPanel = $('.navigation');
     var rightPanel = $('.detail');
 
-    function resize(width) {
+    function resize() {
         leftPanel.css('width', width + 'px');
         rightPanel.css('margin-left', (width + 10) + 'px');
         rightPanel.css('width', 'calc(100% - '+ (width + 10) +'px)');
     }
 
     if (localStorage.ptestWidth) {
-        resize(parseInt(localStorage.ptestWidth));
+        width = parseInt(localStorage.ptestWidth);
+        resize();
     }
 
     $('#splitter').on('mousedown', function (e) {
         mousedown = true;
-    })
+    }).on('dblclick', function (e) {
+        width = 350;
+        resize();
+        localStorage.ptestWidth = width;
+    });
+
     $(window).on('mousemove', function (e) {
         if (mousedown) {
-            var width = e.pageX - 5 - leftPanel.position().left;
-            resize(width);
-            localStorage.ptestWidth = width;
+            width = e.pageX - 5 - leftPanel.position().left;
+            resize();
             e.preventDefault();
         }
     }).on('mouseup', function (e) {
-        mousedown = false;
+        if (mousedown) {
+            mousedown = false;
+            localStorage.ptestWidth = width;
+        }
     });
 })(window);
 
