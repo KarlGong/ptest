@@ -57,10 +57,13 @@ body {
 	bottom: 2px;
 }
 
+.navigation .panel-heading {
+    overflow: hidden;
+}
+
 .filter {
     display: flex;
     justify-content: space-between;
-    flex-wrap: wrap;
 }
 
 .filter-btn {
@@ -111,6 +114,15 @@ body {
     color: #FFB626;
 }
 
+.navigation .panel-body{
+    overflow-y: auto;
+    height: calc(100% - 78px);
+}
+
+.navigation .panel-body:hover .toolbar {
+    visibility: visible;
+}
+
 .navigation .toolbar {
     top: 50px;
     right: 18px;
@@ -121,21 +133,7 @@ body {
     background-color: #fff;
 }
 
-.navigation .panel-body{
-    overflow-y: auto;
-    height: calc(100% - 78px);
-}
-
-.navigation .panel-body:hover .toolbar {
-    visibility: visible;
-}
-
-.navigation .toolbar .expand-all {
-    cursor: pointer;
-    color: #43A3D0;
-    text-decoration: underline;
-}
-
+.navigation .toolbar .expand-all,
 .navigation .toolbar .collapse-all {
     cursor: pointer;
     color: #43A3D0;
@@ -231,7 +229,7 @@ body {
 
 .tree .item .rate {
     float: left;
-    height: 3px;
+    height: 100%;
 }
 
 .tree li {
