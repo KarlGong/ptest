@@ -295,7 +295,6 @@ body {
 .detail>.panel-heading.fixed {
     position: fixed;
     top: 0;
-    width: calc(100% - 406px);
 }
 
 .detail>.panel-heading .text {
