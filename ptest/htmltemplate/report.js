@@ -172,11 +172,7 @@ $('.tree').on('click', 'li > .item', function (e) {
     e.stopPropagation();
 
     var maxTop = 76;
-    if (oldScrollTop > maxTop) {
-        $(window).scrollTop(maxTop);
-    } else {
-        $(window).scrollTop(oldScrollTop);
-    }
+    $(window).scrollTop(Math.min(oldScrollTop, maxTop));
 });
 
 // calculate the "top" of navigation
