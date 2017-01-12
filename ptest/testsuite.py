@@ -187,7 +187,7 @@ class TestGroup(TestContainer):
         self.test_class_ref = test_class_ref
         self.test_cases = []
         self.name = name
-        self.full_name = "%s(%s)" % (test_class.full_name, name)
+        self.full_name = "%s<%s>" % (test_class.full_name, name)
 
         self.before_group = BeforeGroup(self, None)
         self.after_group = AfterGroup(self, None)

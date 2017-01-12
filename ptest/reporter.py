@@ -111,7 +111,7 @@ def generate_html_report(report_dir):
 def _get_test_suite_dict(test_suite):
     test_suite_dict = {
         "name": test_suite.name,
-        "fullName": test_suite.full_name,
+        "fullName": escape(test_suite.full_name),
         "type": "suite",
         "testModules": _get_test_module_dicts(test_suite.test_classes),
         "startTime": str(test_suite.start_time),
@@ -201,7 +201,7 @@ def _get_test_class_dict(test_class):
 def _get_test_group_dict(test_group):
     test_group_dict = {
         "name": test_group.name,
-        "fullName": test_group.full_name,
+        "fullName": escape(test_group.full_name),
         "type": "group",
         "testCases": sorted([_get_test_case_dict(test_case) for test_case in test_group.test_cases], key=lambda c: c["name"]),
         "startTime": str(test_group.start_time),
@@ -222,7 +222,7 @@ def _get_test_group_dict(test_group):
 def _get_test_case_dict(test_case):
     test_case_dict = {
         "name": test_case.name,
-        "fullName": test_case.full_name,
+        "fullName": escape(test_case.full_name),
         "type": "case",
         "startTime": str(test_case.start_time),
         "endTime": str(test_case.end_time),
@@ -243,7 +243,7 @@ def _get_test_case_dict(test_case):
 def _get_test_fixture_dict(test_fixture):
     test_fixture_dict = {
         "name": test_fixture.name,
-        "fullName": test_fixture.full_name,
+        "fullName": escape(test_fixture.full_name),
         "type": "fixture",
         "status": test_fixture.status,
         "fixtureType": test_fixture.fixture_type,
