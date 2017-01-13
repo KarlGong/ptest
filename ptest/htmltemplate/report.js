@@ -228,7 +228,7 @@ function renderTreePanel(testSuite, statusFilter) {
                 "total": 0,
                 "passRate": 0,
                 "failRate": 0,
-                "skipRate": 0,
+                "skipRate": 0
             };
             switch (statusFilter) {
                 case "passed":
@@ -257,7 +257,7 @@ function renderTreePanel(testSuite, statusFilter) {
         node.data("data", data);
         parentNode.find(' > ul').append(node);
         return node;
-    };
+    }
 
     function renderTree(parentNode, data) {
         var currentNode = appendToNode(parentNode, data, true, true);
@@ -303,11 +303,8 @@ function renderTreePanel(testSuite, statusFilter) {
     $('.navigation .tree>ul').empty();
 
     // render tree panel
-    var testSuiteNode = renderTree($('.navigation .tree'), testSuite, true);
-    if (testSuiteNode == null) {
-        return;
-    }
-};
+    renderTree($('.navigation .tree'), testSuite);
+}
 
 function renderTestFixturePanel(detailPanel, data) {
     var testFixturePanel = $('<div class="test-fixture panel"><div class="panel-heading"></div><div class="panel-body"><table></table></div></div>');
@@ -365,7 +362,7 @@ function renderTestFixturePanel(detailPanel, data) {
     }
 
     detailPanel.append(testFixturePanel);
-};
+}
 
 function renderDetailPanel(data) {
     var detailPanel = $('.detail');
@@ -490,7 +487,7 @@ function renderDetailPanel(data) {
             }
             break;
     }
-};
+}
 
 function renderDashBoard(parentPanel, data) {
     var panel = $('<div class="dashboard"></div>');
@@ -521,4 +518,4 @@ function renderDashBoard(parentPanel, data) {
     var ctx = pieChart.get(0).getContext("2d");
     var pieChart = new Chart(ctx).Pie(pieChartData, {animationEasing: 'easeOutQuart', tooltipTemplate: "<%= label %>: <%= value %> (<%= Math.round(circumference * 1000 / 6.283) / 10 %>%)"});
     panel.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
-};
+}
