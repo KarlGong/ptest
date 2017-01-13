@@ -44,9 +44,11 @@ Here is a quick overview of the decorators available in ptest along with their a
 
 - `tags <#239---tags>`_ - the tags of this test (it can be string (separated by comma) or list or tuple)
 
-- `expected_exceptions <#2310---expected_exceptions>`_ - the expected exceptions of this test fixture. If no exception or a different one is thrown, this test will be marked as failed.
+- `expected_exceptions <#2310---expected_exceptions>`_ - the expected exceptions of this test. If no exception or a different one is thrown, this test will be marked as failed.
 
 - `data_provider <#2311---data_provider>`_ - the data provider for this test, the data provider must be iterable.
+
+- `data_name <#2312---data_name>`_ - the data name function of this test.
 
 - `group <#236---group>`_ - the group that this test belongs to
 
@@ -771,6 +773,7 @@ You can specify a generator as data provider.
 
 .. code:: python
 
+    # mytest.py
     from ptest.assertion import assert_that
     from ptest.decorator import TestClass, Test
 
@@ -790,15 +793,44 @@ You can specify a generator as data provider.
         def test_square(self, number, expected_number):  # this test will be run five times
             assert_that(number * number).is_equal_to(expected_number)
 
-If you want to run above test case with all test data supplied from the data provider. e.g., the python file name is *abc.py*.
+If you want to run above test case with all test data supplied from the data provider.
 ::
 
-    $ ptest -t abc.PTestClass.test_square
+    $ ptest -t mytest.PTestClass.test_square
 
 If you want to run above test case with 4th test data supplied from the data provider.
 ::
 
-    $ ptest -t abc.PTestClass.test_square__p4
+    $ ptest -t mytest.PTestClass.test_square(4)
+
+2.3.12 - data_name
+~~~~~~~~~~~~~~~~~~
+*data_name* attribute is only for **@Test** decorator. This attribute is used to provide data name for test case with test data.
+
+The default value is ``None``. The value must be a function with 2 parameters.
+
+*Note:* If no *data_provider* specified, this attribute will be ignored.
+
+**Examples:**
+
+.. code:: python
+
+    # mytest.py
+    from ptest.assertion import assert_that
+    from ptest.decorator import TestClass, Test
+
+    @TestClass()
+    class PTestClass:
+        @Test(data_provider=[(1, 1, 2), (2, 3, 5)], data_name=lambda index, params: "%s_%s" % params[:2])
+        def test_add(self, number1, number2, expected_sum):
+            assert_that(number1 + number2).is_equal_to(expected_sum)
+
+Then the test names are ``test_add(1_1)`` and ``test_add(2_3)``.
+
+If you want to run above test case with 2th test data supplied from the data provider.
+::
+
+    $ ptest -t mytest.PTestClass.test_add(2_3)
 
 2.4 - Extra Decorators
 ----------------------
@@ -938,6 +970,7 @@ Create a listener.py under workspace:
 
 .. code:: python
 
+    # listener.py
     from ptest.plistener import TestListener
 
     class MyTestListener(TestListener):
@@ -951,7 +984,7 @@ Then use ``-l(--listeners)`` to specify the path of test listener classes
 
 ::
 
-    $ ptest -t abc -l listener.MyTestListener
+    $ ptest -t mytest -l listener.MyTestListener
 
 5 - Test results
 ================

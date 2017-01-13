@@ -134,13 +134,13 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
     return handle_func
 
 
-def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, group="DEFAULT", description="", timeout=0, **custom_args):
+def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, data_name=None, group="DEFAULT", description="", timeout=0, **custom_args):
     """
         The Test decorator, it is used to mark a test as Test.
 
     :param enabled: enable or disable this test.
     :param tags: the tags of this test. It can be string (separated by comma) or list or tuple.
-    :param expected_exceptions: the expected exceptions of this test fixture.
+    :param expected_exceptions: the expected exceptions of this test.
         If no exception or a different one is thrown, this test will be marked as failed.
         The possible values of this parameter are::
             Exception Class:
@@ -156,6 +156,13 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, gr
             @Test(data_provider=[(1, 1, 2), (2, 3, 5), (4, 5, 9), (9, 9, 18)])
             def test_add(self, number1, number2, sum_):
                 assert_that(number1 + number2).is_equal_to(sum_)
+    :param data_name: the data name function of this test.
+        Note: If no data_provider specified, data_name will be ignored.
+        For example:
+            @Test(data_provider=["foo", "bar"], data_name=lambda index, params: params[0])
+            def test_something(self, name):
+                assert_that(name).is_not_none()
+            The test names are test_something(foo) and test_something(bar).
     :param group: the group that this test belongs to.
     :param description: the description of this test.
     :param timeout: the timeout of this test (in seconds).
@@ -221,6 +228,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, gr
         if data_provider:
             func.__data_provider__ = data_provider
             func.__funcs__ = []
+            func.__data_name__ = data_name or (lambda index, params: index + 1)
         return func
 
     return handle_func

@@ -29,6 +29,7 @@ You can tag test class, test, before method, after method by adding decorator @T
 
 .. code:: python
 
+    # c:\\folder\\mytest.py
     from ptest.decorator import TestClass, Test, BeforeMethod, AfterMethod
     from ptest.assertion import assert_equals, fail, assert_not_none
     from ptest.plogger import preporter
@@ -59,7 +60,7 @@ You can tag test class, test, before method, after method by adding decorator @T
 
 
 Then start to execute all the testcases in module *mytest.py* with 2 threads.
-Use -w to specify the workspace, -t to specify the target and -n to specify the number of test executors(threads).
+Use ``-w`` to specify the workspace, ``-t`` to specify the target and ``-n`` to specify the number of test executors(threads).
 In this case, workspace is *c:\\folder*, target is *mytest* and number of test executors is *2*.
 
 *Note:* If you are using Windows, please confirm that **%python_installation_dir%\\Scripts** (e.g., C:\\Python27\\Scripts) is added to the PATH environment variable.
@@ -76,7 +77,7 @@ For example, if you only want to execute the test *test1* in this module.
 
     $ ptest -w c:\folder -t mytest.PTestClass.test1
 
-For more options, please use -h.
+For more options, please use ``-h``.
 
 ::
 
