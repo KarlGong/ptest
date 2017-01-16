@@ -60,6 +60,11 @@ String.prototype.format = function (args) {
     return result;
 };
 
+function changeCSS(selector, css) {
+  css = JSON.stringify(css).replace(/"/g, "").replace(/,/g, ";");
+  $('#extra-style').html(selector + css);
+}
+
 $(function() {
     // init filter for tree
     $('.navigation .all .badge').text(testSuite.total);
@@ -83,6 +88,7 @@ $(function() {
         leftPanel.css('width', width + 'px');
         rightPanel.css('margin-left', (width + 10) + 'px');
         rightPanel.css('width', 'calc(100% - '+ (width + 10) +'px)');
+        changeCSS('.detail>.panel-heading.fixed', {'width': 'calc(100% - ' + (width + 26) + 'px)'});
     }
 
     if (localStorage.ptestWidth) {

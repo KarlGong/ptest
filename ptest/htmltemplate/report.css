@@ -295,12 +295,15 @@ body {
 .detail>.panel-heading.fixed {
     position: fixed;
     top: 0;
+    width: calc(100% - 376px);
 }
 
 .detail>.panel-heading .text {
+    display: inline-block;
     font-size: 16px;
     font-weight: bold;
     word-wrap: break-word;
+    word-break: break-all;
 }
 
 .detail>.panel-heading .badge {
