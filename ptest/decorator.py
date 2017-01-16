@@ -162,7 +162,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
             @Test(data_provider=["foo", "bar"], data_name=lambda index, params: params[0])
             def test_something(self, name):
                 assert_that(name).is_not_none()
-            The test names are test_something(foo) and test_something(bar).
+            The test names are test_something#foo and test_something#bar.
     :param group: the group that this test belongs to.
     :param description: the description of this test.
     :param timeout: the timeout of this test (in seconds).

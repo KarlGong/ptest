@@ -93,7 +93,7 @@ def unzip_func(test_class_cls, test_case_func):
                 parameters = [data]
             if parameters_number == test_case_func.__arguments_count__ - 1:
                 mock = mock_func(test_case_func)
-                mock.__name__ = ("%s(%s)" % (test_case_func.__name__, test_case_func.__data_name__(index, parameters)))\
+                mock.__name__ = ("%s#%s" % (test_case_func.__name__, test_case_func.__data_name__(index, parameters)))\
                     .replace(".", "_").replace(",", "_").replace(" ", "_")
                 mock.__parameters__ = parameters
                 mock.__funcs__ = [mock]

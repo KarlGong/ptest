@@ -801,7 +801,7 @@ If you want to run above test case with all test data supplied from the data pro
 If you want to run above test case with 4th test data supplied from the data provider.
 ::
 
-    $ ptest -t mytest.PTestClass.test_square(4)
+    $ ptest -t mytest.PTestClass.test_square#4
 
 2.3.12 - data_name
 ~~~~~~~~~~~~~~~~~~
@@ -825,12 +825,12 @@ The default value is ``None``. The value must be a function with 2 parameters.
         def test_add(self, number1, number2, expected_sum):
             assert_that(number1 + number2).is_equal_to(expected_sum)
 
-Then the test names are ``test_add(1_1)`` and ``test_add(2_3)``.
+Then the test names are ``test_add#1_1`` and ``test_add#2_3``.
 
 If you want to run above test case with 2th test data supplied from the data provider.
 ::
 
-    $ ptest -t mytest.PTestClass.test_add(2_3)
+    $ ptest -t mytest.PTestClass.test_add#2_3
 
 2.4 - Extra Decorators
 ----------------------
