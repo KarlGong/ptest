@@ -6,6 +6,7 @@ from io import BytesIO
 from . import config
 from .exceptions import ScreenshotError
 from .plogger import preporter
+from .utils import escape_filename
 
 # ----------------------------------------------------------------------
 # -------- [ cross-platform multiple screenshots module ] --------------
@@ -285,29 +286,29 @@ def take_screenshot():
         for index, web_driver in enumerate(web_drivers):
             screenshot = {
                 "source": "Web Driver",
-                "path": "%s-%s.png" % (running_test_fixture.full_name, index + 1)
+                "path": "%s-%s.png" % (escape_filename(running_test_fixture.full_name), index + 1)
             }
             running_test_fixture.screenshots.append(screenshot)
 
             try:
                 screenshot["alert"] = web_driver.switch_to.alert.text
-            except Exception:
+            except Exception as e:
                 pass
 
             while True:
                 try:
                     web_driver.switch_to.alert.dismiss()
-                except Exception:
+                except Exception as e:
                     break
 
             try:
                 screenshot["url"] = web_driver.current_url
-            except Exception:
+            except Exception as e:
                 pass
 
             try:
                 screenshot["title"] = web_driver.title
-            except Exception:
+            except Exception as e:
                 pass
 
             try:
@@ -323,13 +324,13 @@ def take_screenshot():
                         log_dict[log_hash] = new_log
 
                 screenshot["logs"] = list(log_dict.values()) or None
-            except Exception:
+            except Exception as e:
                 pass
 
             try:
                 with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
                     f.write(web_driver.get_screenshot_as_png())
-            except Exception:
+            except Exception as e:
                 preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
     else:
         if system() == 'Darwin' and not pyobjc_installed:
@@ -338,7 +339,7 @@ def take_screenshot():
 
         screenshot = {
             "source": "Desktop",
-            "path": "%s.png" % running_test_fixture.full_name
+            "path": "%s.png" % escape_filename(running_test_fixture.full_name)
         }
         running_test_fixture.screenshots.append(screenshot)
 
@@ -347,5 +348,5 @@ def take_screenshot():
             mss().save(output=output, screen=-1)  # -1 means all monitors
             with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
                 f.write(output.getvalue())
-        except Exception:
+        except Exception as e:
             preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())

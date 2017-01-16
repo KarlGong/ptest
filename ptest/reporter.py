@@ -11,7 +11,7 @@ from . import config
 from .plogger import pconsole
 from .testsuite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
-from .utils import make_dirs, remove_tree, escape
+from .utils import make_dirs, remove_tree, escape_html
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -110,8 +110,8 @@ def generate_html_report(report_dir):
 
 def _get_test_suite_dict(test_suite):
     test_suite_dict = {
-        "name": escape(test_suite.name),
-        "fullName": escape(test_suite.full_name),
+        "name": escape_html(test_suite.name),
+        "fullName": escape_html(test_suite.full_name),
         "type": "suite",
         "testModules": _get_test_module_dicts(test_suite.test_classes),
         "startTime": str(test_suite.start_time),
@@ -200,8 +200,8 @@ def _get_test_class_dict(test_class):
 
 def _get_test_group_dict(test_group):
     test_group_dict = {
-        "name": escape(test_group.name),
-        "fullName": escape(test_group.full_name),
+        "name": escape_html(test_group.name),
+        "fullName": escape_html(test_group.full_name),
         "type": "group",
         "testCases": sorted([_get_test_case_dict(test_case) for test_case in test_group.test_cases], key=lambda c: c["name"]),
         "startTime": str(test_group.start_time),
@@ -221,8 +221,8 @@ def _get_test_group_dict(test_group):
 
 def _get_test_case_dict(test_case):
     test_case_dict = {
-        "name": escape(test_case.name),
-        "fullName": escape(test_case.full_name),
+        "name": escape_html(test_case.name),
+        "fullName": escape_html(test_case.full_name),
         "type": "case",
         "startTime": str(test_case.start_time),
         "endTime": str(test_case.end_time),
@@ -242,16 +242,16 @@ def _get_test_case_dict(test_case):
 
 def _get_test_fixture_dict(test_fixture):
     test_fixture_dict = {
-        "name": escape(test_fixture.name),
-        "fullName": escape(test_fixture.full_name),
+        "name": escape_html(test_fixture.name),
+        "fullName": escape_html(test_fixture.full_name),
         "type": "fixture",
         "status": test_fixture.status,
         "fixtureType": test_fixture.fixture_type,
         "startTime": str(test_fixture.start_time),
         "endTime": str(test_fixture.end_time),
         "elapsedTime": test_fixture.elapsed_time,
-        "logs": escape(test_fixture.logs),
-        "screenshots": escape(test_fixture.screenshots),
+        "logs": escape_html(test_fixture.logs),
+        "screenshots": escape_html(test_fixture.screenshots),
         "description": test_fixture.description
     }
     return test_fixture_dict

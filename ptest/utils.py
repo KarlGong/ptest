@@ -34,12 +34,31 @@ def mock_func(func):
     return mock
 
 
-def escape(obj):
+def escape_html(obj):
     if isinstance(obj, dict):
-        return {key: escape(value) for key, value in obj.items()}
+        return {key: escape_html(value) for key, value in obj.items()}
     if isinstance(obj, list):
-        return [escape(item) for item in obj]
+        return [escape_html(item) for item in obj]
     if isinstance(obj, StringTypes):
         return obj.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") \
             .replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")
     return obj
+
+
+def escape_filename(name):
+    _name = name
+    escape_list = [
+        ("$", "$00"),
+        ("\\", "$5C"),
+        ("/", "$2F"),
+        (":", "$3A"),
+        ("*", "$01"),
+        ("?", "$3F"),
+        ("\"", "$22"),
+        ("<", "$3C"),
+        (">", "$3E"),
+        ("|", "$7C")
+    ]
+    for char, to in escape_list:
+        _name = _name.replace(char, to)
+    return _name
