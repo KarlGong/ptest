@@ -84,6 +84,7 @@ class TestFinder:
 
 def unzip_func(test_class_cls, test_case_func):
     if not test_case_func.__funcs__: # zipped
+        name_map = {}
         for index, data in enumerate(test_case_func.__data_provider__):
             if isinstance(data, (list, tuple)):
                 parameters_number = len(data)
@@ -93,8 +94,14 @@ def unzip_func(test_class_cls, test_case_func):
                 parameters = [data]
             if parameters_number == test_case_func.__arguments_count__ - 1:
                 mock = mock_func(test_case_func)
-                mock.__name__ = ("%s#%s" % (test_case_func.__name__, test_case_func.__data_name__(index, parameters)))\
+                mock_name = ("%s#%s" % (test_case_func.__name__, test_case_func.__data_name__(index, parameters))) \
                     .replace(".", "_").replace(",", "_").replace(" ", "_")
+                if mock_name in name_map:
+                    name_map[mock_name] += 1
+                    mock.__name__ = "%s(%s)" % (mock_name, name_map[mock_name] - 1)
+                else:
+                    name_map[mock_name] = 1
+                    mock.__name__ = mock_name
                 mock.__parameters__ = parameters
                 mock.__funcs__ = [mock]
                 test_case_func.__funcs__.append(mock)
