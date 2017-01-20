@@ -343,7 +343,7 @@ function renderTestFixturePanel(detailPanel, data) {
     if (data.screenshots.length) {
         for (var i = 0; i < data.screenshots.length; i++) {
             var screenshotData = data.screenshots[i];
-            var screenshot = $('<tr class="screenshot"><td>Screenshot_{0}</td><td><table><tr><td><div class="container"><a class="link" href="{1}" data-lightbox="{1}"><img class="image" src="{1}" /></a></div></td><td><table class="property"></table></td></tr></table></td></tr>'.format(i + 1, screenshotData.path));
+            var screenshot = $('<tr class="screenshot"><td>Screenshot_{0}</td><td><table><tr><td><div class="container"><a class="link" href="{1}" data-lightbox="{1}"><img class="image" src="{1}" /></a></div></td><td><table class="property"></table></td></tr></table></td></tr>'.format(i + 1, encodeURIComponent(screenshotData.path)));
             var screenshotProperties = screenshot.find('.property');
             screenshotProperties.append($('<tr><td>Source </td><td>{0}</td></tr>'.format(screenshotData.source)));
             if (screenshotData.title) {
