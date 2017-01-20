@@ -229,6 +229,8 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
             func.__data_provider__ = data_provider
             func.__funcs__ = []
             func.__data_name__ = data_name or (lambda index, params: index + 1)
+            if len(inspect.getargspec(func.__data_name__)[0]) != 2:
+                raise TypeError("Data name function must be declared with 2 parameters.")
         return func
 
     return handle_func
