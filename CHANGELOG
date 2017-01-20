@@ -1,5 +1,9 @@
 Change Log
 ----------
+1.7.5 (compared to 1.7.4)
+
+- Support customizing data name for @Test.
+
 1.7.4 (compared to 1.7.3)
 
 - Display module info in html report.
