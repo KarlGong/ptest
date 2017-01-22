@@ -809,7 +809,7 @@ If you want to run above test case with 4th test data supplied from the data pro
 
 The default value is ``None``. The value must be a function with 2 parameters.
 
-*Note:* If no *data_provider* specified, this attribute will be ignored.
+*Note:* If no `data_provider <#2311---data_provider>`_ specified, this attribute will be ignored.
 
 **Examples:**
 
