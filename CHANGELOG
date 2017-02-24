@@ -1,5 +1,9 @@
 Change Log
 ----------
+1.7.6 (compared to 1.7.5)
+
+- Add command option -f(--filter) to filter tests.
+
 1.7.5 (compared to 1.7.4)
 
 - Support customizing data name for @Test.
