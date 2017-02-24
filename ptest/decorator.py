@@ -218,11 +218,13 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
         func.__location__ = __get_location(func)
         func.__arguments_count__ = __get_arguments_count_of_test(func)
         # for data provider
-        #                     normal    zipped      mocked
-        # __parameters__       None      None      not None
-        # __data_provider__    None    not None    not None
-        # __funcs__           [func]      []        [mock]
+        #                     normal    zipped    unzipped    mocked
+        # __parameters__       None      None       None     not None
+        # __data_index__       None      None       None     not None
+        # __data_provider__    None    not None   not None   not None
+        # __funcs__           [func]      []       [mocks]    [mock]
         func.__parameters__ = None
+        func.__data_index__ = None
         func.__data_provider__ = None
         func.__funcs__ = [func]
         if data_provider:

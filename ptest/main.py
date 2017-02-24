@@ -104,8 +104,7 @@ def main(args=None):
         return
 
     # run test
-    from .testfilter import FilterGroup, TestCaseIncludeTagsFilter, TestCaseExcludeTagsFilter, \
-        TestCaseIncludeGroupsFilter
+    from .testfilter import TestFilterGroup, TestIncludeTagsFilter, TestExcludeTagsFilter, TestIncludeGroupsFilter
     from . import testexecutor, reporter, plistener
     from .testfinder import TestFinder
     from .testsuite import default_test_suite
@@ -128,45 +127,55 @@ def main(args=None):
             sys.path.append(python_path)
             pconsole.write_line(" %s" % python_path)
 
-    # test class and test case filter
+    # test filter group
+    test_filter_group = TestFilterGroup()
+
     include_tags = config.get_option("include_tags")
-    exclude_tags = config.get_option("exclude_tags")
-    include_groups = config.get_option("include_groups")
-    test_class_filter_group = FilterGroup()
-    test_case_filter_group = FilterGroup()
     if include_tags is not None:
-        test_case_filter_group.append_filter(TestCaseIncludeTagsFilter(include_tags))
+        test_filter_group.append_filter(TestIncludeTagsFilter(include_tags))
+
+    exclude_tags = config.get_option("exclude_tags")
     if exclude_tags is not None:
-        test_case_filter_group.append_filter(TestCaseExcludeTagsFilter(exclude_tags))
+        test_filter_group.append_filter(TestExcludeTagsFilter(exclude_tags))
+
+    include_groups = config.get_option("include_groups")
     if include_groups is not None:
-        test_case_filter_group.append_filter(TestCaseIncludeGroupsFilter(include_groups))
-    if test_case_filter_group:
+        test_filter_group.append_filter(TestIncludeGroupsFilter(include_groups))
+
+    filter_path = config.get_option("test_filter")
+    if filter_path is not None:
+        splitted_filter_path = filter_path.split(".")
+        filter_module = importlib.import_module(".".join(splitted_filter_path[:-1]))
+        filter_class = getattr(filter_module, splitted_filter_path[-1])
+        test_filter_group.append_filter(filter_class())
+
+    if test_filter_group:
         pconsole.write_line("Test filters:")
-        for test_case_filter in test_case_filter_group:
-            pconsole.write_line(" %s" % test_case_filter)
+        for test_filter in test_filter_group:
+            pconsole.write_line(" %s" % test_filter)
 
     # get test targets
     test_targets = config.get_option("test_targets")
     if test_targets is not None:
         pconsole.write_line("Test targets:")
         for test_target in test_targets:
-            test_finder = TestFinder(test_target, test_class_filter_group, test_case_filter_group, default_test_suite)
-            test_finder.find_test_case()
-            if test_finder.repeated_test_case_count:
-                pconsole.write_line(" %s (%s tests found, %s repeated)" % (test_target, test_finder.found_test_case_count, test_finder.repeated_test_case_count))
+            test_finder = TestFinder(test_target, test_filter_group, default_test_suite)
+            test_finder.find_tests()
+            if test_finder.repeated_test_count:
+                pconsole.write_line(" %s (%s tests found, %s repeated)" % (test_target, test_finder.found_test_count, test_finder.repeated_test_count))
             else:
-                pconsole.write_line(" %s (%s tests found)" % (test_target, test_finder.found_test_case_count))
+                pconsole.write_line(" %s (%s tests found)" % (test_target, test_finder.found_test_count))
     else:
         # rerun failed/skipped test cases
         pconsole.write_line("Run failed/skipped tests in xunit xml:")
         xunit_xml = config.get_option("run_failed")
         test_targets = get_rerun_targets(xunit_xml)
-        found_test_case_count = 0
+        found_test_count = 0
         for test_target in test_targets:
-            test_finder = TestFinder(test_target, test_class_filter_group, test_case_filter_group, default_test_suite)
-            test_finder.find_test_case()
-            found_test_case_count += test_finder.found_test_case_count
-        pconsole.write_line(" %s (%s tests found)" % (xunit_xml, found_test_case_count))
+            test_finder = TestFinder(test_target, test_filter_group, default_test_suite)
+            test_finder.find_tests()
+            found_test_count += test_finder.found_test_count
+        pconsole.write_line(" %s (%s tests found)" % (xunit_xml, found_test_count))
 
     # add test listeners
     listener_paths = config.get_option("test_listeners")

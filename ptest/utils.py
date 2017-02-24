@@ -1,10 +1,13 @@
 import errno
 import os
+import sys
 from functools import wraps
 
-try:
+is_py2 = sys.version_info[0] == 2
+
+if is_py2:
     StringTypes = (str, unicode)
-except NameError:
+else:
     StringTypes = (str,)
 
 def make_dirs(dir_path):

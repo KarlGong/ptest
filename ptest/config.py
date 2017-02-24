@@ -141,6 +141,11 @@ def _parse_options(option_args):
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
                            "NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path")
+    parser.add_option("-f", "--filter", action="store", dest="test_filter", default=None, metavar="class",
+                      help="Specify the path of test filter class, select test cases to run by the specified filter. "
+                           "The test filter class should implement class TestFilter in ptest.testfilter "
+                           "The filter path format is: package.module.class "
+                           "NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path")
     parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
                       help="Select test cases to run by tags, separated by comma.")
     parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
