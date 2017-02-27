@@ -312,18 +312,23 @@ def take_screenshot():
                 pass
 
             try:
-                log_dict = {}
-                logs = [{"message": log["message"], "level": log["level"]} for log in web_driver.get_log("browser")]
+                logs = [{"message": log["message"], "level": log["level"], "count": 1} for log in web_driver.get_log("browser") if log["level"].upper() == "SEVERE"]
+                merged_logs = []
+                pending_log = None
                 for log in logs:
-                    log_hash = str(log)
-                    if log_hash in log_dict:
-                        log_dict[log_hash]["count"] += 1
+                    if pending_log:
+                        if log["message"] == pending_log["message"] and log["level"] == pending_log["level"]:
+                            pending_log["count"] += 1
+                        else:
+                            merged_logs.append(pending_log)
+                            pending_log = log
                     else:
-                        new_log = copy(log)
-                        new_log["count"] = 1
-                        log_dict[log_hash] = new_log
+                        pending_log = log
 
-                screenshot["logs"] = list(log_dict.values()) or None
+                if pending_log:
+                    merged_logs.append(pending_log)
+
+                screenshot["logs"] = merged_logs or None
             except Exception as e:
                 pass
 
