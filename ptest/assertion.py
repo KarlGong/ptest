@@ -193,6 +193,22 @@ class _ObjSubject(_Subject):
             self._raise_error("is equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
 
+    def is_same_as(self, other_obj):
+        """
+            Fails if the subject is not identical to other obj.
+        """
+        if self._subject is not other_obj:
+            self._raise_error("is not identical to %s <%s>." % (_type(other_obj), other_obj))
+        return self
+
+    def is_not_same_as(self, other_obj):
+        """
+            Fails if the subject is identical to other obj.
+        """
+        if self._subject is other_obj:
+            self._raise_error("is identical to %s <%s>." % (_type(other_obj), other_obj))
+        return self
+
     def is_none(self):
         """
             Fails if the subject is not None.
@@ -241,13 +257,29 @@ class _ObjSubject(_Subject):
             self._raise_error("doesn't meet function <%s>." % func.__name__)
         return self
 
-    def s(self, attribute_name):
+    def attr(self, attribute_name):
         """
             Assert the attribute of this subject. If the attribute does not exist, raise AttributeError.
         """
         if not hasattr(self._subject, attribute_name):
             self._raise_error("doesn't have attribute <%s>." % attribute_name, error=AttributeError)
         return assert_that(getattr(self._subject, attribute_name))
+
+    def has_attr(self, attribute_name):
+        """
+            Fails if the subject doesn't have the given attribute.
+        """
+        if not hasattr(self._subject, attribute_name):
+            self._raise_error("doesn't have attribute <%s>." % attribute_name)
+        return self
+
+    def does_not_have_attr(self, attribute_name):
+        """
+            Fails if the subject has the given attribute.
+        """
+        if hasattr(self._subject, attribute_name):
+            self._raise_error("has attribute <%s>." % attribute_name)
+        return self
 
     def __getattr__(self, item):
         if self._subject_name is None:
@@ -489,7 +521,7 @@ class _IterableEachSubject(object):
         self._iterable_subject = iterable_subject
 
     def __getattr__(self, item):
-        if item in ["length", "index", "key", "s"]:
+        if item in ["length", "index", "key", "attr"]:
             def each_attr(*args, **kwargs):
                 iterable_subject = []
                 for subject in self._iterable_subject:
@@ -519,6 +551,14 @@ class _StringSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
+    def is_equal_to_ignoring_case(self, string):
+        """
+            Fails if the string is not equal to other string ignoring case.
+        """
+        if not self._subject.lower() == string.lower():
+            self._raise_error("is not equal to %s <%s> ignoring case." % (_type(string), string))
+        return self
+
     def is_blank(self):
         """
             Fails if the string is not blank.
@@ -535,20 +575,20 @@ class _StringSubject(_IterableSubject):
             self._raise_error("is blank.")
         return self
 
-    def starts_with(self, string):
+    def starts_with(self, prefix):
         """
             Fails if the string does not start with the given string.
         """
-        if not self._subject.startswith(string):
-            self._raise_error("doesn't start with %s <%s>." % (_type(string), string))
+        if not self._subject.startswith(prefix):
+            self._raise_error("doesn't start with %s <%s>." % (_type(prefix), prefix))
         return self
 
-    def ends_with(self, string):
+    def ends_with(self, suffix):
         """
             Fails if the string does not end with the given string.
         """
-        if not self._subject.endswith(string):
-            self._raise_error("doesn't end with %s <%s>." % (_type(string), string))
+        if not self._subject.endswith(suffix):
+            self._raise_error("doesn't end with %s <%s>." % (_type(suffix), suffix))
         return self
 
     def matches(self, regex):
@@ -569,6 +609,38 @@ class _StringSubject(_IterableSubject):
         """
         if re.compile(regex).search(self._subject):
             self._raise_error("matches regex <%s>." % regex)
+        return self
+
+    def is_alpha(self):
+        """
+            Fails if the string doesn't contain only alphabetic chars.
+        """
+        if not self._subject.isalpha():
+            self._raise_error("doesn't contain only alphabetic chars.")
+        return self
+
+    def is_digit(self):
+        """
+            Fails if the string doesn't contain only digits.
+        """
+        if not self._subject.isdigit():
+            self._raise_error("doesn't contain only digits.")
+        return self
+
+    def is_lower(self):
+        """
+            Fails if the string doesn't contain only lowercase chars.
+        """
+        if not self._subject == self._subject.lower():
+            self._raise_error("doesn't contain only lowercase chars.")
+        return self
+
+    def is_upper(self):
+        """
+            Fails if the string doesn't contain only uppercase chars.
+        """
+        if not self._subject == self._subject.upper():
+            self._raise_error("doesn't contain only uppercase chars.")
         return self
 
 
@@ -666,6 +738,22 @@ class _DictSubject(_IterableSubject):
         """
         if key in self._subject:
             self._raise_error("contains key %s <%s>." % (_type(key), key))
+        return self
+
+    def contains_value(self, value):
+        """
+            Fails if the dict doesn't contain the given value.
+        """
+        if value not in self._subject.values():
+            self._raise_error("doesn't contain value %s <%s>." % (_type(value), value))
+        return self
+
+    def does_not_contain_value(self, value):
+        """
+            Fails if the dict contains the given value.
+        """
+        if value in self._subject.values():
+            self._raise_error("contains value %s <%s>." % (_type(value), value))
         return self
 
     def contains_entry(self, key, value):
