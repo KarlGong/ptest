@@ -105,12 +105,16 @@ def assert_that(subject):
             return subject_class(subject)
     return _ObjSubject(subject)
 
-# this method is used to format the obj without brackets
-def _rb(obj):
-    return str(obj)[1:-1]
+# this method is used to format the obj
+def _format(obj):
+    if isinstance(obj, StringTypes):
+        return "\"%s\"" % obj
+    if isinstance(obj, list):
+        return ", ".join([_format(i) for i in obj])
+    return str(obj)
 
 # this method is used to get the type name of the object
-def _name(obj):
+def _type(obj):
     return type(obj).__name__
 
 class _Subject(object):
@@ -135,9 +139,9 @@ class _Subject(object):
 
     def _raise_error(self, partial_error_msg, error=AssertionError):
         if self._subject_name is None:
-            error_msg = "Unexpectedly that the %s <%s> %s" % (_name(self._subject), self._subject, partial_error_msg)
+            error_msg = "Unexpectedly that the %s <%s> %s" % (_type(self._subject), self._subject, partial_error_msg)
         else:
-            error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_name(self._subject), self._subject_name, partial_error_msg)
+            error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_type(self._subject), self._subject_name, partial_error_msg)
         self._raise_raw_error(error_msg, error)
 
     def _raise_raw_error(self, error_msg, error=AssertionError):
@@ -162,7 +166,7 @@ class _ObjSubject(_Subject):
             is_instance_of(x, A) or is_instance_of(x, B) or ... (etc.).
         """
         if not isinstance(self._subject, class_or_type_or_tuple):
-            self._raise_error("is not instance of <%s>." % _rb(class_or_type_or_tuple))
+            self._raise_error("is not instance of <%s>." % _format(class_or_type_or_tuple))
         return self
 
     def is_type_of(self, type_):
@@ -178,16 +182,22 @@ class _ObjSubject(_Subject):
             Fails if the subject is not equal to other obj.
         """
         if not self._subject == other_obj:
-            self._raise_error("is not equal to %s <%s>." % (_name(other_obj), other_obj))
+            self._raise_error("is not equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
+
+    def __eq__(self, other_obj):
+        return self.is_equal_to(other_obj)
 
     def is_not_equal_to(self, other_obj):
         """
             Fails if the subject is equal to other obj.
         """
         if self._subject == other_obj:
-            self._raise_error("is equal to %s <%s>." % (_name(other_obj), other_obj))
+            self._raise_error("is equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
+
+    def __ne__(self, other_obj):
+        return self.is_not_equal_to(other_obj)
 
     def is_none(self):
         """
@@ -210,7 +220,7 @@ class _ObjSubject(_Subject):
            Fails unless the subject is equal to any element in the given iterable.
         """
         if self._subject not in iterable:
-            self._raise_error("is not in %s <%s>." % (_name(iterable), iterable))
+            self._raise_error("is not in %s <%s>." % (_type(iterable), iterable))
         return self
 
     def is_not_in(self, iterable):
@@ -218,7 +228,7 @@ class _ObjSubject(_Subject):
            Fails if the subject is equal to any element in the given iterable.
         """
         if self._subject in iterable:
-            self._raise_error("is in %s <%s>." % (_name(iterable), iterable))
+            self._raise_error("is in %s <%s>." % (_type(iterable), iterable))
         return self
 
     def meets(self, func):
@@ -279,41 +289,61 @@ class _NumericSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
-    def is_greater_than(self, other_number):
-        """
-            Fails if the subject is not greater than other number.
-        """
-        if self._subject <= other_number:
-            self._raise_error("is not greater than <%s>." % other_number)
-        return self
-
     def is_less_than(self, other_number):
         """
             Fails if the subject is not less than other number.
         """
         if self._subject >= other_number:
-            self._raise_error("is not less than <%s>." % other_number)
+            self._raise_error("is not less than %s <%s>." % (_type(other_number), other_number))
         return self
+
+    def __lt__(self, other_number):
+        return self.is_less_than(other_number)
+
+    def is_greater_than(self, other_number):
+        """
+            Fails if the subject is not greater than other number.
+        """
+        if self._subject <= other_number:
+            self._raise_error("is not greater than %s <%s>." % (_type(other_number), other_number))
+        return self
+
+    def __gt__(self, other_number):
+        return self.is_greater_than(other_number)
 
     def is_less_than_or_equal_to(self, other_number):
         """
             Fails if the subject is greater than other number.
         """
         if self._subject > other_number:
-            self._raise_error("is greater than <%s>." % other_number)
+            self._raise_error("is greater than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    is_at_most = is_less_than_or_equal_to
+    def is_at_most(self, other_number):
+        """
+            Fails if the subject is greater than other number.
+        """
+        return self.is_less_than_or_equal_to(other_number)
+
+    def __le__(self, other_number):
+        return self.is_less_than_or_equal_to(other_number)
 
     def is_greater_than_or_equal_to(self, other_number):
         """
             Fails if the subject is less than other number.
         """
         if self._subject < other_number:
-            self._raise_error("is less than <%s>." % other_number)
+            self._raise_error("is less than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    is_at_least = is_greater_than_or_equal_to
+    def is_at_least(self, other_number):
+        """
+            Fails if the subject is less than other number.
+        """
+        return self.is_greater_than_or_equal_to(other_number)
+
+    def __ge__(self, other_number):
+        return self.is_greater_than_or_equal_to(other_number)
 
     def is_zero(self):
         """
@@ -354,7 +384,7 @@ class _NumericSubject(_ObjSubject):
             Note: low and high are included
         """
         if self._subject < low or self._subject > high:
-            self._raise_error("is not between low <%s> and high <%s>" % (low, high))
+            self._raise_error("is not between low %s <%s> and high %s <%s>." % (_type(low), low, _type(high), high))
         return self
 
 
@@ -391,7 +421,7 @@ class _IterableSubject(_ObjSubject):
             Fails if the subject doesn't contain the given object.
         """
         if obj not in self._subject:
-            self._raise_error("doesn't contain %s <%s>." % (_name(obj), obj))
+            self._raise_error("doesn't contain %s <%s>." % (_type(obj), obj))
         return self
 
     def does_not_contain(self, obj):
@@ -399,7 +429,7 @@ class _IterableSubject(_ObjSubject):
             Fails if the subject contain the given object.
         """
         if obj in self._subject:
-            self._raise_error("contains %s <%s>." % (_name(obj), obj))
+            self._raise_error("contains %s <%s>." % (_type(obj), obj))
         return self
 
     def contains_all_of(self, *objs):
@@ -408,7 +438,7 @@ class _IterableSubject(_ObjSubject):
         """
         uncontained_objs = [obj for obj in objs if obj not in self._subject]
         if uncontained_objs:
-            self._raise_error("doesn't contain elements <%s> in <%s>." % (_rb(uncontained_objs), _rb(list(objs))))
+            self._raise_error("doesn't contain elements <%s> in <%s>." % (_format(uncontained_objs), _format(list(objs))))
         return self
 
     def contains_all_in(self, iterable):
@@ -417,7 +447,7 @@ class _IterableSubject(_ObjSubject):
         """
         uncontained_objs = [obj for obj in iterable if obj not in self._subject]
         if uncontained_objs:
-            self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_rb(uncontained_objs), _name(iterable), iterable))
+            self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_format(uncontained_objs), _type(iterable), iterable))
         return self
 
     def contains_any_of(self, *objs):
@@ -426,7 +456,7 @@ class _IterableSubject(_ObjSubject):
         """
         contained_objs = [obj for obj in objs if obj in self._subject]
         if not contained_objs:
-            self._raise_error("doesn't contain any element in <%s>." % _rb(list(objs)))
+            self._raise_error("doesn't contain any element in <%s>." % _format(list(objs)))
         return self
 
     def contains_any_in(self, iterable):
@@ -435,7 +465,7 @@ class _IterableSubject(_ObjSubject):
         """
         contained_objs = [obj for obj in iterable if obj in self._subject]
         if not contained_objs:
-            self._raise_error("doesn't contain any element in %s <%s>." % (_name(iterable), iterable))
+            self._raise_error("doesn't contain any element in %s <%s>." % (_type(iterable), iterable))
         return self
 
     def contains_none_of(self, *objs):
@@ -444,7 +474,7 @@ class _IterableSubject(_ObjSubject):
         """
         contained_objs = [obj for obj in objs if obj in self._subject]
         if contained_objs:
-            self._raise_error("contains elements <%s> in <%s>." % (_rb(contained_objs), _rb(list(objs))))
+            self._raise_error("contains elements <%s> in <%s>." % (_format(contained_objs), _format(list(objs))))
         return self
 
     def contains_none_in(self, iterable):
@@ -453,7 +483,7 @@ class _IterableSubject(_ObjSubject):
         """
         contained_objs = [obj for obj in iterable if obj in self._subject]
         if contained_objs:
-            self._raise_error("contains elements <%s> in %s <%s>." % (_rb(contained_objs), _name(iterable), iterable))
+            self._raise_error("contains elements <%s> in %s <%s>." % (_format(contained_objs), _type(iterable), iterable))
         return self
 
     def length(self):
@@ -525,7 +555,7 @@ class _StringSubject(_IterableSubject):
             Fails if the string does not start with the given string.
         """
         if not self._subject.startswith(string):
-            self._raise_error("doesn't start with string <%s>." % string)
+            self._raise_error("doesn't start with %s <%s>." % (_type(string), string))
         return self
 
     def ends_with(self, string):
@@ -533,7 +563,7 @@ class _StringSubject(_IterableSubject):
             Fails if the string does not end with the given string.
         """
         if not self._subject.endswith(string):
-            self._raise_error("doesn't end with string <%s>." % string)
+            self._raise_error("doesn't end with %s <%s>." % (_type(string), string))
         return self
 
     def matches(self, regex):
@@ -568,12 +598,12 @@ class _ListOrTupleSubject(_IterableSubject):
         uncontained_objs = [obj for obj in other_list_or_tuple if obj not in self._subject]
         if uncontained_objs:
             self._raise_error("doesn't contain elements <%s> in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_list_or_tuple), other_list_or_tuple))
+                              (_format(uncontained_objs), _type(other_list_or_tuple), other_list_or_tuple))
             
         uncontained_objs = [obj for obj in self._subject if obj not in other_list_or_tuple]
         if uncontained_objs:
             self._raise_error("contains elements <%s> not in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_list_or_tuple), other_list_or_tuple))
+                              (_format(uncontained_objs), _type(other_list_or_tuple), other_list_or_tuple))
         return self
 
     def contains_duplicates(self):
@@ -596,7 +626,7 @@ class _ListOrTupleSubject(_IterableSubject):
                 element_counter[element] = 1
         duplicates = [element for element, count in element_counter.items() if count > 1]
         if duplicates:
-            self._raise_error("contains duplicate elements <%s>." % _rb(duplicates))
+            self._raise_error("contains duplicate elements <%s>." % _format(duplicates))
         return self
 
     def index(self, index):
@@ -619,7 +649,7 @@ class _SetSubject(_IterableSubject):
         uncontained_objs = [obj for obj in other_set if obj not in self._subject]
         if uncontained_objs:
             self._raise_error("doesn't contain elements <%s> in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_set), other_set))
+                              (_format(uncontained_objs), _type(other_set), other_set))
         return self
 
     def is_sub_of(self, other_set):
@@ -629,7 +659,7 @@ class _SetSubject(_IterableSubject):
         uncontained_objs = [obj for obj in self._subject if obj not in other_set]
         if uncontained_objs:
             self._raise_error("contains elements <%s> not in %s <%s>." %
-                              (_rb(uncontained_objs), _name(other_set), other_set))
+                              (_format(uncontained_objs), _type(other_set), other_set))
         return self
 
 
@@ -642,7 +672,7 @@ class _DictSubject(_IterableSubject):
             Fails if the dict doesn't contain the given key.
         """
         if key not in self._subject:
-            self._raise_error("doesn't contain key %s <%s>." % (_name(key), key))
+            self._raise_error("doesn't contain key %s <%s>." % (_type(key), key))
         return self
 
     def does_not_contain_key(self, key):
@@ -650,7 +680,7 @@ class _DictSubject(_IterableSubject):
             Fails if the dict contains the given key.
         """
         if key in self._subject:
-            self._raise_error("contains key %s <%s>." % (_name(key), key))
+            self._raise_error("contains key %s <%s>." % (_type(key), key))
         return self
 
     def contains_entry(self, key, value):
@@ -658,7 +688,7 @@ class _DictSubject(_IterableSubject):
            Fails if the dict doesn't contain the given entry.
         """
         if (key, value) not in self._subject.items():
-            self._raise_error("doesn't contain entry, key: %s <%s>, value: %s <%s>." % (_name(key), key, _name(value), value))
+            self._raise_error("doesn't contain entry, key: %s <%s>, value: %s <%s>." % (_type(key), key, _type(value), value))
         return self
 
     def does_not_contain_entry(self, key, value):
@@ -666,7 +696,7 @@ class _DictSubject(_IterableSubject):
             Fails if the dict contain the given entry.
         """
         if (key, value) in self._subject.items():
-            self._raise_error("contains entry, key: %s <%s>, value: %s <%s>." % (_name(key), key, _name(value), value))
+            self._raise_error("contains entry, key: %s <%s>, value: %s <%s>." % (_type(key), key, _type(value), value))
         return self
 
     def is_super_of(self, other_dict):
@@ -676,7 +706,7 @@ class _DictSubject(_IterableSubject):
         uncontained_entries = [entry for entry in other_dict.items() if entry not in self._subject.items()]
         if uncontained_entries:
             self._raise_error("doesn't contain entries <%s> in %s <%s>." %
-                              (_rb(uncontained_entries), _name(other_dict), other_dict))
+                              (_format(uncontained_entries), _type(other_dict), other_dict))
         return self
 
     def is_sub_of(self, other_dict):
@@ -686,7 +716,7 @@ class _DictSubject(_IterableSubject):
         uncontained_entries = [entry for entry in self._subject.items() if entry not in other_dict.items()]
         if uncontained_entries:
             self._raise_error("contains entries <%s> not in %s <%s>." %
-                              (_rb(uncontained_entries), _name(other_dict), other_dict))
+                              (_format(uncontained_entries), _type(other_dict), other_dict))
         return self
 
     def key(self, key):
@@ -694,7 +724,7 @@ class _DictSubject(_IterableSubject):
             Assert the value of this dict by key. If key doesn't exist, raise KeyError
         """
         if key not in self._subject:
-            self._raise_error("doesn't contain key %s <%s>." % (_name(key), key), error=KeyError)
+            self._raise_error("doesn't contain key %s <%s>." % (_type(key), key), error=KeyError)
         return assert_that(self._subject[key])
 
     def each(self):
@@ -720,21 +750,27 @@ class _DateSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
-    def is_after(self, other_day):
+    def is_before(self, other_date):
         """
-            Fails if the day is not after other day.
+            Fails if this date is not before other date.
         """
-        if self._subject <= other_day:
-            self._raise_error("is not after <%s>." % other_day)
+        if self._subject >= other_date:
+            self._raise_error("is not before %s <%s>." % (_type(other_date), other_date))
         return self
 
-    def is_before(self, other_day):
+    def __lt__(self, other_date):
+        return self.is_before(other_date)
+
+    def is_after(self, other_date):
         """
-            Fails if the subject is not less than other number.
+            Fails if the date is not after other date.
         """
-        if self._subject >= other_day:
-            self._raise_error("is not before <%s>." % other_day)
+        if self._subject <= other_date:
+            self._raise_error("is not after %s <%s>." % (_type(other_date), other_date))
         return self
+
+    def __gt__(self, other_date):
+        return self.is_after(other_date)
 
 
 class _DateTimeSubject(_DateSubject):
