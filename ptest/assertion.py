@@ -185,9 +185,6 @@ class _ObjSubject(_Subject):
             self._raise_error("is not equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
 
-    def __eq__(self, other_obj):
-        return self.is_equal_to(other_obj)
-
     def is_not_equal_to(self, other_obj):
         """
             Fails if the subject is equal to other obj.
@@ -195,9 +192,6 @@ class _ObjSubject(_Subject):
         if self._subject == other_obj:
             self._raise_error("is equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
-
-    def __ne__(self, other_obj):
-        return self.is_not_equal_to(other_obj)
 
     def is_none(self):
         """
@@ -255,13 +249,16 @@ class _ObjSubject(_Subject):
             self._raise_error("doesn't have attribute <%s>." % attribute_name, error=AttributeError)
         return assert_that(getattr(self._subject, attribute_name))
 
+    def __getattr__(self, item):
+        if self._subject_name is None:
+            self._raise_raw_error("Cannot perform assertion \"%s\" for %s <%s>." % (item, _type(self._subject), self._subject), error=AttributeError)
+        else:
+            self._raise_raw_error("Cannot perform assertion \"%s\" for %s named \"%s\"." % (item, _type(self._subject), self._subject_name), error=AttributeError)
+
 
 class _NoneSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
-
-    def __getattr__(self, item):
-        self._raise_raw_error("Cannot perform assertion \"%s\" for <None>." % item, error=AttributeError)
 
 
 class _BoolSubject(_ObjSubject):
@@ -297,9 +294,6 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not less than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    def __lt__(self, other_number):
-        return self.is_less_than(other_number)
-
     def is_greater_than(self, other_number):
         """
             Fails if the subject is not greater than other number.
@@ -307,9 +301,6 @@ class _NumericSubject(_ObjSubject):
         if self._subject <= other_number:
             self._raise_error("is not greater than %s <%s>." % (_type(other_number), other_number))
         return self
-
-    def __gt__(self, other_number):
-        return self.is_greater_than(other_number)
 
     def is_less_than_or_equal_to(self, other_number):
         """
@@ -325,9 +316,6 @@ class _NumericSubject(_ObjSubject):
         """
         return self.is_less_than_or_equal_to(other_number)
 
-    def __le__(self, other_number):
-        return self.is_less_than_or_equal_to(other_number)
-
     def is_greater_than_or_equal_to(self, other_number):
         """
             Fails if the subject is less than other number.
@@ -340,9 +328,6 @@ class _NumericSubject(_ObjSubject):
         """
             Fails if the subject is less than other number.
         """
-        return self.is_greater_than_or_equal_to(other_number)
-
-    def __ge__(self, other_number):
         return self.is_greater_than_or_equal_to(other_number)
 
     def is_zero(self):
@@ -758,9 +743,6 @@ class _DateSubject(_ObjSubject):
             self._raise_error("is not before %s <%s>." % (_type(other_date), other_date))
         return self
 
-    def __lt__(self, other_date):
-        return self.is_before(other_date)
-
     def is_after(self, other_date):
         """
             Fails if the date is not after other date.
@@ -768,9 +750,6 @@ class _DateSubject(_ObjSubject):
         if self._subject <= other_date:
             self._raise_error("is not after %s <%s>." % (_type(other_date), other_date))
         return self
-
-    def __gt__(self, other_date):
-        return self.is_after(other_date)
 
 
 class _DateTimeSubject(_DateSubject):
