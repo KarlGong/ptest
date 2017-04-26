@@ -796,12 +796,18 @@ You can specify a generator as data provider.
 If you want to run above test case with all test data supplied from the data provider.
 ::
 
-    $ ptest -t mytest.PTestClass.test_square
+    Python 2.x:
+     $ ptest -t mytest.PTestClass.test_square
+    Python 3.x:
+     $ ptest3 -t mytest.PTestClass.test_square
 
 If you want to run above test case with 4th test data supplied from the data provider.
 ::
 
-    $ ptest -t mytest.PTestClass.test_square#4
+    Python 2.x:
+     $ ptest -t mytest.PTestClass.test_square#4
+    Python 3.x:
+     $ ptest3 -t mytest.PTestClass.test_square#4
 
 2.3.12 - data_name
 ~~~~~~~~~~~~~~~~~~
@@ -830,7 +836,10 @@ Then the test names are ``test_add#1_1`` and ``test_add#2_3``.
 If you want to run above test case with 2th test data supplied from the data provider.
 ::
 
-    $ ptest -t mytest.PTestClass.test_add#2_3
+    Python 2.x:
+     $ ptest -t mytest.PTestClass.test_add#2_3
+    Python 3.x:
+     $ ptest3 -t mytest.PTestClass.test_add#2_3
 
 2.4 - Extra Decorators
 ----------------------
@@ -876,7 +885,10 @@ ptest can be invoked in different ways:
 Usage:
 ::
 
-    $ ptest [options] [properties]
+    Python 2.x:
+     $ ptest [options] [properties]
+    Python 3.x:
+     $ ptest3 [options] [properties]
 
 *Note:* If you are using Windows, please confirm that **%python_installation_dir%\\Scripts** (e.g., C:\\Python27\\Scripts) is added to the PATH environment variable.
 
@@ -964,7 +976,7 @@ You can invoke ptest by code:
 -------------
 A Pycharm plugin for ptest is released.
 It is easily to run/debug ptest within the IDE using the standard run configuration.
-Find the latest version on github: https://github.com/KarlGong/ptest-pycharm-plugin or JetBrains: https://plugins.jetbrains.com/plugin/7860
+Find the latest version on JetBrains: https://plugins.jetbrains.com/plugin/7860
 
 4 - Test Listeners
 ==================
@@ -989,7 +1001,10 @@ Then use ``-l(--listeners)`` to specify the path of test listener classes
 
 ::
 
-    $ ptest -t mytest -l listener.MyTestListener
+    Python 2.x:
+     $ ptest -t mytest -l listener.MyTestListener
+    Python 3.x:
+     $ ptest3 -t mytest -l listener.MyTestListener
 
 5 - Test results
 ================
