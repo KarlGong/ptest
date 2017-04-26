@@ -4,6 +4,8 @@ import re
 from codecs import open
 from optparse import OptionParser, OptionGroup
 
+from . import __version__
+
 _properties = {}
 _options = {}
 
@@ -120,7 +122,7 @@ def _parse_properties(property_args):
 
 
 def _parse_options(option_args):
-    parser = OptionParser(usage="ptest [options] [properties]", version="ptest 1.7.6 for Python " + platform.python_version(),
+    parser = OptionParser(usage="ptest [options] [properties]", version="ptest %s for Python %s" % (__version__, platform.python_version()),
                           description="ptest is a light test runner for Python.")
 
     # path and property

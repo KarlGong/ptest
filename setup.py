@@ -1,8 +1,10 @@
+import platform
 from codecs import open
 from os import path
-import platform
 
 from setuptools import setup
+
+from ptest import __version__
 
 current_dir = path.abspath(path.dirname(__file__))
 # Get the long description from the relevant file
@@ -36,7 +38,7 @@ def main():
         name="ptest",
         description="light test runner for Python",
         long_description=long_description,
-        version="1.7.6",
+        version=__version__,
         keywords="test testing framework automation python runner",
         author="Karl Gong",
         author_email="karl.gong@outlook.com",
