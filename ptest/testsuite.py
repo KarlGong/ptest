@@ -233,6 +233,7 @@ class TestCase:
         self.tags = self.test.tags
         self.expected_exceptions = self.test.expected_exceptions
         self.parameters = self.test.parameters
+        self.data_index = self.test.data_index
         self.group = self.test.group
         self.description = self.test.description
         self.custom_args = self.test.custom_args
@@ -368,6 +369,7 @@ class Test(TestFixture):
         self.tags = test_fixture_ref.__tags__
         self.expected_exceptions = test_fixture_ref.__expected_exceptions__
         self.parameters = test_fixture_ref.__parameters__
+        self.data_index = test_fixture_ref.__data_index__
         self.group = test_fixture_ref.__group__
 
 

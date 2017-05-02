@@ -1,14 +1,19 @@
 import errno
 import os
 import sys
-from functools import wraps
+import types
 
-is_py2 = sys.version_info[0] == 2
-
-if is_py2:
+if sys.version_info[0] == 2:
     StringTypes = (str, unicode)
 else:
     StringTypes = (str,)
+
+if sys.version_info[0] == 2:
+    from urlparse import urljoin
+    from urllib import unquote, pathname2url
+else:
+    from urllib.parse import urljoin, unquote
+    from urllib.request import pathname2url
 
 def make_dirs(dir_path):
     try:
@@ -29,12 +34,27 @@ def remove_tree(dir_path, remove_root=True):
             os.rmdir(dir_path)
 
 
-def mock_func(func):
-    @wraps(func)
-    def mock(self, *args, **kwargs):
-        func(self, *args, **kwargs)
+def is_coroutine_function(func):
+    if sys.version_info[:2] >= (3, 4):
+        import asyncio
+        return asyncio.iscoroutinefunction(func)
+    return False
 
-    return mock
+
+def mock_func(func):
+    fn = types.FunctionType(func.__code__, func.__globals__, func.__name__, func.__defaults__, func.__closure__)
+    # in case fun was given attrs (note this dict is a shallow copy):
+    fn.__dict__.update(func.__dict__)
+    return fn
+
+
+def call_function(func, *args, **kwargs):
+    if is_coroutine_function(func):
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop.run_until_complete(func.__call__(*args, **kwargs))
+    return func.__call__(*args, **kwargs)
 
 
 def escape_html(obj):

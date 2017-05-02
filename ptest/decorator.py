@@ -1,14 +1,9 @@
 import inspect
 import os
 import re
-try:
-    from urlparse import urljoin
-    from urllib import unquote, pathname2url
-except ImportError:
-    from urllib.parse import urljoin, unquote
-    from urllib.request import pathname2url
 
 from .enumeration import PDecoratorType, TestClassRunMode
+from .utils import urljoin, unquote, pathname2url
 
 
 def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):

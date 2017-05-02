@@ -13,6 +13,7 @@ from .plogger import preporter, pconsole, pconsole_err
 from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
     BeforeMethod, Test
 from .plistener import test_listeners
+from .utils import call_function
 
 
 class TestExecutor(threading.Thread):
@@ -337,10 +338,8 @@ class TestFixtureSubExecutor(TestExecutor):
             expected_exceptions = self.test_fixture.expected_exceptions
             expected_exceptions_names = str(["%s.%s" % (e.__module__, e.__name__) for e in expected_exceptions.keys()])
             try:
-                if self.test_fixture.parameters is None:
-                    self.test_fixture.test_fixture_ref.__call__()
-                else:
-                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.parameters)
+                param = self.test_fixture.parameters or []
+                call_function(self.test_fixture.test_fixture_ref, *param)
             except Exception as e:
                 exception = e.__class__
                 exception_name = "%s.%s" % (exception.__module__, exception.__name__)
@@ -379,10 +378,8 @@ class TestFixtureSubExecutor(TestExecutor):
                 screencapturer.take_screenshot()
         else:
             try:
-                if self.test_fixture.parameters is None:
-                    self.test_fixture.test_fixture_ref.__call__()
-                else:
-                    self.test_fixture.test_fixture_ref.__call__(*self.test_fixture.parameters)
+                param = self.test_fixture.parameters or []
+                call_function(self.test_fixture.test_fixture_ref, *param)
             except Exception as e:
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
@@ -395,10 +392,8 @@ class TestFixtureSubExecutor(TestExecutor):
 
     def run_test_configuration(self):
         try:
-            if self.test_fixture.arguments_count == 1:
-                self.test_fixture.test_fixture_ref.__call__()
-            elif self.test_fixture.arguments_count == 2:
-                self.test_fixture.test_fixture_ref.__call__(self.test_fixture.context)
+            param = {1: [], 2: [self.test_fixture.context]}[self.test_fixture.arguments_count]
+            call_function(self.test_fixture.test_fixture_ref, *param)
         except Exception as e:
             self.test_fixture.status = TestFixtureStatus.FAILED
             self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
