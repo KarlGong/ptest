@@ -1,5 +1,5 @@
-from copy import copy
 import os
+import time
 import traceback
 from io import BytesIO
 
@@ -275,20 +275,20 @@ def mss(*args, **kwargs):
 # ----------- [ take screenshot for webdriver or desktop ] -------------
 # ----------------------------------------------------------------------
 def take_screenshot():
-    if config.get_option("disable_screenshot"):
-        return
-
     from . import testexecutor
+
     web_drivers = testexecutor.current_executor().get_property("web_drivers")
     running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
+    timestamp = int(time.time() * 1000)
+    screenshots = []
 
     if web_drivers:
         for index, web_driver in enumerate(web_drivers):
             screenshot = {
                 "source": "Web Driver",
-                "path": "%s-%s.png" % (escape_filename(running_test_fixture.full_name), index + 1)
+                "path": "%s-%s-%s.png" % (escape_filename(running_test_fixture.full_name), timestamp, index + 1)
             }
-            running_test_fixture.screenshots.append(screenshot)
+            screenshots.append(screenshot)
 
             try:
                 screenshot["alert"] = web_driver.switch_to.alert.text
@@ -312,46 +312,28 @@ def take_screenshot():
                 pass
 
             try:
-                logs = [{"message": log["message"], "level": log["level"], "count": 1} for log in web_driver.get_log("browser") if log["level"].upper() == "SEVERE"]
-                merged_logs = []
-                pending_log = None
-                for log in logs:
-                    if pending_log:
-                        if log["message"] == pending_log["message"] and log["level"] == pending_log["level"]:
-                            pending_log["count"] += 1
-                        else:
-                            merged_logs.append(pending_log)
-                            pending_log = log
-                    else:
-                        pending_log = log
-
-                if pending_log:
-                    merged_logs.append(pending_log)
-
-                screenshot["logs"] = merged_logs or None
-            except Exception as e:
-                pass
-
-            try:
                 with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
                     f.write(web_driver.get_screenshot_as_png())
             except Exception as e:
-                preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
-    else:
-        if system() == 'Darwin' and not pyobjc_installed:
-            preporter.warn("The package pyobjc is necessary for taking screenshot of desktop, please install it.")
-            return
+                screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
 
+        return screenshots
+    else:
         screenshot = {
             "source": "Desktop",
-            "path": "%s.png" % escape_filename(running_test_fixture.full_name)
+            "path": "%s-%s-0.png" % (escape_filename(running_test_fixture.full_name), timestamp)
         }
-        running_test_fixture.screenshots.append(screenshot)
+        screenshots.append(screenshot)
 
-        output = BytesIO()
-        try:
-            mss().save(output=output, screen=-1)  # -1 means all monitors
-            with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
-                f.write(output.getvalue())
-        except Exception as e:
-            preporter.warn("Failed to take the screenshot.\n%s" % traceback.format_exc())
+        if system() == 'Darwin' and not pyobjc_installed:
+            screenshot["error"] = "The package pyobjc is necessary for taking screenshot of desktop, please install it."
+        else:
+            output = BytesIO()
+            try:
+                mss().save(output=output, screen=-1)  # -1 means all monitors
+                with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
+                    f.write(output.getvalue())
+            except Exception as e:
+                screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
+
+        return screenshots

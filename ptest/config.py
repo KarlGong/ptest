@@ -177,7 +177,7 @@ def _parse_options(option_args):
     parser.add_option("--temp", action="store", dest="temp", default="ptest-temp", metavar="dir",
                       help="Specify the temp dir (relative to workspace).")
     parser.add_option("--disablescreenshot", action="store_true", dest="disable_screenshot", default=False,
-                      help="Disable taking screenshot for failed test fixtures.")
+                      help="Disable taking screenshot for preporter.")
 
     # tool
     parser.add_option("-m", "--mergexunitxmls", action="store", dest="merge_xunit_xmls", default=None, metavar="files",

@@ -262,8 +262,7 @@ class TestFixtureExecutor(TestExecutor):
                 self.test_fixture.failure_message = "Timed out executing this test fixture in %s seconds." % self.test_fixture.timeout
                 self.test_fixture.failure_type = "TimeoutException"
                 self.test_fixture.stack_trace = self.test_fixture.failure_message
-                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
-                screencapturer.take_screenshot()
+                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
         else:
             test_fixture_sub_executor.join()
 
@@ -358,24 +357,21 @@ class TestFixtureSubExecutor(TestExecutor):
                                                             % (exception_name, expected_exceptions[matched_exception].pattern, str(e))
                         self.test_fixture.failure_type = "WrongExceptionMessageError"
                         self.test_fixture.stack_trace = self.test_fixture.failure_message
-                        preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
-                        screencapturer.take_screenshot()
+                        preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
                 else:
                     self.test_fixture.status = TestFixtureStatus.FAILED
                     self.test_fixture.failure_message = "Expected exception: one of %s, Actual exception: <%s>." \
                                                         % (expected_exceptions_names, exception_name)
                     self.test_fixture.failure_type = "WrongExceptionThrownError"
                     self.test_fixture.stack_trace = self.test_fixture.failure_message
-                    preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
-                    screencapturer.take_screenshot()
+                    preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
             else:
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = "Expected exception: one of %s, Actual: NO exception was thrown." \
                                                     % expected_exceptions_names
                 self.test_fixture.failure_type = "NoExceptionThrownError"
                 self.test_fixture.stack_trace = self.test_fixture.failure_message
-                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
-                screencapturer.take_screenshot()
+                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
         else:
             try:
                 param = self.test_fixture.parameters or []
@@ -385,8 +381,7 @@ class TestFixtureSubExecutor(TestExecutor):
                 self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
                 self.test_fixture.failure_type = "%s.%s" % (e.__class__.__module__, e.__class__.__name__)
                 self.test_fixture.stack_trace = traceback.format_exc()
-                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
-                screencapturer.take_screenshot()
+                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
             else:
                 self.test_fixture.status = TestFixtureStatus.PASSED
 
@@ -399,8 +394,7 @@ class TestFixtureSubExecutor(TestExecutor):
             self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
             self.test_fixture.failure_type = "%s.%s" % (e.__class__.__module__, e.__class__.__name__)
             self.test_fixture.stack_trace = traceback.format_exc()
-            preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace)
-            screencapturer.take_screenshot()
+            preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
 

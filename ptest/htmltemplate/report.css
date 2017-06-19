@@ -396,8 +396,9 @@ body {
     color: #CE2400;
 }
 
-.test-fixture .screenshot .container {
+.test-fixture .screenshot {
     float: left;
+    margin-left: 10px;
 }
 
 .test-fixture .screenshot .link {
@@ -415,15 +416,6 @@ body {
     max-width: 130px;
     max-height: 100px;
     border: 0;
-}
-
-.test-fixture .screenshot .property {
-    color: #999;
-    font-size: 11px;
-}
-
-.test-fixture .screenshot .property td:nth-child(2) {
-    word-break: break-all;
 }
 
 /*

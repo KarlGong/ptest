@@ -23,30 +23,34 @@ class PReporter:
     def __init__(self):
         pass
 
-    def debug(self, msg):
-        self.__log(logging.DEBUG, msg)
+    def debug(self, msg, screenshot=False):
+        self.__log(logging.DEBUG, msg, screenshot)
 
-    def info(self, msg):
-        self.__log(logging.INFO, msg)
+    def info(self, msg, screenshot=False):
+        self.__log(logging.INFO, msg, screenshot)
 
-    def warn(self, msg):
-        self.__log(logging.WARN, msg)
+    def warn(self, msg, screenshot=False):
+        self.__log(logging.WARN, msg, screenshot)
 
-    def error(self, msg):
-        self.__log(logging.ERROR, msg)
+    def error(self, msg, screenshot=False):
+        self.__log(logging.ERROR, msg, screenshot)
 
-    def critical(self, msg):
-        self.__log(logging.CRITICAL, msg)
+    def critical(self, msg, screenshot=False):
+        self.__log(logging.CRITICAL, msg, screenshot)
 
-    def __log(self, level, msg):
-        from . import testexecutor
+    def __log(self, level, msg, screenshot):
+        from . import testexecutor, screencapturer
 
         try:
             running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
         except AttributeError as e:
             pconsole.write_line("[%s] %s" % (logging.getLevelName(level), msg))
         else:
-            running_test_fixture.logs.append({"level": logging.getLevelName(level).lower(), "message": str(msg)})
+            log = {"level": logging.getLevelName(level).lower(), "message": str(msg)}
+            if screenshot and not config.get_option("disable_screenshot"):
+                log["screenshots"] = screencapturer.take_screenshot()
+
+            running_test_fixture.logs.append(log)
 
             if config.get_option("verbose"):
                 # output to pconsole
