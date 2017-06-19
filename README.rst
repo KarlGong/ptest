@@ -3,7 +3,10 @@ ptest
 =====
 .. image:: https://img.shields.io/pypi/v/ptest.svg
     :target: https://pypi.python.org/pypi/ptest
-   
+
+.. image:: https://img.shields.io/pypi/pyversions/ptest.svg
+    :target: https://pypi.python.org/pypi/ptest
+
 ptest is a light test runner for Python. With ptest, you can tag test classes & test cases by decorators, execute test cases by command line, and get clear reports.
 
 Find the latest version on github: https://github.com/KarlGong/ptest or PyPI: https://pypi.python.org/pypi/ptest
