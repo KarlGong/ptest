@@ -1,5 +1,4 @@
 from copy import copy
-import ctypes
 from functools import cmp_to_key
 import threading
 import traceback
@@ -7,13 +6,12 @@ import time
 
 from datetime import datetime
 
-from . import screencapturer
 from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
 from .plogger import preporter, pconsole, pconsole_err
 from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
     BeforeMethod, Test
 from .plistener import test_listeners
-from .utils import call_function
+from .utils import call_function, kill_thread, format_thread_stack
 
 
 class TestExecutor(threading.Thread):
@@ -252,17 +250,17 @@ class TestFixtureExecutor(TestExecutor):
         if self.test_fixture.timeout > 0:
             test_fixture_sub_executor.join(self.test_fixture.timeout)
             if test_fixture_sub_executor.isAlive():
+                stack_trace = format_thread_stack(test_fixture_sub_executor)
                 try:
                     kill_thread(test_fixture_sub_executor)
                 except Exception as e:
                     pconsole_err.write_line(e)
                 from .plogger import preporter
-                from . import screencapturer
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = "Timed out executing this test fixture in %s seconds." % self.test_fixture.timeout
                 self.test_fixture.failure_type = "TimeoutException"
-                self.test_fixture.stack_trace = self.test_fixture.failure_message
-                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
+                self.test_fixture.stack_trace = stack_trace
+                preporter.error("Failed with following message:\n%s\n%s" % (self.test_fixture.failure_message, self.test_fixture.stack_trace), True)
         else:
             test_fixture_sub_executor.join()
 
@@ -337,8 +335,8 @@ class TestFixtureSubExecutor(TestExecutor):
             expected_exceptions = self.test_fixture.expected_exceptions
             expected_exceptions_names = str(["%s.%s" % (e.__module__, e.__name__) for e in expected_exceptions.keys()])
             try:
-                param = self.test_fixture.parameters or []
-                call_function(self.test_fixture.test_fixture_ref, *param)
+                params = self.test_fixture.parameters or []
+                call_function(self.test_fixture.test_fixture_ref, *params)
             except Exception as e:
                 exception = e.__class__
                 exception_name = "%s.%s" % (exception.__module__, exception.__name__)
@@ -356,26 +354,26 @@ class TestFixtureSubExecutor(TestExecutor):
                         self.test_fixture.failure_message = "The exception <%s> was thrown with the wrong message: Expected message regex: <%s>, Actual message: <%s>." \
                                                             % (exception_name, expected_exceptions[matched_exception].pattern, str(e))
                         self.test_fixture.failure_type = "WrongExceptionMessageError"
-                        self.test_fixture.stack_trace = self.test_fixture.failure_message
-                        preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
+                        self.test_fixture.stack_trace = traceback.format_exc()
+                        preporter.error("Failed with following message:\n%s\n%s" % (self.test_fixture.failure_message, self.test_fixture.stack_trace), True)
                 else:
                     self.test_fixture.status = TestFixtureStatus.FAILED
                     self.test_fixture.failure_message = "Expected exception: one of %s, Actual exception: <%s>." \
                                                         % (expected_exceptions_names, exception_name)
                     self.test_fixture.failure_type = "WrongExceptionThrownError"
-                    self.test_fixture.stack_trace = self.test_fixture.failure_message
-                    preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
+                    self.test_fixture.stack_trace = traceback.format_exc()
+                    preporter.error("Failed with following message:\n%s\n%s" % (self.test_fixture.failure_message, self.test_fixture.stack_trace), True)
             else:
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = "Expected exception: one of %s, Actual: NO exception was thrown." \
                                                     % expected_exceptions_names
                 self.test_fixture.failure_type = "NoExceptionThrownError"
                 self.test_fixture.stack_trace = self.test_fixture.failure_message
-                preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
+                preporter.error("Failed with following message:\n%s" % self.test_fixture.failure_message, True)
         else:
             try:
-                param = self.test_fixture.parameters or []
-                call_function(self.test_fixture.test_fixture_ref, *param)
+                params = self.test_fixture.parameters or []
+                call_function(self.test_fixture.test_fixture_ref, *params)
             except Exception as e:
                 self.test_fixture.status = TestFixtureStatus.FAILED
                 self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
@@ -387,8 +385,8 @@ class TestFixtureSubExecutor(TestExecutor):
 
     def run_test_configuration(self):
         try:
-            param = {1: [], 2: [self.test_fixture.context]}[self.test_fixture.arguments_count]
-            call_function(self.test_fixture.test_fixture_ref, *param)
+            params = {1: [], 2: [self.test_fixture.context]}[self.test_fixture.arguments_count]
+            call_function(self.test_fixture.test_fixture_ref, *params)
         except Exception as e:
             self.test_fixture.status = TestFixtureStatus.FAILED
             self.test_fixture.failure_message = str(e).strip() or "\n".join([str(arg) for arg in e.args])
@@ -407,29 +405,3 @@ class TestFixtureSubExecutor(TestExecutor):
 
 def current_executor():
     return threading.currentThread()
-
-
-def kill_thread(thread):
-    """
-        Kill a python thread from another thread.
-
-    :param thread: a threading.Thread instance
-    """
-    exc = ctypes.py_object(SystemExit)
-    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-        ctypes.c_long(thread.ident), exc)
-    if res == 0:
-        raise ValueError("nonexistent thread id")
-    elif res > 1:
-        # """if it returns a number greater than one, you're in trouble,
-        # and you should call it again with exc=NULL to revert the effect"""
-        ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
-        raise SystemError("PyThreadState_SetAsyncExc failed")
-
-    start_time = time.time()
-    while (time.time() - start_time) <= 30:
-        if not thread.isAlive():
-            return
-        time.sleep(1)
-
-    raise SystemError("Timed out waiting for thread <%s> to be killed." % thread)

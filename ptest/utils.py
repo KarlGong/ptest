@@ -1,6 +1,9 @@
+import ctypes
 import errno
 import os
 import sys
+import time
+import traceback
 import types
 
 if sys.version_info[0] == 2:
@@ -55,6 +58,42 @@ def call_function(func, *args, **kwargs):
         asyncio.set_event_loop(loop)
         return loop.run_until_complete(func.__call__(*args, **kwargs))
     return func.__call__(*args, **kwargs)
+
+
+def kill_thread(thread):
+    """
+        Kill a python thread from another thread.
+
+    :param thread: a threading.Thread instance
+    """
+    exc = ctypes.py_object(SystemExit)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+        ctypes.c_long(thread.ident), exc)
+    if res == 0:
+        raise ValueError("nonexistent thread id")
+    elif res > 1:
+        # """if it returns a number greater than one, you're in trouble,
+        # and you should call it again with exc=NULL to revert the effect"""
+        ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
+        raise SystemError("PyThreadState_SetAsyncExc failed")
+
+    start_time = time.time()
+    while (time.time() - start_time) <= 30:
+        if not thread.isAlive():
+            return
+        time.sleep(1)
+
+    raise SystemError("Timed out waiting for thread <%s> to be killed." % thread)
+
+
+def format_thread_stack(thread):
+    stack_code = ["Stack Trace:"]
+    stack = sys._current_frames()[thread.ident]
+    for file_name, line_no, name, line in traceback.extract_stack(stack):
+        stack_code.append("  File: \"%s\", line %d, in %s" % (file_name, line_no, name))
+        if line:
+            stack_code.append("    %s" % (line.strip()))
+    return "\n".join(stack_code)
 
 
 def escape_html(obj):
