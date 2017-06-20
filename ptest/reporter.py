@@ -7,7 +7,7 @@ from codecs import open
 from datetime import datetime
 from xml.dom import minidom
 
-from . import config
+from . import config, __version__
 from .plogger import pconsole
 from .testsuite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
@@ -95,7 +95,7 @@ def generate_html_report(report_dir):
     current_time = datetime.now()
     system_info = "%s / Python %s / %s" % (platform.node(), platform.python_version(), platform.platform())
     test_suite_json = json.dumps(_get_test_suite_dict(default_test_suite))
-    index_page_content = index_page_template.format(current_time=current_time, system_info=system_info,
+    index_page_content = index_page_template.format(version=__version__, current_time=current_time, system_info=system_info,
                                                     test_suite_json=test_suite_json)
 
     f = open(os.path.join(report_dir, "index.html"), mode="w", encoding="utf-8")
