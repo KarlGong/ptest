@@ -1,6 +1,6 @@
 import os
-import time
 import traceback
+import uuid
 from io import BytesIO
 
 from . import config
@@ -274,21 +274,38 @@ def mss(*args, **kwargs):
 # ----------------------------------------------------------------------
 # ----------- [ take screenshot for webdriver or desktop ] -------------
 # ----------------------------------------------------------------------
-def take_screenshot():
+def take_screenshots():
     from . import testexecutor
 
     web_drivers = testexecutor.current_executor().get_property("web_drivers")
     running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
-    timestamp = int(time.time() * 1000)
+    hash_code = str(uuid.uuid4()).split("-")[0]
     screenshots = []
+
+    screenshot = {
+        "source": "Desktop",
+        "path": "%s-%s-0.png" % (escape_filename(running_test_fixture.full_name), hash_code)
+    }
+
+    if system() == 'Darwin' and not pyobjc_installed:
+        screenshot["error"] = "The package pyobjc is necessary for taking screenshot of desktop, please install it."
+    else:
+        output = BytesIO()
+        try:
+            mss().save(output=output, screen=-1)  # -1 means all monitors
+            with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
+                f.write(output.getvalue())
+        except Exception as e:
+            screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
+
+    screenshots.append(screenshot)
 
     if web_drivers:
         for index, web_driver in enumerate(web_drivers):
             screenshot = {
                 "source": "Web Driver",
-                "path": "%s-%s-%s.png" % (escape_filename(running_test_fixture.full_name), timestamp, index + 1)
+                "path": "%s-%s-%s.png" % (escape_filename(running_test_fixture.full_name), hash_code, index + 1)
             }
-            screenshots.append(screenshot)
 
             try:
                 screenshot["alert"] = web_driver.switch_to.alert.text
@@ -317,23 +334,6 @@ def take_screenshot():
             except Exception as e:
                 screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
 
-        return screenshots
-    else:
-        screenshot = {
-            "source": "Desktop",
-            "path": "%s-%s-0.png" % (escape_filename(running_test_fixture.full_name), timestamp)
-        }
-        screenshots.append(screenshot)
+            screenshots.append(screenshot)
 
-        if system() == 'Darwin' and not pyobjc_installed:
-            screenshot["error"] = "The package pyobjc is necessary for taking screenshot of desktop, please install it."
-        else:
-            output = BytesIO()
-            try:
-                mss().save(output=output, screen=-1)  # -1 means all monitors
-                with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
-                    f.write(output.getvalue())
-            except Exception as e:
-                screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
-
-        return screenshots
+    return screenshots

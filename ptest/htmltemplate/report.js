@@ -57,11 +57,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   // http://lokeshdhakar.com/projects/lightbox2/index.html#options
   Lightbox.defaults = {
     albumLabel: 'Screenshot %1 of %2',
-    fadeDuration: 500,
-    fitImagesInViewport: true,
-    positionFromTop: 50,
-    resizeDuration: 300,
-    showImageNumberLabel: true,
+    fadeDuration: 300,
+    resizeDuration: 100,
     wrapAround: false
   };
 
@@ -213,12 +210,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     }
 
     // Position Lightbox
-    var top  = $window.scrollTop() + this.options.positionFromTop;
-    var left = $window.scrollLeft();
-    this.$lightbox.css({
-      top: top + 'px',
-      left: left + 'px'
-    }).fadeIn(this.options.fadeDuration);
+    this.$lightbox.fadeIn(this.options.fadeDuration);
 
     this.changeImage(imageNumber);
   };
@@ -257,52 +249,51 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       $image.width(preloader.width);
       $image.height(preloader.height);
 
-      if (self.options.fitImagesInViewport) {
-        // Fit image inside the viewport.
-        // Take into account the border around the image and an additional 10px gutter on each side.
+      // Fit image inside the viewport.
+      // Take into account the border around the image and an additional 10px gutter on each side.
 
-        windowWidth    = $(window).width();
-        windowHeight   = $(window).height();
-          // Is rotated 90?
-          if (rotate % 180 === 0) {
-              maxImageWidth = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
-              maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
+      windowWidth    = $(window).width();
+      windowHeight   = $(window).height();
+      // Is rotated 90?
+      if (rotate % 180 === 0) {
+          maxImageWidth = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
+          maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
+      } else {
+          maxImageWidth = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
+          maxImageHeight = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
+      }
+      // Is there a fitting issue?
+      if ((preloader.width > maxImageWidth) || (preloader.height > maxImageHeight)) {
+          if ((preloader.width / maxImageWidth) > (preloader.height / maxImageHeight)) {
+              imageWidth = maxImageWidth;
+              imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
+              $image.width(imageWidth);
+              $image.height(imageHeight);
           } else {
-              maxImageWidth = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
-              maxImageHeight = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
-          }
-          // Is there a fitting issue?
-          if ((preloader.width > maxImageWidth) || (preloader.height > maxImageHeight)) {
-              if ((preloader.width / maxImageWidth) > (preloader.height / maxImageHeight)) {
-                  imageWidth = maxImageWidth;
-                  imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
-                  $image.width(imageWidth);
-                  $image.height(imageHeight);
-              } else {
-                  imageHeight = maxImageHeight;
-                  imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
-                  $image.width(imageWidth);
-                  $image.height(imageHeight);
-              }
+              imageHeight = maxImageHeight;
+              imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
+              $image.width(imageWidth);
+              $image.height(imageHeight);
           }
       }
-        $image.css({
-                'transform': 'rotate(' + rotate + 'deg)'
-                });
-        switch(rotate) {
-            case 0: self.sizeContainer($image.width(), $image.height()); break;
-            case 90:  $image.css({
-                    'transform-origin': $image.height() * 50 / $image.width() + '% 50%'
-                });self.sizeContainer($image.height(), $image.width());break;
-            case 180:
-                $image.css({
-                    'transform-origin': '50% 50%'
-                });
-                self.sizeContainer($image.width(), $image.height()); break;
-            case 270:
-                $image.css({
-                     'transform-origin': '50% ' + $image.width() * 50 / $image.height() + '%'
-                });self.sizeContainer($image.height(), $image.width());break;
+
+      $image.css({'transform': 'rotate(' + rotate + 'deg)'});
+      switch(rotate) {
+        case 0:
+          self.sizeContainer($image.width(), $image.height());
+          break;
+        case 90:
+          $image.css({'transform-origin': $image.height() * 50 / $image.width() + '% 50%'});
+          self.sizeContainer($image.height(), $image.width());
+          break;
+        case 180:
+          $image.css({'transform-origin': '50% 50%'});
+          self.sizeContainer($image.width(), $image.height());
+          break;
+        case 270:
+          $image.css({'transform-origin': '50% ' + $image.width() * 50 / $image.height() + '%'});
+          self.sizeContainer($image.height(), $image.width());
+          break;
       }
     };
     preloader.src = this.album[imageNumber].link;
@@ -348,7 +339,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   // Display the image and its details and begin preload neighboring images.
   Lightbox.prototype.showImage = function() {
     this.$lightbox.find('.lb-loader').stop(true).hide();
-    this.$lightbox.find('.lb-image').show()
+    this.$lightbox.find('.lb-image').show();
 
     this.updateNav();
     this.updateDetails();
@@ -394,7 +385,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         });
     }
 
-    if (this.album.length > 1 && this.options.showImageNumberLabel) {
+    if (this.album.length > 1) {
       var labelText = this.imageCountLabel(this.currentImageIndex + 1, this.album.length);
       this.$lightbox.find('.lb-number').text(labelText).fadeIn('fast');
     } else {
@@ -779,7 +770,7 @@ function renderTestFixturePanel(detailPanel, data) {
             var screenshots = $('<div class="screenshots"></div>');
             for (var j = 0; j < data.logs[i].screenshots.length; j++) {
                 var screenshotData = data.logs[i].screenshots[j];
-                var screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="test"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path)));
+                var screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="{1}"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-"))));
                 screenshots.append(screenshot);
             }
             logGroup.append(screenshots);

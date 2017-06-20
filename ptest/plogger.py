@@ -48,7 +48,7 @@ class PReporter:
         else:
             log = {"level": logging.getLevelName(level).lower(), "message": str(msg)}
             if screenshot and not config.get_option("disable_screenshot"):
-                log["screenshots"] = screencapturer.take_screenshot()
+                log["screenshots"] = screencapturer.take_screenshots()
 
             running_test_fixture.logs.append(log)
 
