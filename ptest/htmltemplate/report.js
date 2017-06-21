@@ -29,18 +29,18 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
 // Uses Node, AMD or browser globals to create a module.
 (function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery'], factory);
-    } else if (typeof exports === 'object') {
-        // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like environments that support module.exports,
-        // like Node.
-        module.exports = factory(require('jquery'));
-    } else {
-        // Browser globals (root is window)
-        root.lightbox = factory(root.jQuery);
-    }
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals (root is window)
+    root.lightbox = factory(root.jQuery);
+  }
 }(this, function ($) {
 
   function Lightbox(options) {
@@ -62,24 +62,24 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     wrapAround: true
   };
 
-  Lightbox.prototype.option = function(options) {
+  Lightbox.prototype.option = function (options) {
     $.extend(this.options, options);
   };
 
-  Lightbox.prototype.imageCountLabel = function(currentImageNum, totalImages) {
+  Lightbox.prototype.imageCountLabel = function (currentImageNum, totalImages) {
     return this.options.albumLabel.replace(/%1/g, currentImageNum).replace(/%2/g, totalImages);
   };
 
-  Lightbox.prototype.init = function() {
+  Lightbox.prototype.init = function () {
     this.enable();
     this.build();
   };
 
   // Loop through anchors and areamaps looking for either data-lightbox attributes or rel attributes
   // that contain 'lightbox'. When these are clicked, start lightbox.
-  Lightbox.prototype.enable = function() {
+  Lightbox.prototype.enable = function () {
     var self = this;
-    $('body').on('click', 'a[rel^=lightbox], area[rel^=lightbox], a[data-lightbox], area[data-lightbox]', function(event) {
+    $('body').on('click', 'a[rel^=lightbox], area[rel^=lightbox], a[data-lightbox], area[data-lightbox]', function (event) {
       self.start($(event.currentTarget));
       return false;
     });
@@ -87,15 +87,15 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
   // Build html for the lightbox and the overlay.
   // Attach event handlers to the new DOM elements. click click click
-  Lightbox.prototype.build = function() {
+  Lightbox.prototype.build = function () {
     var self = this;
     $('<div id="lightboxOverlay" class="lightboxOverlay"></div><div id="lightbox" class="lightbox"><div class="lb-outerContainer"><div class="lb-container"><img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" /><div class="lb-nav"><a class="lb-prev"></a><a class="lb-rotate"></a><a class="lb-next"></a></div><div class="lb-loader"><a class="lb-cancel"></a></div></div></div><div class="lb-dataContainer"><div class="lb-data"><div class="lb-details"><span class="lb-caption"></span><span class="lb-number"></span></div><div class="lb-closeContainer"><a class="lb-close"></a></div></div></div></div>').appendTo($('body'));
 
     // Cache jQuery objects
-    this.$lightbox       = $('#lightbox');
-    this.$overlay        = $('#lightboxOverlay');
+    this.$lightbox = $('#lightbox');
+    this.$overlay = $('#lightboxOverlay');
     this.$outerContainer = this.$lightbox.find('.lb-outerContainer');
-    this.$container      = this.$lightbox.find('.lb-container');
+    this.$container = this.$lightbox.find('.lb-container');
 
     // Store css values for future lookup
     this.containerTopPadding = parseInt(this.$container.css('padding-top'), 10);
@@ -104,26 +104,26 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     this.containerLeftPadding = parseInt(this.$container.css('padding-left'), 10);
 
     // Attach event handlers to the newly minted DOM elements
-    this.$overlay.hide().on('click', function() {
+    this.$overlay.hide().on('click', function () {
       self.end();
       return false;
     });
 
-    this.$lightbox.hide().on('click', function(event) {
+    this.$lightbox.hide().on('click', function (event) {
       if ($(event.target).attr('id') === 'lightbox') {
         self.end();
       }
       return false;
     });
 
-    this.$outerContainer.on('click', function(event) {
+    this.$outerContainer.on('click', function (event) {
       if ($(event.target).attr('id') === 'lightbox') {
         self.end();
       }
       return false;
     });
 
-    this.$lightbox.find('.lb-prev').on('click', function() {
+    this.$lightbox.find('.lb-prev').on('click', function () {
       if (self.currentImageIndex === 0) {
         self.changeImage(self.album.length - 1);
       } else {
@@ -132,7 +132,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       return false;
     });
 
-    this.$lightbox.find('.lb-next').on('click', function() {
+    this.$lightbox.find('.lb-next').on('click', function () {
       if (self.currentImageIndex === self.album.length - 1) {
         self.changeImage(0);
       } else {
@@ -141,25 +141,25 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       return false;
     });
 
-      this.$lightbox.find('.lb-rotate').on('click', function() {
-          if (self.album[self.currentImageIndex].rotate === 0) {
-              self.album[self.currentImageIndex].rotate = 270
-          }else {
-              self.album[self.currentImageIndex].rotate -= 90
-          }
-          self.changeImage(self.currentImageIndex);
-          return false;
-      });
+    this.$lightbox.find('.lb-rotate').on('click', function () {
+      if (self.album[self.currentImageIndex].rotate === 0) {
+        self.album[self.currentImageIndex].rotate = 270
+      } else {
+        self.album[self.currentImageIndex].rotate -= 90
+      }
+      self.changeImage(self.currentImageIndex);
+      return false;
+    });
 
-    this.$lightbox.find('.lb-loader, .lb-close').on('click', function() {
+    this.$lightbox.find('.lb-loader, .lb-close').on('click', function () {
       self.end();
       return false;
     });
   };
 
   // Show overlay and lightbox. If the image is part of a set, add siblings to album array.
-  Lightbox.prototype.start = function($link) {
-    var self    = this;
+  Lightbox.prototype.start = function ($link) {
+    var self = this;
     var $window = $(window);
 
     $window.on('resize', $.proxy(this.sizeOverlay, this));
@@ -175,7 +175,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
     function addToAlbum($link) {
       self.album.push({
-        link: $link.attr('href'),
+        link: $link.attr('href') || $link.find('img').attr("src"),
         title: $link.attr('data-title') || $link.attr('title'),
         rotate: 0
       });
@@ -216,7 +216,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   };
 
   // Hide most UI elements in preparation for the animated resizing of the lightbox.
-  Lightbox.prototype.changeImage = function(imageNumber) {
+  Lightbox.prototype.changeImage = function (imageNumber) {
     var self = this;
 
     this.disableKeyboardNav();
@@ -231,7 +231,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
     // When image to show is preloaded, we send the width and height to sizeContainer()
     var preloader = new Image();
-    preloader.onload = function() {
+    preloader.onload = function () {
       var $preloader;
       var imageHeight;
       var imageWidth;
@@ -252,33 +252,33 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       // Fit image inside the viewport.
       // Take into account the border around the image and an additional 10px gutter on each side.
 
-      windowWidth    = $(window).width();
-      windowHeight   = $(window).height();
+      windowWidth = $(window).width();
+      windowHeight = $(window).height();
       // Is rotated 90?
       if (rotate % 180 === 0) {
-          maxImageWidth = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
-          maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
+        maxImageWidth = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
+        maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
       } else {
-          maxImageWidth = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
-          maxImageHeight = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
+        maxImageWidth = windowHeight - self.containerTopPadding - self.containerBottomPadding - 120;
+        maxImageHeight = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20;
       }
       // Is there a fitting issue?
       if ((preloader.width > maxImageWidth) || (preloader.height > maxImageHeight)) {
-          if ((preloader.width / maxImageWidth) > (preloader.height / maxImageHeight)) {
-              imageWidth = maxImageWidth;
-              imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
-              $image.width(imageWidth);
-              $image.height(imageHeight);
-          } else {
-              imageHeight = maxImageHeight;
-              imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
-              $image.width(imageWidth);
-              $image.height(imageHeight);
-          }
+        if ((preloader.width / maxImageWidth) > (preloader.height / maxImageHeight)) {
+          imageWidth = maxImageWidth;
+          imageHeight = parseInt(preloader.height / (preloader.width / imageWidth), 10);
+          $image.width(imageWidth);
+          $image.height(imageHeight);
+        } else {
+          imageHeight = maxImageHeight;
+          imageWidth = parseInt(preloader.width / (preloader.height / imageHeight), 10);
+          $image.width(imageWidth);
+          $image.height(imageHeight);
+        }
       }
 
       $image.css({'transform': 'rotate(' + rotate + 'deg)'});
-      switch(rotate) {
+      switch (rotate) {
         case 0:
           self.sizeContainer($image.width(), $image.height());
           break;
@@ -302,19 +302,19 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   };
 
   // Stretch overlay to fit the viewport
-  Lightbox.prototype.sizeOverlay = function() {
+  Lightbox.prototype.sizeOverlay = function () {
     this.$overlay
       .width($(document).width())
       .height($(document).height());
   };
 
   // Animate the size of the lightbox to fit the image we are showing
-  Lightbox.prototype.sizeContainer = function(imageWidth, imageHeight) {
+  Lightbox.prototype.sizeContainer = function (imageWidth, imageHeight) {
     var self = this;
 
-    var oldWidth  = this.$outerContainer.outerWidth();
+    var oldWidth = this.$outerContainer.outerWidth();
     var oldHeight = this.$outerContainer.outerHeight();
-    var newWidth  = imageWidth + this.containerLeftPadding + this.containerRightPadding;
+    var newWidth = imageWidth + this.containerLeftPadding + this.containerRightPadding;
     var newHeight = imageHeight + this.containerTopPadding + this.containerBottomPadding;
 
     function postResize() {
@@ -328,7 +328,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       this.$outerContainer.animate({
         width: newWidth,
         height: newHeight
-      }, this.options.resizeDuration, 'swing', function() {
+      }, this.options.resizeDuration, 'swing', function () {
         postResize();
       });
     } else {
@@ -337,7 +337,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   };
 
   // Display the image and its details and begin preload neighboring images.
-  Lightbox.prototype.showImage = function() {
+  Lightbox.prototype.showImage = function () {
     this.$lightbox.find('.lb-loader').stop(true).hide();
     this.$lightbox.find('.lb-image').show();
 
@@ -348,7 +348,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   };
 
   // Display previous and next navigation if appropriate.
-  Lightbox.prototype.updateNav = function() {
+  Lightbox.prototype.updateNav = function () {
     this.$lightbox.find('.lb-nav').show();
 
     if (this.album.length > 1) {
@@ -366,7 +366,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   };
 
   // Display caption, image number, and closing button.
-  Lightbox.prototype.updateDetails = function() {
+  Lightbox.prototype.updateDetails = function () {
     var self = this;
 
     // Enable anchor clicks in the injected caption html.
@@ -376,13 +376,13 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       this.$lightbox.find('.lb-caption')
         .html(this.album[this.currentImageIndex].title.replace(/\n/g, "<br/>"))
         .fadeIn('fast')
-        .find('a').on('click', function(event) {
-          if ($(this).attr('target') !== undefined) {
-            window.open($(this).attr('href'), $(this).attr('target'));
-          } else {
-            location.href = $(this).attr('href');
-          }
-        });
+        .find('a').on('click', function (event) {
+        if ($(this).attr('target') !== undefined) {
+          window.open($(this).attr('href'), $(this).attr('target'));
+        } else {
+          location.href = $(this).attr('href');
+        }
+      });
     }
 
     if (this.album.length > 1) {
@@ -394,13 +394,13 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
     this.$outerContainer.removeClass('animating');
 
-    this.$lightbox.find('.lb-dataContainer').fadeIn(this.options.resizeDuration, function() {
+    this.$lightbox.find('.lb-dataContainer').fadeIn(this.options.resizeDuration, function () {
       return self.sizeOverlay();
     });
   };
 
   // Preload previous and next images in set.
-  Lightbox.prototype.preloadNeighboringImages = function() {
+  Lightbox.prototype.preloadNeighboringImages = function () {
     if (this.album.length > this.currentImageIndex + 1) {
       var preloadNext = new Image();
       preloadNext.src = this.album[this.currentImageIndex + 1].link;
@@ -411,21 +411,21 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     }
   };
 
-  Lightbox.prototype.enableKeyboardNav = function() {
+  Lightbox.prototype.enableKeyboardNav = function () {
     $(document).on('keyup.keyboard', $.proxy(this.keyboardAction, this));
   };
 
-  Lightbox.prototype.disableKeyboardNav = function() {
+  Lightbox.prototype.disableKeyboardNav = function () {
     $(document).off('.keyboard');
   };
 
-  Lightbox.prototype.keyboardAction = function(event) {
-    var KEYCODE_ESC        = 27;
-    var KEYCODE_LEFTARROW  = 37;
+  Lightbox.prototype.keyboardAction = function (event) {
+    var KEYCODE_ESC = 27;
+    var KEYCODE_LEFTARROW = 37;
     var KEYCODE_RIGHTARROW = 39;
 
     var keycode = event.keyCode;
-    var key     = String.fromCharCode(keycode).toLowerCase();
+    var key = String.fromCharCode(keycode).toLowerCase();
     if (keycode === KEYCODE_ESC || key.match(/x|o|c/)) {
       this.end();
     } else if (key === 'p' || keycode === KEYCODE_LEFTARROW) {
@@ -444,7 +444,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   };
 
   // Closing time. :-(
-  Lightbox.prototype.end = function() {
+  Lightbox.prototype.end = function () {
     this.disableKeyboardNav();
     $(window).off('resize', this.sizeOverlay);
     this.$lightbox.fadeOut(this.options.fadeDuration);
@@ -470,26 +470,26 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 !function(a){"function"==typeof define&&define.amd?define(["jquery"],a):"object"==typeof exports?module.exports=a:a(jQuery)}(function(a){function b(b){var g=b||window.event,h=i.call(arguments,1),j=0,l=0,m=0,n=0,o=0,p=0;if(b=a.event.fix(g),b.type="mousewheel","detail"in g&&(m=-1*g.detail),"wheelDelta"in g&&(m=g.wheelDelta),"wheelDeltaY"in g&&(m=g.wheelDeltaY),"wheelDeltaX"in g&&(l=-1*g.wheelDeltaX),"axis"in g&&g.axis===g.HORIZONTAL_AXIS&&(l=-1*m,m=0),j=0===m?l:m,"deltaY"in g&&(m=-1*g.deltaY,j=m),"deltaX"in g&&(l=g.deltaX,0===m&&(j=-1*l)),0!==m||0!==l){if(1===g.deltaMode){var q=a.data(this,"mousewheel-line-height");j*=q,m*=q,l*=q}else if(2===g.deltaMode){var r=a.data(this,"mousewheel-page-height");j*=r,m*=r,l*=r}if(n=Math.max(Math.abs(m),Math.abs(l)),(!f||f>n)&&(f=n,d(g,n)&&(f/=40)),d(g,n)&&(j/=40,l/=40,m/=40),j=Math[j>=1?"floor":"ceil"](j/f),l=Math[l>=1?"floor":"ceil"](l/f),m=Math[m>=1?"floor":"ceil"](m/f),k.settings.normalizeOffset&&this.getBoundingClientRect){var s=this.getBoundingClientRect();o=b.clientX-s.left,p=b.clientY-s.top}return b.deltaX=l,b.deltaY=m,b.deltaFactor=f,b.offsetX=o,b.offsetY=p,b.deltaMode=0,h.unshift(b,j,l,m),e&&clearTimeout(e),e=setTimeout(c,200),(a.event.dispatch||a.event.handle).apply(this,h)}}function c(){f=null}function d(a,b){return k.settings.adjustOldDeltas&&"mousewheel"===a.type&&b%120===0}var e,f,g=["wheel","mousewheel","DOMMouseScroll","MozMousePixelScroll"],h="onwheel"in document||document.documentMode>=9?["wheel"]:["mousewheel","DomMouseScroll","MozMousePixelScroll"],i=Array.prototype.slice;if(a.event.fixHooks)for(var j=g.length;j;)a.event.fixHooks[g[--j]]=a.event.mouseHooks;var k=a.event.special.mousewheel={version:"3.1.12",setup:function(){if(this.addEventListener)for(var c=h.length;c;)this.addEventListener(h[--c],b,!1);else this.onmousewheel=b;a.data(this,"mousewheel-line-height",k.getLineHeight(this)),a.data(this,"mousewheel-page-height",k.getPageHeight(this))},teardown:function(){if(this.removeEventListener)for(var c=h.length;c;)this.removeEventListener(h[--c],b,!1);else this.onmousewheel=null;a.removeData(this,"mousewheel-line-height"),a.removeData(this,"mousewheel-page-height")},getLineHeight:function(b){var c=a(b),d=c["offsetParent"in a.fn?"offsetParent":"parent"]();return d.length||(d=a("body")),parseInt(d.css("fontSize"),10)||parseInt(c.css("fontSize"),10)||16},getPageHeight:function(b){return a(b).height()},settings:{adjustOldDeltas:!0,normalizeOffset:!0}};a.fn.extend({mousewheel:function(a){return a?this.bind("mousewheel",a):this.trigger("mousewheel")},unmousewheel:function(a){return this.unbind("mousewheel",a)}})});
 
 String.prototype.format = function (args) {
-    var result = this;
-    if (arguments.length > 0) {
-        if (arguments.length === 1 && typeof (args) === "object") {
-            for (var key in args) {
-                if (args[key] !== undefined) {
-                    var reg = new RegExp("({" + key + "})", "g");
-                    result = result.replace(reg, args[key]);
-                }
-            }
+  var result = this;
+  if (arguments.length > 0) {
+    if (arguments.length === 1 && typeof (args) === "object") {
+      for (var key in args) {
+        if (args[key] !== undefined) {
+          var reg = new RegExp("({" + key + "})", "g");
+          result = result.replace(reg, args[key]);
         }
-        else {
-            for (var i = 0; i < arguments.length; i++) {
-                if (arguments[i] !== undefined) {
-                    var reg = new RegExp("({)" + i + "(})", "g");
-                    result = result.replace(reg, arguments[i]);
-                }
-            }
-        }
+      }
     }
-    return result;
+    else {
+      for (var i = 0; i < arguments.length; i++) {
+        if (arguments[i] !== undefined) {
+          var reg = new RegExp("({)" + i + "(})", "g");
+          result = result.replace(reg, arguments[i]);
+        }
+      }
+    }
+  }
+  return result;
 };
 
 function changeCSS(selector, css) {
@@ -497,442 +497,451 @@ function changeCSS(selector, css) {
   $('#extra-style').html(selector + css);
 }
 
-$(function() {
-    // init filter for tree
-    $('.navigation .all .badge').text(testSuite.total);
-    $('.navigation .passed .badge').text(testSuite.passed);
-    $('.navigation .failed .badge').text(testSuite.failed);
-    $('.navigation .skipped .badge').text(testSuite.skipped);
+$(function () {
+  // init filter for tree
+  $('.navigation .all .badge').text(testSuite.total);
+  $('.navigation .passed .badge').text(testSuite.passed);
+  $('.navigation .failed .badge').text(testSuite.failed);
+  $('.navigation .skipped .badge').text(testSuite.skipped);
 
-    // select all by default
-    $('.navigation .filter-btn.all').click();
-    $('.navigation li > .item')[0].click();
+  // select all by default
+  $('.navigation .filter-btn.all').click();
+  $('.navigation li > .item')[0].click();
 });
 
 // add listener for splitter
 (function (window) {
-    var mousedown = false;
-    var width = 0;
-    var leftPanel = $('.navigation');
-    var rightPanel = $('.detail');
+  var mousedown = false;
+  var width = 0;
+  var leftPanel = $('.navigation');
+  var rightPanel = $('.detail');
 
-    function resize() {
-        leftPanel.css('width', width + 'px');
-        rightPanel.css('margin-left', (width + 10) + 'px');
-        rightPanel.css('width', 'calc(100% - '+ (width + 10) +'px)');
-        changeCSS('.detail>.panel-heading.fixed', {'width': 'calc(100% - ' + (width + 26) + 'px)'});
+  function resize() {
+    leftPanel.css('width', width + 'px');
+    rightPanel.css('margin-left', (width + 10) + 'px');
+    rightPanel.css('width', 'calc(100% - ' + (width + 10) + 'px)');
+    changeCSS('.detail>.panel-heading.fixed', {'width': 'calc(100% - ' + (width + 26) + 'px)'});
+  }
+
+  if (localStorage.ptestWidth) {
+    width = parseInt(localStorage.ptestWidth);
+    resize();
+  }
+
+  $('#splitter').on('mousedown', function (e) {
+    mousedown = true;
+    e.preventDefault();
+  }).on('dblclick', function (e) {
+    width = 350;
+    resize();
+    localStorage.ptestWidth = width;
+    e.preventDefault();
+  });
+
+  $(window).on('mousemove', function (e) {
+    if (mousedown) {
+      width = e.pageX - 5 - leftPanel.position().left;
+      resize();
+      e.preventDefault();
     }
-
-    if (localStorage.ptestWidth) {
-        width = parseInt(localStorage.ptestWidth);
-        resize();
+  }).on('mouseup', function (e) {
+    if (mousedown) {
+      mousedown = false;
+      localStorage.ptestWidth = width;
+      e.preventDefault();
     }
-
-    $('#splitter').on('mousedown', function (e) {
-        mousedown = true;
-        e.preventDefault();
-    }).on('dblclick', function (e) {
-        width = 350;
-        resize();
-        localStorage.ptestWidth = width;
-        e.preventDefault();
-    });
-
-    $(window).on('mousemove', function (e) {
-        if (mousedown) {
-            width = e.pageX - 5 - leftPanel.position().left;
-            resize();
-            e.preventDefault();
-        }
-    }).on('mouseup', function (e) {
-        if (mousedown) {
-            mousedown = false;
-            localStorage.ptestWidth = width;
-            e.preventDefault();
-        }
-    });
+  });
 })(window);
 
 // add listener for tree filter
 $('.navigation .filter-btn').on('click', function (e) {
-    if(!$(this).hasClass('selected')) {
-        $('.navigation .filter-btn.selected').removeClass('selected');
-        $(this).addClass('selected');
-        renderTreePanel(testSuite, $(this).attr('filter'));
-     }
+  if (!$(this).hasClass('selected')) {
+    $('.navigation .filter-btn.selected').removeClass('selected');
+    $(this).addClass('selected');
+    renderTreePanel(testSuite, $(this).attr('filter'));
+  }
 });
 
 // add listener for clicking expanded parent node
-$('.tree').on('click', 'li.parent.expanded>.item>.sign', function(e) {
-    var node = $(this).parent().parent();
-    var children = node.find(' > ul > li');
-    children.hide('fast');
-    $(this).text("+");
-    node.removeClass('expanded').addClass('collapsed');
-    e.stopPropagation();
+$('.tree').on('click', 'li.parent.expanded>.item>.sign', function (e) {
+  var node = $(this).parent().parent();
+  var children = node.find(' > ul > li');
+  children.hide('fast');
+  $(this).text("+");
+  node.removeClass('expanded').addClass('collapsed');
+  e.stopPropagation();
 });
 
 // add listener for clicking collapsed parent node
-$('.tree').on('click', 'li.parent.collapsed>.item>.sign', function(e) {
-    var node = $(this).parent().parent();
-    var children = node.find(' > ul > li');
-    children.show('fast');
-    $(this).text("-");
-    node.removeClass('collapsed').addClass('expanded');
-    e.stopPropagation();
+$('.tree').on('click', 'li.parent.collapsed>.item>.sign', function (e) {
+  var node = $(this).parent().parent();
+  var children = node.find(' > ul > li');
+  children.show('fast');
+  $(this).text("-");
+  node.removeClass('collapsed').addClass('expanded');
+  e.stopPropagation();
 });
 
 // add listener for expand all
 $('.navigation .toolbar .expand-all').on('click', function (e) {
-    $('.tree li.parent.collapsed>.item>.sign').click();
-    e.stopPropagation();
+  $('.tree li.parent.collapsed>.item>.sign').click();
+  e.stopPropagation();
 });
 
 // add listener for collapse all
 $('.navigation .toolbar .collapse-all').on('click', function (e) {
-    $('.tree li.parent.expanded>.item>.sign').click();
-    e.stopPropagation();
+  $('.tree li.parent.expanded>.item>.sign').click();
+  e.stopPropagation();
 });
 
 // add listener for selecting node
 $('.tree').on('click', 'li > .item', function (e) {
-    var oldScrollTop = $(window).scrollTop();
-    // render detail panel
-    renderDetailPanel($(this).parent().data("data"));
-    // calculate margin top and min height of detail panel
-    var detailPanelHeader = $('.detail>.panel-heading');
-    var detailPanelBody = $('.detail>.panel-body');
-    detailPanelBody.css("margin-top", detailPanelHeader.outerHeight() + 'px');
-    detailPanelBody.css('min-height', $('.navigation').outerHeight() - detailPanelHeader.outerHeight() - 2 + 'px'); // minus the border of detail panel
+  var oldScrollTop = $(window).scrollTop();
+  // render detail panel
+  renderDetailPanel($(this).parent().data("data"));
+  // calculate margin top and min height of detail panel
+  var detailPanelHeader = $('.detail>.panel-heading');
+  var detailPanelBody = $('.detail>.panel-body');
+  detailPanelBody.css("margin-top", detailPanelHeader.outerHeight() + 'px');
+  detailPanelBody.css('min-height', $('.navigation').outerHeight() - detailPanelHeader.outerHeight() - 2 + 'px'); // minus the border of detail panel
 
-    $('.tree li .selected').removeClass('selected');
-    $(this).addClass('selected');
-    e.stopPropagation();
+  $('.tree li .selected').removeClass('selected');
+  $(this).addClass('selected');
+  e.stopPropagation();
 
-    var maxTop = 76;
-    $(window).scrollTop(Math.min(oldScrollTop, maxTop));
+  var maxTop = 76;
+  $(window).scrollTop(Math.min(oldScrollTop, maxTop));
 });
 
 // calculate the "top" of navigation
 $(window).scroll(function () {
-	var maxTop = 76;
-	var scrollTop = $(window).scrollTop();
-	if (scrollTop >= maxTop) {
-	    $('.navigation').css('top', '0');
-        $('.detail>.panel-heading').addClass('fixed');
-	} else {
-	    $('.navigation').css('top', maxTop - scrollTop + 'px');
-        $('.detail>.panel-heading').removeClass('fixed');
-	}
+  var maxTop = 76;
+  var scrollTop = $(window).scrollTop();
+  if (scrollTop >= maxTop) {
+    $('.navigation').css('top', '0');
+    $('.detail>.panel-heading').addClass('fixed');
+  } else {
+    $('.navigation').css('top', maxTop - scrollTop + 'px');
+    $('.detail>.panel-heading').removeClass('fixed');
+  }
 });
 
 // remove default mousewheel event when inner scroll bar is up to top or bottom
-$('.navigation .panel-body').mousewheel(function(event, delta){
-    var panelBody = $(this);
-    var panelBodyOffsetHeight = panelBody.outerHeight();
-    var panelBodyScrollHeight = panelBody.get(0).scrollHeight;
-    var scrollTop = panelBody.scrollTop();
-    var isPreventOuterScroll = (delta < 0 && scrollTop === panelBodyScrollHeight - panelBodyOffsetHeight) ||
-                               (delta > 0 && scrollTop === 0);
-    if(isPreventOuterScroll){
-        event.preventDefault();
-    }
+$('.navigation .panel-body').mousewheel(function (event, delta) {
+  var panelBody = $(this);
+  var panelBodyOffsetHeight = panelBody.outerHeight();
+  var panelBodyScrollHeight = panelBody.get(0).scrollHeight;
+  var scrollTop = panelBody.scrollTop();
+  var isPreventOuterScroll = (delta < 0 && scrollTop === panelBodyScrollHeight - panelBodyOffsetHeight) ||
+    (delta > 0 && scrollTop === 0);
+  if (isPreventOuterScroll) {
+    event.preventDefault();
+  }
 });
 
 function renderTreePanel(testSuite, statusFilter) {
-    function appendToNode(parentNode, data, visible, expanded) {
-        var node = null;
-        if (data.type === "case") {
-            if (statusFilter !== data.status && statusFilter !== "all") {
-                return null;
+  function appendToNode(parentNode, data, visible, expanded) {
+    var node = null;
+    if (data.type === "case") {
+      if (statusFilter !== data.status && statusFilter !== "all") {
+        return null;
+      }
+      var nodeContent = '<li class="node leaf"><div class="item" title="{name}"><div class="sign {status}"></div><div class="name">{name}</div></div></li>';
+      // test case
+      node = $(nodeContent.format({
+        "name": data.name,
+        "status": data.status
+      }));
+    } else {
+      if (data[statusFilter] === 0 && statusFilter !== "all") {
+        return null;
+      }
+      // test container
+      var nodeContent = '<li class="node parent {expandClass}"><div class="item" title="{name}"><div class="sign" title="Click to expand/collapse.">{sign}</div><div class="name">{name}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div><div class="type">{type}</div><div class="number">{total}</div></div><ul></ul></li>';
+      var nodeContentFormatter = {
+        "name": data.name,
+        "expandClass": expanded ? 'expanded' : 'collapsed',
+        "sign": expanded ? '-' : '+',
+        "type": data.type,
+        "total": 0,
+        "passRate": 0,
+        "failRate": 0,
+        "skipRate": 0
+      };
+      switch (statusFilter) {
+        case "passed":
+          nodeContentFormatter["total"] = data.passed;
+          nodeContentFormatter["passRate"] = 100;
+          break;
+        case "failed":
+          nodeContentFormatter["total"] = data.failed;
+          nodeContentFormatter["failRate"] = 100;
+          break;
+        case "skipped":
+          nodeContentFormatter["total"] = data.skipped;
+          nodeContentFormatter["skipRate"] = 100;
+          break;
+        case "all":
+          nodeContentFormatter["total"] = data.total;
+          nodeContentFormatter["passRate"] = data.passed * 100.0 / data.total;
+          nodeContentFormatter["failRate"] = data.failed * 100.0 / data.total;
+          nodeContentFormatter["skipRate"] = data.skipped * 100.0 / data.total;
+      }
+      node = $(nodeContent.format(nodeContentFormatter));
+    }
+    if (!visible) {
+      node.css('display', 'none');
+    }
+    node.data("data", data);
+    parentNode.find(' > ul').append(node);
+    return node;
+  }
+
+  function renderTree(parentNode, data) {
+    var currentNode = appendToNode(parentNode, data, true, true);
+    if (!currentNode) return;
+
+    if (data.testModules) {
+      for (var i = 0; i < data.testModules.length; i++) {
+        renderTree(currentNode, data.testModules[i]);
+      }
+    }
+    if (data.testClasses) {
+      for (var i = 0; i < data.testClasses.length; i++) {
+        var testClass = data.testClasses[i];
+        var testClassNode = appendToNode(currentNode, testClass, true, false);
+        if (!testClassNode) continue;
+
+        if (testClass.testGroups) {
+          for (var j = 0; j < testClass.testGroups.length; j++) {
+            var testGroup = testClass.testGroups[j];
+            var testGroupNode = appendToNode(testClassNode, testGroup, false, false);
+            if (!testGroupNode) continue;
+
+            for (var k = 0; k < testGroup.testCases.length; k++) {
+              var testCase = testGroup.testCases[k];
+              appendToNode(testGroupNode, testCase, false);
             }
-            var nodeContent = '<li class="node leaf"><div class="item" title="{name}"><div class="sign {status}"></div><div class="name">{name}</div></div></li>';
-            // test case
-            node = $(nodeContent.format({
-                "name": data.name,
-                "status": data.status
-            }));
+          }
         } else {
-            if (data[statusFilter] === 0 && statusFilter !== "all") {
-                return null;
-            }
-            // test container
-            var nodeContent = '<li class="node parent {expandClass}"><div class="item" title="{name}"><div class="sign" title="Click to expand/collapse.">{sign}</div><div class="name">{name}</div><div class="rate-container"><div class="passed rate" style="width: {passRate}%"></div><div class="failed rate" style="width: {failRate}%"></div><div class="skipped rate" style="width: {skipRate}%"></div></div><div class="type">{type}</div><div class="number">{total}</div></div><ul></ul></li>';
-            var nodeContentFormatter = {
-                "name": data.name,
-                "expandClass": expanded ? 'expanded': 'collapsed',
-                "sign": expanded ? '-': '+',
-                "type": data.type,
-                "total": 0,
-                "passRate": 0,
-                "failRate": 0,
-                "skipRate": 0
-            };
-            switch (statusFilter) {
-                case "passed":
-                    nodeContentFormatter["total"] = data.passed;
-                    nodeContentFormatter["passRate"] = 100;
-                    break;
-                case "failed":
-                    nodeContentFormatter["total"] = data.failed;
-                    nodeContentFormatter["failRate"] = 100;
-                    break;
-                case "skipped":
-                    nodeContentFormatter["total"] = data.skipped;
-                    nodeContentFormatter["skipRate"] = 100;
-                    break;
-                case "all":
-                    nodeContentFormatter["total"] = data.total;
-                    nodeContentFormatter["passRate"] = data.passed * 100.0 / data.total;
-                    nodeContentFormatter["failRate"] = data.failed * 100.0 / data.total;
-                    nodeContentFormatter["skipRate"] = data.skipped * 100.0 / data.total;
-            }
-            node = $(nodeContent.format(nodeContentFormatter));
+          for (var k = 0; k < testClass.testCases.length; k++) {
+            var testCase = testClass.testCases[k];
+            appendToNode(testClassNode, testCase, false);
+          }
         }
-        if (!visible) {
-            node.css('display', 'none');
-        }
-        node.data("data", data);
-        parentNode.find(' > ul').append(node);
-        return node;
+      }
     }
+  }
 
-    function renderTree(parentNode, data) {
-        var currentNode = appendToNode(parentNode, data, true, true);
-        if (!currentNode) return;
+  // clear tree panel
+  $('.navigation .tree>ul').empty();
 
-        if (data.testModules) {
-            for (var i = 0; i < data.testModules.length; i++) {
-                renderTree(currentNode, data.testModules[i]);
-            }
-        }
-        if (data.testClasses) {
-            for (var i = 0; i < data.testClasses.length; i++) {
-                var testClass = data.testClasses[i];
-                var testClassNode = appendToNode(currentNode, testClass, true, false);
-                if (!testClassNode) continue;
-
-                if (testClass.testGroups) {
-                    for (var j = 0; j < testClass.testGroups.length; j++) {
-                        var testGroup = testClass.testGroups[j];
-                        var testGroupNode = appendToNode(testClassNode, testGroup, false, false);
-                        if (!testGroupNode) continue;
-
-                        for (var k = 0; k < testGroup.testCases.length; k++) {
-                            var testCase = testGroup.testCases[k];
-                            appendToNode(testGroupNode, testCase, false);
-                        }
-                    }
-                } else {
-                    for (var k = 0; k < testClass.testCases.length; k++) {
-                        var testCase = testClass.testCases[k];
-                        appendToNode(testClassNode, testCase, false);
-                    }
-                }
-            }
-        }
-    }
-    // clear tree panel
-    $('.navigation .tree>ul').empty();
-
-    // render tree panel
-    renderTree($('.navigation .tree'), testSuite);
+  // render tree panel
+  renderTree($('.navigation .tree'), testSuite);
 }
 
 function renderTestFixturePanel(detailPanel, data) {
-    var testFixturePanel = $('<div class="test-fixture panel"><div class="panel-heading"></div><div class="panel-body"><table></table></div></div>');
-    var panelHeader = testFixturePanel.find('.panel-heading');
-    panelHeader.addClass(data.status);
-    panelHeader.text('@' + data.fixtureType);
+  var testFixturePanel = $('<div class="test-fixture panel"><div class="panel-heading"></div><div class="panel-body"><table></table></div></div>');
+  var panelHeader = testFixturePanel.find('.panel-heading');
+  panelHeader.addClass(data.status);
+  panelHeader.text('@' + data.fixtureType);
 
-    var fieldTable = testFixturePanel.find('table');
-    var fullName = $('<tr><td>Full Name</td><td>{0}</td></tr>'.format(data.fullName));
-    fieldTable.append(fullName);
-    var name = $('<tr><td>Method Name</td><td>{0}</td></tr>'.format(data.name));
-    fieldTable.append(name);
-    var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
-    fieldTable.append(startTime);
-    var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
-    fieldTable.append(endTime);
-    var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
-    fieldTable.append(duration);
-    var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
-    fieldTable.append(description);
-    var logs = $('<tr><td>Logs</td><td class="logs"></td></tr>');
-    fieldTable.append(logs);
-    var logGroup = logs.find('.logs');
-    for (var i = 0; i < data.logs.length; i++) {
-        var level = data.logs[i].level;
-        var message = data.logs[i].message;
-        var log = $('<p><span class="log-level">[{0}] </span><span class="{0}">{1}</span></p>'.format(level, message));
-        logGroup.append(log);
-        if (data.logs[i].screenshots) {
-            var screenshots = $('<div class="screenshots"></div>');
-            for (var j = 0; j < data.logs[i].screenshots.length; j++) {
-                var screenshotData = data.logs[i].screenshots[j];
-                var dataTitle = screenshotData.source === "Desktop" ? "Desktop": screenshotData.title + "\n" + screenshotData.url;
-                var screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="{1}" data-title="{2}" title="{3}"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), dataTitle, screenshotData.source));
-                screenshots.append(screenshot);
-            }
-            logGroup.append(screenshots);
+  var fieldTable = testFixturePanel.find('table');
+  var fullName = $('<tr><td>Full Name</td><td>{0}</td></tr>'.format(data.fullName));
+  fieldTable.append(fullName);
+  var name = $('<tr><td>Method Name</td><td>{0}</td></tr>'.format(data.name));
+  fieldTable.append(name);
+  var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+  fieldTable.append(startTime);
+  var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+  fieldTable.append(endTime);
+  var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+  fieldTable.append(duration);
+  var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
+  fieldTable.append(description);
+  var logsRow = $('<tr><td>Logs</td><td class="logs"></td></tr>');
+  fieldTable.append(logsRow);
+  var logs = logsRow.find('.logs');
+  for (var i = 0; i < data.logs.length; i++) {
+    var level = data.logs[i].level;
+    var message = data.logs[i].message;
+    var log = $('<p><span class="log-level">[{0}] </span><span class="{0}">{1}</span></p>'.format(level, message));
+    logs.append(log);
+    if (data.logs[i].screenshots) {
+      var screenshots = $('<div class="screenshots"></div>');
+      for (var j = 0; j < data.logs[i].screenshots.length; j++) {
+        var screenshotData = data.logs[i].screenshots[j];
+        var screenshot;
+        if (screenshotData.error) {
+          screenshot =  $('<div class="screenshot"><a class="link" href="" data-lightbox="{0}" data-title="{1}" title="{2}"><img class="image" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjE5MjAiIGhlaWdodD0iMTA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDwhLS0gQ3JlYXRlZCB3aXRoIFNWRy1lZGl0IC0gaHR0cDovL3N2Zy1lZGl0Lmdvb2dsZWNvZGUuY29tLyAtLT4KIDxnPgogIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICA8bGluZSBzdHJva2U9IiNlZDFjMjQiIGlkPSJzdmdfNyIgeTI9IjEwODAiIHgyPSIxOTIwIiB5MT0iMCIgeDE9IjAiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1kYXNoYXJyYXk9Im51bGwiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiLz4KICA8bGluZSBzdHJva2U9IiNlZDFjMjQiIGlkPSJzdmdfOCIgeTI9IjEwODAiIHgyPSIwIiB5MT0iMCIgeDE9IjE5MjAiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1kYXNoYXJyYXk9Im51bGwiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiLz4KIDwvZz4KPC9zdmc+" /></a></div>'.format(screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), screenshotData.error, screenshotData.source));
+        } else {
+          var dataTitle = screenshotData.source === "Desktop" ? "Desktop" : screenshotData.title + "\n" + screenshotData.url;
+          screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="{1}" data-title="{2}" title="{3}"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), dataTitle, screenshotData.source));
         }
+        screenshots.append(screenshot);
+      }
+      logs.append(screenshots);
     }
+  }
 
-    detailPanel.append(testFixturePanel);
+  detailPanel.append(testFixturePanel);
 }
 
 function renderDetailPanel(data) {
-    var detailPanel = $('.detail');
-    var detailPanelHeader = detailPanel.find(' > .panel-heading');
-    var detailPanelBody = detailPanel.find(' > .panel-body');
-    detailPanelHeader.empty();
-    detailPanelBody.empty();
+  var detailPanel = $('.detail');
+  var detailPanelHeader = detailPanel.find(' > .panel-heading');
+  var detailPanelBody = detailPanel.find(' > .panel-body');
+  detailPanelHeader.empty();
+  detailPanelBody.empty();
 
-    detailPanelHeader.append($('<span class="text">{0}</span>'.format(data.fullName)));
-    switch (data.type) {
-        case "case":
-            var fieldTable = $('<table class="overview"></table>');
+  detailPanelHeader.append($('<span class="text">{0}</span>'.format(data.fullName)));
+  switch (data.type) {
+    case "case":
+      var fieldTable = $('<table class="overview"></table>');
 
-            var tags = $('<tr><td>Tags</td><td></td></tr>');
-            var tagSlot = tags.find('td:nth-child(2)');
-            for (var i=0; i < data.tags.length; i++) {
-                tagSlot.append($('<span class="tag">{0}</span>'.format(data.tags[i])));
-            }
-            fieldTable.append(tags);
+      var tags = $('<tr><td>Tags</td><td></td></tr>');
+      var tagSlot = tags.find('td:nth-child(2)');
+      for (var i = 0; i < data.tags.length; i++) {
+        tagSlot.append($('<span class="tag">{0}</span>'.format(data.tags[i])));
+      }
+      fieldTable.append(tags);
 
-            var group = $('<tr><td>Group</td><td></td></tr>');
-            group.find('td:nth-child(2)').append($('<span class="group">{0}</span>'.format(data.group)));
-            fieldTable.append(group);
+      var group = $('<tr><td>Group</td><td></td></tr>');
+      group.find('td:nth-child(2)').append($('<span class="group">{0}</span>'.format(data.group)));
+      fieldTable.append(group);
 
-            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
-            fieldTable.append(startTime);
-            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
-            fieldTable.append(endTime);
-            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
-            fieldTable.append(duration);
-            var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
-            fieldTable.append(description);
+      var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+      fieldTable.append(startTime);
+      var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+      fieldTable.append(endTime);
+      var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+      fieldTable.append(duration);
+      var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
+      fieldTable.append(description);
 
-            detailPanelBody.append(fieldTable);
-            if (data.beforeMethod) {
-                renderTestFixturePanel(detailPanelBody, data.beforeMethod);
-            }
-            renderTestFixturePanel(detailPanelBody, data.test);
-            if (data.afterMethod) {
-                renderTestFixturePanel(detailPanelBody, data.afterMethod);
-            }
-            break;
-        case "module":
-            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
-            var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
-            detailPanelHeader.append(number);
-            renderDashBoard(detailPanelBody, data);
-            break;
-        case "suite":
-            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
-            var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
-            detailPanelHeader.append(number);
+      detailPanelBody.append(fieldTable);
+      if (data.beforeMethod) {
+        renderTestFixturePanel(detailPanelBody, data.beforeMethod);
+      }
+      renderTestFixturePanel(detailPanelBody, data.test);
+      if (data.afterMethod) {
+        renderTestFixturePanel(detailPanelBody, data.afterMethod);
+      }
+      break;
+    case "module":
+      var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+      var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
+      detailPanelHeader.append(number);
+      renderDashBoard(detailPanelBody, data);
+      break;
+    case "suite":
+      var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+      var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
+      detailPanelHeader.append(number);
 
-            var fieldTable = $('<table class="overview"></table>');
+      var fieldTable = $('<table class="overview"></table>');
 
-            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
-            fieldTable.append(startTime);
-            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
-            fieldTable.append(endTime);
-            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
-            fieldTable.append(duration);
+      var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+      fieldTable.append(startTime);
+      var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+      fieldTable.append(endTime);
+      var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+      fieldTable.append(duration);
 
-            detailPanelBody.append(fieldTable);
-            renderDashBoard(detailPanelBody, data);
-            if (data.beforeSuite) {
-                renderTestFixturePanel(detailPanelBody, data.beforeSuite);
-            }
-            if (data.afterSuite) {
-                renderTestFixturePanel(detailPanelBody, data.afterSuite);
-            }
-            break;
-        case "class":
-            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
-            var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
-            detailPanelHeader.append(number);
+      detailPanelBody.append(fieldTable);
+      renderDashBoard(detailPanelBody, data);
+      if (data.beforeSuite) {
+        renderTestFixturePanel(detailPanelBody, data.beforeSuite);
+      }
+      if (data.afterSuite) {
+        renderTestFixturePanel(detailPanelBody, data.afterSuite);
+      }
+      break;
+    case "class":
+      var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+      var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
+      detailPanelHeader.append(number);
 
-            var fieldTable = $('<table class="overview"></table>');
+      var fieldTable = $('<table class="overview"></table>');
 
-            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
-            fieldTable.append(startTime);
-            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
-            fieldTable.append(endTime);
-            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
-            fieldTable.append(duration);
-            var runMode = $('<tr><td>Run Mode</td><td>{0}</td></tr>'.format(data.runMode));
-            fieldTable.append(runMode);
-            if (data.runGroup) {
-                var runGroup = $('<tr><td>Run Group</td><td>{0}</td></tr>'.format(data.runGroup));
-                fieldTable.append(runGroup);
-            }
-            var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
-            fieldTable.append(description);
+      var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+      fieldTable.append(startTime);
+      var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+      fieldTable.append(endTime);
+      var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+      fieldTable.append(duration);
+      var runMode = $('<tr><td>Run Mode</td><td>{0}</td></tr>'.format(data.runMode));
+      fieldTable.append(runMode);
+      if (data.runGroup) {
+        var runGroup = $('<tr><td>Run Group</td><td>{0}</td></tr>'.format(data.runGroup));
+        fieldTable.append(runGroup);
+      }
+      var description = $('<tr><td>Description</td><td>{0}</td></tr>'.format(data.description));
+      fieldTable.append(description);
 
-            detailPanelBody.append(fieldTable);
-            if (data.beforeClass) {
-                renderTestFixturePanel(detailPanelBody, data.beforeClass);
-            }
-            if (data.afterClass) {
-                renderTestFixturePanel(detailPanelBody, data.afterClass);
-            }
-            break;
-        case "group":
-            var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
-            var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
-            detailPanelHeader.append(number);
+      detailPanelBody.append(fieldTable);
+      if (data.beforeClass) {
+        renderTestFixturePanel(detailPanelBody, data.beforeClass);
+      }
+      if (data.afterClass) {
+        renderTestFixturePanel(detailPanelBody, data.afterClass);
+      }
+      break;
+    case "group":
+      var numberContent = '<div class="all badge">{0}</div><div class="passed badge">{1}</div><div class="failed badge">{2}</div><div class="skipped badge">{3}</div>';
+      var number = $(numberContent.format(data.total, data.passed, data.failed, data.skipped));
+      detailPanelHeader.append(number);
 
-            var fieldTable = $('<table class="overview"></table>');
+      var fieldTable = $('<table class="overview"></table>');
 
-            var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
-            fieldTable.append(startTime);
-            var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
-            fieldTable.append(endTime);
-            var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
-            fieldTable.append(duration);
+      var startTime = $('<tr><td>Start Time</td><td>{0}</td></tr>'.format(data.startTime));
+      fieldTable.append(startTime);
+      var endTime = $('<tr><td>End Time</td><td>{0}</td></tr>'.format(data.endTime));
+      fieldTable.append(endTime);
+      var duration = $('<tr><td>Duration</td><td>{0}s</td></tr>'.format(data.elapsedTime));
+      fieldTable.append(duration);
 
-            detailPanelBody.append(fieldTable);
-            if (data.beforeGroup) {
-                renderTestFixturePanel(detailPanelBody, data.beforeGroup);
-            }
-            if (data.afterGroup) {
-                renderTestFixturePanel(detailPanelBody, data.afterGroup);
-            }
-            break;
-    }
+      detailPanelBody.append(fieldTable);
+      if (data.beforeGroup) {
+        renderTestFixturePanel(detailPanelBody, data.beforeGroup);
+      }
+      if (data.afterGroup) {
+        renderTestFixturePanel(detailPanelBody, data.afterGroup);
+      }
+      break;
+  }
 }
 
 function renderDashBoard(parentPanel, data) {
-    var panel = $('<div class="dashboard"></div>');
-    parentPanel.append(panel);
+  var panel = $('<div class="dashboard"></div>');
+  parentPanel.append(panel);
 
-    var pieChart = $('<canvas class="pieChart"></canvas>');
-    panel.append(pieChart);
-    var pieChartData = [
+  var pieChart = $('<canvas class="pieChart"></canvas>');
+  panel.append(pieChart);
+  var pieChartData = [
     {
-        value: data.passed,
-        color:"#5FB65F",
-        highlight: "#7DC27D",
-        label: "Passed"
+      value: data.passed,
+      color: "#5FB65F",
+      highlight: "#7DC27D",
+      label: "Passed"
     },
     {
-        value: data.failed,
-        color: "#FF6E6E",
-        highlight: "#FD8989",
-        label: "Failed"
+      value: data.failed,
+      color: "#FF6E6E",
+      highlight: "#FD8989",
+      label: "Failed"
     },
     {
-        value: data.skipped,
-        color: "#FFB626",
-        highlight: "#FDC24F",
-        label: "Skipped"
+      value: data.skipped,
+      color: "#FFB626",
+      highlight: "#FDC24F",
+      label: "Skipped"
     }
-    ];
-    var ctx = pieChart.get(0).getContext("2d");
-    var pieChart = new Chart(ctx).Pie(pieChartData, {animationEasing: 'easeOutQuart', tooltipTemplate: "<%= label %>: <%= value %> (<%= Math.round(circumference * 1000 / 6.283) / 10 %>%)"});
-    panel.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
+  ];
+  var ctx = pieChart.get(0).getContext("2d");
+  var pieChart = new Chart(ctx).Pie(pieChartData, {
+    animationEasing: 'easeOutQuart',
+    tooltipTemplate: "<%= label %>: <%= value %> (<%= Math.round(circumference * 1000 / 6.283) / 10 %>%)"
+  });
+  panel.append($('<div class="legend-group"><div class="legend"><div class="icon passed"></div><div class="text">Passed</div></div><div class="legend"><div class="icon failed"></div><div class="text">Failed</div></div><div class="legend"><div class="icon skipped"></div><div class="text">Skipped</div></div></div>'));
 }

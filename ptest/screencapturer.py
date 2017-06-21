@@ -296,7 +296,7 @@ def take_screenshots():
             with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
                 f.write(output.getvalue())
         except Exception as e:
-            screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
+            screenshot["error"] = str(e).strip() or "\n".join([str(arg) for arg in e.args])
 
     screenshots.append(screenshot)
 
@@ -332,7 +332,7 @@ def take_screenshots():
                 with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
                     f.write(web_driver.get_screenshot_as_png())
             except Exception as e:
-                screenshot["error"] = "Failed to take the screenshot.\n%s" % traceback.format_exc()
+                screenshot["error"] = str(e).strip() or "\n".join([str(arg) for arg in e.args])
 
             screenshots.append(screenshot)
 
