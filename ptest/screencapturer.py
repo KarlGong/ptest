@@ -290,11 +290,12 @@ def take_screenshots():
     if system() == 'Darwin' and not pyobjc_installed:
         screenshot["error"] = "The package pyobjc is necessary for taking screenshot of desktop, please install it."
     else:
-        output = BytesIO()
         try:
+            output = BytesIO()
             mss().save(output=output, screen=-1)  # -1 means all monitors
+            value = output.getvalue()
             with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
-                f.write(output.getvalue())
+                f.write(value)
         except Exception as e:
             screenshot["error"] = str(e).strip() or "\n".join([str(arg) for arg in e.args])
 
@@ -329,8 +330,9 @@ def take_screenshots():
                 pass
 
             try:
+                value = web_driver.get_screenshot_as_png()
                 with open(os.path.join(config.get_option("temp"), screenshot["path"]), mode="wb") as f:
-                    f.write(web_driver.get_screenshot_as_png())
+                    f.write(value)
             except Exception as e:
                 screenshot["error"] = str(e).strip() or "\n".join([str(arg) for arg in e.args])
 
