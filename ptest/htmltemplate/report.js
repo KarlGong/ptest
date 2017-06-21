@@ -59,7 +59,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     albumLabel: 'Screenshot %1 of %2',
     fadeDuration: 300,
     resizeDuration: 100,
-    wrapAround: false
+    wrapAround: true
   };
 
   Lightbox.prototype.option = function(options) {
@@ -177,7 +177,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       self.album.push({
         link: $link.attr('href'),
         title: $link.attr('data-title') || $link.attr('title'),
-          rotate: 0
+        rotate: 0
       });
     }
 
@@ -374,7 +374,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     if (typeof this.album[this.currentImageIndex].title !== 'undefined' &&
       this.album[this.currentImageIndex].title !== '') {
       this.$lightbox.find('.lb-caption')
-        .html(this.album[this.currentImageIndex].title)
+        .html(this.album[this.currentImageIndex].title.replace(/\n/g, "<br/>"))
         .fadeIn('fast')
         .find('a').on('click', function(event) {
           if ($(this).attr('target') !== undefined) {
@@ -764,13 +764,14 @@ function renderTestFixturePanel(detailPanel, data) {
     for (var i = 0; i < data.logs.length; i++) {
         var level = data.logs[i].level;
         var message = data.logs[i].message;
-        var log = $('<span class="log-level">[{0}] </span><span class="{0}">{1}</span><br/>'.format(level, message));
+        var log = $('<p><span class="log-level">[{0}] </span><span class="{0}">{1}</span></p>'.format(level, message));
         logGroup.append(log);
         if (data.logs[i].screenshots) {
             var screenshots = $('<div class="screenshots"></div>');
             for (var j = 0; j < data.logs[i].screenshots.length; j++) {
                 var screenshotData = data.logs[i].screenshots[j];
-                var screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="{1}"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-"))));
+                var dataTitle = screenshotData.source === "Desktop" ? "Desktop": screenshotData.title + "\n" + screenshotData.url;
+                var screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="{1}" data-title="{2}" title="{3}"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), dataTitle, screenshotData.source));
                 screenshots.append(screenshot);
             }
             logGroup.append(screenshots);

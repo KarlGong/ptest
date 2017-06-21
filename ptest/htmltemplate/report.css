@@ -216,6 +216,7 @@ body {
 }
 
 .tree .item .number {
+    display: none;
     position: absolute;
     right: 10px;
     top: -8px;
@@ -223,6 +224,10 @@ body {
     padding: 0 3px;
     color: #43a3d0;
     background-color: #fff;
+}
+
+.tree .item:hover .number {
+    display: block;
 }
 
 .tree .item .rate-container {
@@ -370,6 +375,10 @@ body {
     opacity: 1;
 }
 
+.test-fixture .logs p {
+    margin: 2px 0;
+}
+
 .test-fixture .logs .log-level {
     font-weight: bold;
     text-transform: uppercase;
@@ -396,14 +405,25 @@ body {
     color: #CE2400;
 }
 
+.test-fixture .screenshots {
+    border-left: 1px #979797 dashed;
+    margin: 8px 0 8px 20px;
+    display: flex;
+}
+
+.test-fixture .screenshot:first-child {
+    margin-left: 20px;
+}
+
 .test-fixture .screenshot {
-    float: left;
-    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .test-fixture .screenshot .link {
     display: inline-block;
-    padding: 2px;
+    padding: 1px;
+    line-height: 0;
+    border-radius: 4px;
     transition: background-color 0.5s ease-out;
 }
 
@@ -413,9 +433,9 @@ body {
 }
 
 .test-fixture .screenshot .image{
-    max-width: 130px;
-    max-height: 100px;
-    border: 0;
+    height: 40px;
+    border: 1px #c3e3fc solid;
+    border-radius: 3px;
 }
 
 /*
@@ -610,8 +630,6 @@ body {
 }
 
 .lb-data .lb-details {
-  width: 100%;
-  float: left;
   text-align: left;
   line-height: 1.1em;
 }
@@ -619,12 +637,11 @@ body {
 .lb-data .lb-caption {
   font-size: 13px;
   font-weight: bold;
-  line-height: 1em;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .lb-data .lb-number {
   display: block;
-  clear: left;
-  padding-bottom: 1em;
   color: #999999;
 }
