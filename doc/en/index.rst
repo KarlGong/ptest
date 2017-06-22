@@ -946,7 +946,7 @@ ptest command line parameters:
 +--------------------------+----------------------------------+----------------------------------------------------------------------------------------------+
 | --temp                   | A directory                      | Specify the temp dir (relative to workspace).                                                |
 +--------------------------+----------------------------------+----------------------------------------------------------------------------------------------+
-| --disablescreenshot      |                                  | Disable taking screenshot for failed test fixtures.                                          |
+| --disablescreenshot      |                                  | Disable taking screenshot for preporter.                                                     |
 +--------------------------+----------------------------------+----------------------------------------------------------------------------------------------+
 | -m(--mergexunitxmls)     | A comma-separated list of xmls   || Merge the xunit result xmls (relative to workspace).                                        |
 |                          |                                  || Multiple files can be given by separating them with a comma.                                |
