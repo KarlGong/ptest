@@ -540,7 +540,7 @@ $(function () {
 
   $(window).on('mousemove', function (e) {
     if (mousedown) {
-      width = e.pageX - 5 - leftPanel.position().left;
+      width = Math.min(Math.max(e.pageX - 5 - leftPanel.position().left, 110), $(window).width() - 315);
       resize();
       e.preventDefault();
     }
