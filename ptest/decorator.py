@@ -3,7 +3,7 @@ import os
 import re
 
 from .enumeration import PDecoratorType, TestClassRunMode
-from .utils import urljoin, unquote, pathname2url
+from .utils import urljoin, unquote, pathname2url, StringTypes
 
 
 def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):
@@ -173,7 +173,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
         if not tags:
             func.__tags__ = []
         else:
-            if isinstance(tags, str):
+            if isinstance(tags, StringTypes):
                 tag_list = tags.split(",")
             elif isinstance(tags, (list, tuple)):
                 tag_list = tags
