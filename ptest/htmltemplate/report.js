@@ -58,8 +58,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
   Lightbox.defaults = {
     albumLabel: 'Screenshot %1 of %2',
     fadeDuration: 300,
-    resizeDuration: 100,
-    wrapAround: true
+    resizeDuration: 100
   };
 
   Lightbox.prototype.option = function (options) {
@@ -352,16 +351,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     this.$lightbox.find('.lb-nav').show();
 
     if (this.album.length > 1) {
-      if (this.options.wrapAround) {
-        this.$lightbox.find('.lb-prev, .lb-next').show();
-      } else {
-        if (this.currentImageIndex > 0) {
-          this.$lightbox.find('.lb-prev').show();
-        }
-        if (this.currentImageIndex < this.album.length - 1) {
-          this.$lightbox.find('.lb-next').show();
-        }
-      }
+      this.$lightbox.find('.lb-rotate').css('width', '50%');
+      this.$lightbox.find('.lb-prev, .lb-next').show();
+    } else {
+      this.$lightbox.find('.lb-rotate').css('width', '100%');
+      this.$lightbox.find('.lb-prev, .lb-next').hide()
     }
   };
 
@@ -428,16 +422,23 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
     var key = String.fromCharCode(keycode).toLowerCase();
     if (keycode === KEYCODE_ESC || key.match(/x|o|c/)) {
       this.end();
+    } else if (key === 'r') {
+      if (this.album[this.currentImageIndex].rotate === 0) {
+        this.album[this.currentImageIndex].rotate = 270
+      } else {
+        this.album[this.currentImageIndex].rotate -= 90
+      }
+      this.changeImage(this.currentImageIndex);
     } else if (key === 'p' || keycode === KEYCODE_LEFTARROW) {
       if (this.currentImageIndex !== 0) {
         this.changeImage(this.currentImageIndex - 1);
-      } else if (this.options.wrapAround && this.album.length > 1) {
+      } else if (this.album.length > 1) {
         this.changeImage(this.album.length - 1);
       }
     } else if (key === 'n' || keycode === KEYCODE_RIGHTARROW) {
       if (this.currentImageIndex !== this.album.length - 1) {
         this.changeImage(this.currentImageIndex + 1);
-      } else if (this.options.wrapAround && this.album.length > 1) {
+      } else if (this.album.length > 1) {
         this.changeImage(0);
       }
     }
