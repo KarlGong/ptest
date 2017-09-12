@@ -125,7 +125,7 @@ class _Subject(object):
 
     def named(self, name):
         """
-            Give a name to the subject.
+            Give a name to this subject.
         """
         self._subject_name = str(name)
         return self
@@ -158,7 +158,7 @@ class _ObjSubject(_Subject):
 
     def is_instance_of(self, class_or_type_or_tuple):
         """
-            Fails if the subject is not an instance of given class or type or tuple of types.
+            Fails unless this subject is an instance of given class or type or tuple of types.
 
             Assert whether an object is an instance of a class or of a subclass thereof.
             With a type as second argument, return whether that is the object's type.
@@ -171,7 +171,7 @@ class _ObjSubject(_Subject):
 
     def is_type_of(self, type_):
         """
-           Fails if the subject is not of given type.
+           Fails unless this subject is of given type.
         """
         if type(self._subject) is not type_:
             self._raise_error("is not type of %s." % type_)
@@ -179,7 +179,7 @@ class _ObjSubject(_Subject):
 
     def is_equal_to(self, other_obj):
         """
-            Fails if the subject is not equal to other obj.
+            Fails unless this subject is equal to other obj.
         """
         if not self._subject == other_obj:
             self._raise_error("is not equal to %s <%s>." % (_type(other_obj), other_obj))
@@ -187,7 +187,7 @@ class _ObjSubject(_Subject):
 
     def is_not_equal_to(self, other_obj):
         """
-            Fails if the subject is equal to other obj.
+            Fails unless this subject is not equal to other obj.
         """
         if self._subject == other_obj:
             self._raise_error("is equal to %s <%s>." % (_type(other_obj), other_obj))
@@ -195,7 +195,7 @@ class _ObjSubject(_Subject):
 
     def is_same_as(self, other_obj):
         """
-            Fails if the subject is not identical to other obj.
+            Fails unless this subject is identical to other obj.
         """
         if self._subject is not other_obj:
             self._raise_error("is not identical to %s <%s>." % (_type(other_obj), other_obj))
@@ -203,7 +203,7 @@ class _ObjSubject(_Subject):
 
     def is_not_same_as(self, other_obj):
         """
-            Fails if the subject is identical to other obj.
+            Fails unless this subject is not identical to other obj.
         """
         if self._subject is other_obj:
             self._raise_error("is identical to %s <%s>." % (_type(other_obj), other_obj))
@@ -211,7 +211,7 @@ class _ObjSubject(_Subject):
 
     def is_none(self):
         """
-            Fails if the subject is not None.
+            Fails unless this subject is None.
         """
         if self._subject is not None:
             self._raise_error("is not <None>.")
@@ -219,7 +219,7 @@ class _ObjSubject(_Subject):
 
     def is_not_none(self):
         """
-            Fails if the subject is None.
+            Fails unless this subject is not None.
         """
         if self._subject is None:
             self._raise_error("is <None>.")
@@ -227,7 +227,7 @@ class _ObjSubject(_Subject):
 
     def is_in(self, iterable):
         """
-           Fails unless the subject is equal to any element in the given iterable.
+           Fails unless this subject is equal to one element in the given iterable.
         """
         if self._subject not in iterable:
             self._raise_error("is not in %s <%s>." % (_type(iterable), iterable))
@@ -235,7 +235,7 @@ class _ObjSubject(_Subject):
 
     def is_not_in(self, iterable):
         """
-           Fails if the subject is equal to any element in the given iterable.
+           Fails unless this subject is not equal to any element in the given iterable.
         """
         if self._subject in iterable:
             self._raise_error("is in %s <%s>." % (_type(iterable), iterable))
@@ -243,7 +243,7 @@ class _ObjSubject(_Subject):
 
     def meets(self, func):
         """
-            Fails if the subject doesn't meet the given function.
+            Fails unless this subject meets the given function.
             Note: The function must accepts one argument.
 
             For Example:
@@ -267,7 +267,7 @@ class _ObjSubject(_Subject):
 
     def has_attr(self, attribute_name):
         """
-            Fails if the subject doesn't have the given attribute.
+            Fails unless this subject has the given attribute.
         """
         if not hasattr(self._subject, attribute_name):
             self._raise_error("doesn't have attribute <%s>." % attribute_name)
@@ -275,7 +275,7 @@ class _ObjSubject(_Subject):
 
     def does_not_have_attr(self, attribute_name):
         """
-            Fails if the subject has the given attribute.
+            Fails unless this subject doesn't have the given attribute.
         """
         if hasattr(self._subject, attribute_name):
             self._raise_error("has attribute <%s>." % attribute_name)
@@ -299,7 +299,7 @@ class _BoolSubject(_ObjSubject):
 
     def is_true(self):
         """
-            Fails if the subject is false.
+            Fails unless this subject is true.
         """
         if self._subject is not True:
             self._raise_error("is not <True>.")
@@ -307,7 +307,7 @@ class _BoolSubject(_ObjSubject):
 
     def is_false(self):
         """
-            Fails if the subject is true.
+            Fails unless this subject is false.
         """
         if self._subject is not False:
             self._raise_error("is not <False>.")
@@ -320,7 +320,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_less_than(self, other_number):
         """
-            Fails if the subject is not less than other number.
+            Fails unless this subject is less than other number.
         """
         if self._subject >= other_number:
             self._raise_error("is not less than %s <%s>." % (_type(other_number), other_number))
@@ -328,7 +328,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_greater_than(self, other_number):
         """
-            Fails if the subject is not greater than other number.
+            Fails unless this subject is greater than other number.
         """
         if self._subject <= other_number:
             self._raise_error("is not greater than %s <%s>." % (_type(other_number), other_number))
@@ -336,7 +336,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_less_than_or_equal_to(self, other_number):
         """
-            Fails if the subject is greater than other number.
+            Fails unless this subject is less than or equal to other number.
         """
         if self._subject > other_number:
             self._raise_error("is greater than %s <%s>." % (_type(other_number), other_number))
@@ -344,13 +344,13 @@ class _NumericSubject(_ObjSubject):
 
     def is_at_most(self, other_number):
         """
-            Fails if the subject is greater than other number.
+            Fails unless this subject is less than or equal to other number.
         """
         return self.is_less_than_or_equal_to(other_number)
 
     def is_greater_than_or_equal_to(self, other_number):
         """
-            Fails if the subject is less than other number.
+            Fails unless this subject is greater than or equal to other number.
         """
         if self._subject < other_number:
             self._raise_error("is less than %s <%s>." % (_type(other_number), other_number))
@@ -358,13 +358,13 @@ class _NumericSubject(_ObjSubject):
 
     def is_at_least(self, other_number):
         """
-            Fails if the subject is less than other number.
+            Fails unless this subject is greater than or equal to other number.
         """
         return self.is_greater_than_or_equal_to(other_number)
 
     def is_zero(self):
         """
-            Fails if the subject is not zero (0).
+            Fails unless this subject is zero (0).
         """
         if self._subject != 0:
             self._raise_error("is not <0>.")
@@ -372,7 +372,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_not_zero(self):
         """
-            Fails if the subject is zero (0).
+            Fails unless this subject is not zero (0).
         """
         if self._subject == 0:
             self._raise_error("is <0>.")
@@ -380,7 +380,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_positive(self):
         """
-            Fails if the subject is not positive.
+            Fails unless this subject is positive.
         """
         if self._subject <= 0:
             self._raise_error("is not positive.")
@@ -388,7 +388,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_negative(self):
         """
-            Fails if the subject is not negative.
+            Fails unless this subject is negative.
         """
         if self._subject >= 0:
             self._raise_error("is not negative.")
@@ -396,7 +396,7 @@ class _NumericSubject(_ObjSubject):
 
     def is_between(self, low, high):
         """
-            Fails if the subject is not between low and high.
+            Fails unless this subject is between low and high.
 
             Note: low and high are included
         """
@@ -411,7 +411,7 @@ class _IterableSubject(_ObjSubject):
 
     def is_empty(self):
         """
-            Fails if the subject is empty.
+            Fails unless this subject is empty.
         """
         if len(self._subject) != 0:
             self._raise_error("is not empty.")
@@ -419,7 +419,7 @@ class _IterableSubject(_ObjSubject):
 
     def is_not_empty(self):
         """
-            Fails if the subject is not empty.
+            Fails unless this subject is not empty.
         """
         if len(self._subject) == 0:
             self._raise_error("is empty.")
@@ -427,7 +427,7 @@ class _IterableSubject(_ObjSubject):
 
     def has_length(self, expected_length):
         """
-            Fails if the subject does not have the given length.
+            Fails unless this subject has the given length.
         """
         if not len(self._subject) == expected_length:
             self._raise_error("doesn't have a length of <%s>. It is <%s>." % (expected_length, len(self._subject)))
@@ -435,7 +435,7 @@ class _IterableSubject(_ObjSubject):
 
     def contains(self, obj):
         """
-            Fails if the subject doesn't contain the given object.
+            Fails unless this subject contains the given object.
         """
         if obj not in self._subject:
             self._raise_error("doesn't contain %s <%s>." % (_type(obj), obj))
@@ -443,64 +443,64 @@ class _IterableSubject(_ObjSubject):
 
     def does_not_contain(self, obj):
         """
-            Fails if the subject contain the given object.
+            Fails unless this subject doesn't contain the given object.
         """
         if obj in self._subject:
             self._raise_error("contains %s <%s>." % (_type(obj), obj))
         return self
 
-    def contains_all_of(self, *objs):
-        """
-            Fails unless the subject contains all of the given objects.
-        """
-        uncontained_objs = [obj for obj in objs if obj not in self._subject]
-        if uncontained_objs:
-            self._raise_error("doesn't contain elements <%s> in <%s>." % (_format(uncontained_objs), _format(list(objs))))
-        return self
-
     def contains_all_in(self, iterable):
         """
-            Fails unless the subject contains all in the given iterable.
+            Fails unless this subject contains all the elements in the given iterable.
         """
         uncontained_objs = [obj for obj in iterable if obj not in self._subject]
         if uncontained_objs:
             self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_format(uncontained_objs), _type(iterable), iterable))
         return self
 
-    def contains_any_of(self, *objs):
+    def is_all_in(self, iterable):
         """
-            Fails unless the subject contains any of the given objects.
+            Fails unless all the elements in this subject are in the given iterable.
         """
-        contained_objs = [obj for obj in objs if obj in self._subject]
-        if not contained_objs:
-            self._raise_error("doesn't contain any element in <%s>." % _format(list(objs)))
+        uncontained_objs = [obj for obj in self._subject if obj not in iterable]
+        if uncontained_objs:
+            self._raise_error("has elements <%s> not in %s <%s>." % (_format(uncontained_objs), _type(iterable), iterable))
         return self
 
     def contains_any_in(self, iterable):
         """
-            Fails unless the subject contains any in the given iterable.
+            Fails unless this subject contains any element in the given iterable.
         """
         contained_objs = [obj for obj in iterable if obj in self._subject]
         if not contained_objs:
             self._raise_error("doesn't contain any element in %s <%s>." % (_type(iterable), iterable))
         return self
 
-    def contains_none_of(self, *objs):
+    def is_any_in(self, iterable):
         """
-            Fails if the subject contains any of the given objects.
+            Fails unless any element in this subject is in given iterable.
         """
-        contained_objs = [obj for obj in objs if obj in self._subject]
-        if contained_objs:
-            self._raise_error("contains elements <%s> in <%s>." % (_format(contained_objs), _format(list(objs))))
+        contained_objs = [obj for obj in self._subject if obj in iterable]
+        if not contained_objs:
+            self._raise_error("doesn't have any element in %s <%s>." % (_type(iterable), iterable))
         return self
 
     def contains_none_in(self, iterable):
         """
-            Fails if the subject contains any in the given iterable.
+            Fails unless this subject doesn't contain any element in the given iterable.
         """
         contained_objs = [obj for obj in iterable if obj in self._subject]
         if contained_objs:
             self._raise_error("contains elements <%s> in %s <%s>." % (_format(contained_objs), _type(iterable), iterable))
+        return self
+
+    def is_none_in(self, iterable):
+        """
+            Fails unless any element in this subject is not in the given iterable.
+        """
+        contained_objs = [obj for obj in self._subject if obj in iterable]
+        if contained_objs:
+            self._raise_error("has elements <%s> in %s <%s>." % (_format(contained_objs), _type(iterable), iterable))
         return self
 
     def length(self):
@@ -553,7 +553,7 @@ class _StringSubject(_IterableSubject):
 
     def is_equal_to_ignoring_case(self, string):
         """
-            Fails if the string is not equal to other string ignoring case.
+            Fails unless this string is equal to other string ignoring case.
         """
         if not self._subject.lower() == string.lower():
             self._raise_error("is not equal to %s <%s> ignoring case." % (_type(string), string))
@@ -561,7 +561,7 @@ class _StringSubject(_IterableSubject):
 
     def is_blank(self):
         """
-            Fails if the string is not blank.
+            Fails unless this string is blank.
         """
         if len(self._subject.strip()) != 0:
             self._raise_error("is not blank.")
@@ -569,7 +569,7 @@ class _StringSubject(_IterableSubject):
 
     def is_not_blank(self):
         """
-            Fails if the string is blank.
+            Fails unless this string is not blank.
         """
         if len(self._subject.strip()) == 0:
             self._raise_error("is blank.")
@@ -577,7 +577,7 @@ class _StringSubject(_IterableSubject):
 
     def starts_with(self, prefix):
         """
-            Fails if the string does not start with the given string.
+            Fails unless this string starts with the given string.
         """
         if not self._subject.startswith(prefix):
             self._raise_error("doesn't start with %s <%s>." % (_type(prefix), prefix))
@@ -585,7 +585,7 @@ class _StringSubject(_IterableSubject):
 
     def ends_with(self, suffix):
         """
-            Fails if the string does not end with the given string.
+            Fails unless this string ends with the given string.
         """
         if not self._subject.endswith(suffix):
             self._raise_error("doesn't end with %s <%s>." % (_type(suffix), suffix))
@@ -593,7 +593,7 @@ class _StringSubject(_IterableSubject):
 
     def matches(self, regex):
         """
-            Fails if the string doesn't match the given regex.
+            Fails unless this string matches the given regex.
 
             Note: If you want to match the entire string, just include anchors in the regex pattern.
         """
@@ -603,7 +603,7 @@ class _StringSubject(_IterableSubject):
 
     def does_not_match(self, regex):
         """
-            Fails if the string match the given regex.
+            Fails unless this string doesn't match the given regex.
 
             Note: If you want to match the entire string, just include anchors in the regex pattern.
         """
@@ -613,7 +613,7 @@ class _StringSubject(_IterableSubject):
 
     def is_alpha(self):
         """
-            Fails if the string doesn't contain only alphabetic chars.
+            Fails unless this string contains only alphabetic chars.
         """
         if not self._subject.isalpha():
             self._raise_error("doesn't contain only alphabetic chars.")
@@ -621,7 +621,7 @@ class _StringSubject(_IterableSubject):
 
     def is_digit(self):
         """
-            Fails if the string doesn't contain only digits.
+            Fails unless this string contains only digits.
         """
         if not self._subject.isdigit():
             self._raise_error("doesn't contain only digits.")
@@ -629,7 +629,7 @@ class _StringSubject(_IterableSubject):
 
     def is_lower(self):
         """
-            Fails if the string doesn't contain only lowercase chars.
+            Fails unless this string contains only lowercase chars.
         """
         if not self._subject == self._subject.lower():
             self._raise_error("doesn't contain only lowercase chars.")
@@ -637,7 +637,7 @@ class _StringSubject(_IterableSubject):
 
     def is_upper(self):
         """
-            Fails if the string doesn't contain only uppercase chars.
+            Fails unless this string contains only uppercase chars.
         """
         if not self._subject == self._subject.upper():
             self._raise_error("doesn't contain only uppercase chars.")
@@ -665,7 +665,7 @@ class _ListOrTupleSubject(_IterableSubject):
 
     def contains_duplicates(self):
         """
-            Fails if this list/tuple does not contain duplicate elements.
+            Fails unless this list/tuple contains duplicate elements.
         """
         if len(self._subject) == len(set(self._subject)):
             self._raise_error("doesn't contain duplicate elements.")
@@ -673,7 +673,7 @@ class _ListOrTupleSubject(_IterableSubject):
 
     def does_not_contain_duplicates(self):
         """
-            Fails if this list/tuple contains duplicate elements.
+            Fails unless this list/tuple doesn't contain duplicate elements.
         """
         element_counter = {}
         for element in self._subject:
@@ -701,7 +701,7 @@ class _SetSubject(_IterableSubject):
     
     def is_super_of(self, other_set):
         """
-            Fails unless this set is a super set of other set.
+            Fails unless this set is a superset of other set.
         """
         uncontained_objs = [obj for obj in other_set if obj not in self._subject]
         if uncontained_objs:
@@ -711,7 +711,7 @@ class _SetSubject(_IterableSubject):
 
     def is_sub_of(self, other_set):
         """
-            Fails unless this set is a sub set of other set.
+            Fails unless this set is a subset of other set.
         """
         uncontained_objs = [obj for obj in self._subject if obj not in other_set]
         if uncontained_objs:
@@ -726,7 +726,7 @@ class _DictSubject(_IterableSubject):
 
     def contains_key(self, key):
         """
-            Fails if the dict doesn't contain the given key.
+            Fails unless this dict contains the given key.
         """
         if key not in self._subject:
             self._raise_error("doesn't contain key %s <%s>." % (_type(key), key))
@@ -734,7 +734,7 @@ class _DictSubject(_IterableSubject):
 
     def does_not_contain_key(self, key):
         """
-            Fails if the dict contains the given key.
+            Fails unless this dict doesn't contain the given key.
         """
         if key in self._subject:
             self._raise_error("contains key %s <%s>." % (_type(key), key))
@@ -742,7 +742,7 @@ class _DictSubject(_IterableSubject):
 
     def contains_value(self, value):
         """
-            Fails if the dict doesn't contain the given value.
+            Fails unless this dict contains the given value.
         """
         if value not in self._subject.values():
             self._raise_error("doesn't contain value %s <%s>." % (_type(value), value))
@@ -750,7 +750,7 @@ class _DictSubject(_IterableSubject):
 
     def does_not_contain_value(self, value):
         """
-            Fails if the dict contains the given value.
+            Fails unless this dict doesn't contain the given value.
         """
         if value in self._subject.values():
             self._raise_error("contains value %s <%s>." % (_type(value), value))
@@ -758,7 +758,7 @@ class _DictSubject(_IterableSubject):
 
     def contains_entry(self, key, value):
         """
-           Fails if the dict doesn't contain the given entry.
+           Fails unless this dict contains the given entry.
         """
         if (key, value) not in self._subject.items():
             self._raise_error("doesn't contain entry, key: %s <%s>, value: %s <%s>." % (_type(key), key, _type(value), value))
@@ -766,7 +766,7 @@ class _DictSubject(_IterableSubject):
 
     def does_not_contain_entry(self, key, value):
         """
-            Fails if the dict contain the given entry.
+            Fails unless this dict doesn't contain the given entry.
         """
         if (key, value) in self._subject.items():
             self._raise_error("contains entry, key: %s <%s>, value: %s <%s>." % (_type(key), key, _type(value), value))
@@ -774,7 +774,7 @@ class _DictSubject(_IterableSubject):
 
     def is_super_of(self, other_dict):
         """
-            Fails unless this dict contains all entries in other dict.
+            Fails unless this dict contains all the entries in other dict.
         """
         uncontained_entries = [entry for entry in other_dict.items() if entry not in self._subject.items()]
         if uncontained_entries:
@@ -784,7 +784,7 @@ class _DictSubject(_IterableSubject):
 
     def is_sub_of(self, other_dict):
         """
-            Fails unless all entries of this dict are in other dict.
+            Fails unless all the entries in this dict are in other dict.
         """
         uncontained_entries = [entry for entry in self._subject.items() if entry not in other_dict.items()]
         if uncontained_entries:
@@ -825,7 +825,7 @@ class _DateSubject(_ObjSubject):
 
     def is_before(self, other_date):
         """
-            Fails if this date is not before other date.
+            Fails unless this date is before other date.
         """
         if self._subject >= other_date:
             self._raise_error("is not before %s <%s>." % (_type(other_date), other_date))
@@ -833,7 +833,7 @@ class _DateSubject(_ObjSubject):
 
     def is_after(self, other_date):
         """
-            Fails if the date is not after other date.
+            Fails unless this date is after other date.
         """
         if self._subject <= other_date:
             self._raise_error("is not after %s <%s>." % (_type(other_date), other_date))
