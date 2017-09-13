@@ -1,5 +1,9 @@
 Change Log
 ----------
+1.8.1 (compared to 1.8.0)
+
+- Add is_all_in, is_any_in, is_none_in to assert_that assertion.
+
 1.8.0 (compared to 1.7.7)
 
 - Support coroutine tests.
