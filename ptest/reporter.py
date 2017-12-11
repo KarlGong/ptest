@@ -74,14 +74,14 @@ def generate_html_report(report_dir):
 
     html_template_dir = os.path.join(current_dir, "htmltemplate")
 
-    # copy js and css file to report dir
+    # copy js and css files to report dir
     for fn in os.listdir(html_template_dir):
         file_full_path = os.path.join(html_template_dir, fn)
         _, file_ext = os.path.splitext(fn)
         if os.path.isfile(file_full_path) and file_ext in [".js", ".css"]:
             shutil.copy(file_full_path, report_dir)
 
-    # copy screenshot from temp dir
+    # copy screenshots from temp dir to report dir
     temp_dir = config.get_option("temp")
     for fn in os.listdir(temp_dir):
         file_full_path = os.path.join(temp_dir, fn)
