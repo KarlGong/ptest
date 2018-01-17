@@ -45,13 +45,15 @@ class TestFinder:
         elif module_name_len == test_target_len - 1:
             # test target is class
             self.test_class_name = splitted_test_target[-1]
-            self.find_tests_in_module(module_ref)
+            if not hasattr(module_ref, "__path__"): # ignore test cases in package
+                self.find_tests_in_module(module_ref)
         elif module_name_len == test_target_len - 2:
             # test target is method
             self.test_class_name = splitted_test_target[-2]
             self.test_name = splitted_test_target[-1]
             self.is_parametric_test = re.search(r"^.*#.*$", self.test_name)
-            self.find_tests_in_module(module_ref)
+            if not hasattr(module_ref, "__path__"): # ignore test cases in package
+                self.find_tests_in_module(module_ref)
         else:
             raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't."% (
                 self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
