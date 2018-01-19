@@ -73,7 +73,7 @@ class TestFinder:
                     self.find_tests_in_package(importlib.import_module(package_name + "." + fn))
                 elif os.path.isfile(file_path):
                     file_name, file_ext = os.path.splitext(fn)
-                    if file_ext == ".py":
+                    if fn != "__init__.py" and file_ext == ".py":
                         self.find_tests_in_module(importlib.import_module(package_name + "." + file_name))
         else:
             for _, name, is_package in pkgutil.iter_modules(package_ref.__path__):
