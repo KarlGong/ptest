@@ -8,10 +8,10 @@ from datetime import datetime
 
 from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
 from .plogger import preporter, pconsole, pconsole_err
-from .testsuite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
+from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
     BeforeMethod, Test
 from .plistener import test_listeners
-from .utils import call_function, kill_thread, format_thread_stack
+from .util import call_function, kill_thread, format_thread_stack
 
 
 class TestExecutor(threading.Thread):

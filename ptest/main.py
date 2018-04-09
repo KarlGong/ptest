@@ -5,7 +5,7 @@ import traceback
 from codecs import open
 from xml.dom import minidom
 
-from .utils import make_dirs, remove_tree, StringTypes
+from .util import make_dirs, remove_tree, StringTypes
 
 
 def get_rerun_targets(xml_file):
@@ -25,7 +25,7 @@ def get_rerun_targets(xml_file):
 
 def merge_xunit_xmls(xml_files, to_file):
     from .plogger import pconsole
-    from .testsuite import default_test_suite
+    from .test_suite import default_test_suite
 
     pconsole.write_line("Start to merge xunit result xmls...")
 
@@ -104,10 +104,10 @@ def main(args=None):
         return
 
     # run test
-    from .testfilter import TestFilterGroup, TestIncludeTagsFilter, TestExcludeTagsFilter, TestIncludeGroupsFilter
-    from . import testexecutor, reporter, plistener
-    from .testfinder import TestFinder
-    from .testsuite import default_test_suite
+    from .test_filter import TestFilterGroup, TestIncludeTagsFilter, TestExcludeTagsFilter, TestIncludeGroupsFilter
+    from . import test_executor, reporter, plistener
+    from .test_finder import TestFinder
+    from .test_suite import default_test_suite
     from .plogger import pconsole
     from .enumeration import TestCaseCountItem
 
@@ -212,7 +212,7 @@ def main(args=None):
             web_drivers.append(web_driver)
         def new_start_client(self):
             try:
-                current_executor = testexecutor.current_executor()
+                current_executor = test_executor.current_executor()
                 add_web_driver(current_executor, self)
                 add_web_driver(current_executor.parent_test_executor, self)
                 add_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
@@ -225,7 +225,7 @@ def main(args=None):
                 web_drivers.remove(web_driver)
         def new_stop_client(self):
             try:
-                current_executor = testexecutor.current_executor()
+                current_executor = test_executor.current_executor()
                 remove_web_driver(current_executor, self)
                 remove_web_driver(current_executor.parent_test_executor, self)
                 remove_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
@@ -250,7 +250,7 @@ def main(args=None):
         make_dirs(temp_dir)
 
     # run test cases
-    testexecutor.TestSuiteExecutor(default_test_suite, int(config.get_option("test_executor_number"))).start_and_join()
+    test_executor.TestSuiteExecutor(default_test_suite, int(config.get_option("test_executor_number"))).start_and_join()
 
     # log the test results
     status_count = default_test_suite.status_count

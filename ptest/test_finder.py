@@ -5,7 +5,7 @@ import re
 import sys
 
 from .enumeration import PDecoratorType
-from .utils import mock_func
+from .util import mock_func
 
 
 class TestFinder:

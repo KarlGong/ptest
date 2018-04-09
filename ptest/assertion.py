@@ -1,6 +1,6 @@
 import re
 
-from .utils import StringTypes
+from .util import StringTypes
 
 
 # -------------------------------------------

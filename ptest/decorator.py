@@ -3,7 +3,7 @@ import os
 import re
 
 from .enumeration import PDecoratorType, TestClassRunMode
-from .utils import urljoin, unquote, pathname2url, StringTypes, get_parameters_count
+from .util import urljoin, unquote, pathname2url, StringTypes, get_parameters_count
 
 
 def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):

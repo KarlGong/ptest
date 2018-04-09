@@ -39,16 +39,16 @@ class PReporter:
         self.__log(logging.CRITICAL, msg, screenshot)
 
     def __log(self, level, msg, screenshot):
-        from . import testexecutor, screencapturer
+        from . import test_executor, screen_capturer
 
         try:
-            running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
+            running_test_fixture = test_executor.current_executor().get_property("running_test_fixture")
         except AttributeError as e:
             pconsole.write_line("[%s] %s" % (logging.getLevelName(level), msg))
         else:
             log = {"level": logging.getLevelName(level).lower(), "message": str(msg)}
             if screenshot and not config.get_option("disable_screenshot"):
-                log["screenshots"] = screencapturer.take_screenshots()
+                log["screenshots"] = screen_capturer.take_screenshots()
 
             running_test_fixture.logs.append(log)
 

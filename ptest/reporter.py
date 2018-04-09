@@ -9,9 +9,9 @@ from xml.dom import minidom
 
 from . import config, __version__
 from .plogger import pconsole
-from .testsuite import default_test_suite
+from .test_suite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
-from .utils import make_dirs, remove_tree, escape_html
+from .util import make_dirs, remove_tree, escape_html
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 

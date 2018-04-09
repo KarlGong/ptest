@@ -4,9 +4,9 @@ import uuid
 from io import BytesIO
 
 from . import config
-from .exceptions import ScreenshotError
+from .exception import ScreenshotError
 from .plogger import preporter
-from .utils import escape_filename
+from .util import escape_filename
 
 # ----------------------------------------------------------------------
 # -------- [ cross-platform multiple screenshots module ] --------------
@@ -275,10 +275,10 @@ def mss(*args, **kwargs):
 # ----------- [ take screenshot for webdriver or desktop ] -------------
 # ----------------------------------------------------------------------
 def take_screenshots():
-    from . import testexecutor
+    from . import test_executor
 
-    web_drivers = testexecutor.current_executor().get_property("web_drivers")
-    running_test_fixture = testexecutor.current_executor().get_property("running_test_fixture")
+    web_drivers = test_executor.current_executor().get_property("web_drivers")
+    running_test_fixture = test_executor.current_executor().get_property("running_test_fixture")
     hash_code = str(uuid.uuid4()).split("-")[0]
     screenshots = []
 
