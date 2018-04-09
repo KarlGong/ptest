@@ -18,10 +18,16 @@ class TestFinder:
         # test class / test case name filter
         self.test_class_name = None
         self.test_name = None
-        self.is_parametric_test = None
+        self.test_data_name = None
 
     def find_tests(self):
-        splitted_test_target = self.test_target.split(".")
+        match_object = re.search(r"^(.*?)#(.*)$", self.test_target)
+        if match_object:
+            self.test_data_name = match_object.group(2)
+            splitted_test_target = match_object.group(1).split(".")
+        else:
+            splitted_test_target = self.test_target.split(".")
+
         module_ref = None
         module_name_len = 0
         for i in range(len(splitted_test_target)):
@@ -29,7 +35,7 @@ class TestFinder:
                 module_ref = importlib.import_module(".".join(splitted_test_target[:i + 1]))
                 module_name_len = i + 1
             except ImportError as e:
-                if splitted_test_target[i] in str(e):
+                if splitted_test_target[i] in str(e): # python 2.x only display bar for target foo.bar
                     break
                 raise
 
@@ -38,6 +44,12 @@ class TestFinder:
 
         test_target_len = len(splitted_test_target)
         if module_name_len == test_target_len:
+            if self.test_data_name:
+                raise ImportError("Test target <%s> is invalid.\n"
+                                  "It looks like a test case with data provider, "
+                                  "but only test module <%s> is provided."
+                                  % (self.test_target, ".".join(splitted_test_target)))
+
             if hasattr(module_ref, "__path__"):
                 # test target is package
                 self.find_tests_in_package(module_ref)
@@ -45,17 +57,30 @@ class TestFinder:
                 # test target is module
                 self.find_tests_in_module(module_ref)
         elif module_name_len == test_target_len - 1:
+            if self.test_data_name:
+                raise ImportError("Test target <%s> is invalid.\n"
+                                  "It looks like a test case with data provider, "
+                                  "but only test class <%s> is provided."
+                                  % (self.test_target, ".".join(splitted_test_target)))
+
+            if hasattr(module_ref, "__path__"):
+                raise ImportError("Test target <%s> is invalid.\n"
+                                  "The test class in the __init__.py of package <%s> will be ignored."
+                                  % (self.test_target, ".".join(splitted_test_target[:module_name_len])))
+
             # test target is class
             self.test_class_name = splitted_test_target[-1]
-            if not hasattr(module_ref, "__path__"): # ignore test cases in package
-                self.find_tests_in_module(module_ref)
+            self.find_tests_in_module(module_ref)
         elif module_name_len == test_target_len - 2:
+            if hasattr(module_ref, "__path__"):
+                raise ImportError("Test target <%s> is invalid.\n"
+                                  "The test case in the __init__.py of package <%s> will be ignored."
+                                  % (self.test_target, ".".join(splitted_test_target[:module_name_len])))
+
             # test target is method
             self.test_class_name = splitted_test_target[-2]
             self.test_name = splitted_test_target[-1]
-            self.is_parametric_test = re.search(r"^.*#.*$", self.test_name)
-            if not hasattr(module_ref, "__path__"): # ignore test cases in package
-                self.find_tests_in_module(module_ref)
+            self.find_tests_in_module(module_ref)
         else:
             raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't."% (
                 self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
@@ -101,12 +126,12 @@ class TestFinder:
                         if self.test_filter_group.filter(func):
                             self.__add_test(test_class_cls, func)
                 else:
-                    if self.is_parametric_test and test_func.__data_provider__:
-                        if re.search(r"^%s#.*$" % test_func.__name__, self.test_name):
+                    if self.test_data_name and test_func.__data_provider__:
+                        if self.test_name == test_func.__name__:
                             for func in unzip_func(test_class_cls, test_func):
-                                if self.test_name == func.__name__ and self.test_filter_group.filter(func):
+                                if "%s#%s" % (self.test_name, self.test_data_name) == func.__name__ and self.test_filter_group.filter(func):
                                     self.__add_test(test_class_cls, func)
-                    elif self.test_name == test_func.__name__:
+                    elif not self.test_data_name and self.test_name == test_func.__name__:
                         for func in unzip_func(test_class_cls, test_func):
                             if self.test_filter_group.filter(func):
                                 self.__add_test(test_class_cls, func)
@@ -129,8 +154,7 @@ def unzip_func(test_class_cls, test_func):
                 parameters = [data]
             if parameters_count == test_func.__parameters_count__ - 1:
                 mock = mock_func(test_func)
-                mock_name = ("%s#%s" % (test_func.__name__, test_func.__data_name__(index, parameters))) \
-                    .replace(".", "_").replace(",", "_").replace(" ", "_")
+                mock_name = ("%s#%s" % (test_func.__name__, test_func.__data_name__(index, parameters))).replace(",", "_").replace(" ", "_")
                 if mock_name in name_map:
                     name_map[mock_name] += 1
                     mock.__name__ = "%s(%s)" % (mock_name, name_map[mock_name] - 1)
