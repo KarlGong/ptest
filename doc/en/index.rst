@@ -1,6 +1,6 @@
 1 - Introduction
 ================
-ptest is a light test runner for Python. With ptest, you can tag test classes & test cases by decorators, execute test cases by command line, and get clear reports.
+ptest is a light test framework for Python. With ptest, you can tag test classes & test cases by decorators, execute test cases by command line, and get clear reports.
 
 Writing a test in ptest is typically a two-step process:
 

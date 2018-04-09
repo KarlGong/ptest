@@ -36,7 +36,7 @@ def make_cmdline_entry_points():
 def main():
     setup(
         name="ptest",
-        description="light test runner for Python",
+        description="light test framework for Python",
         long_description=long_description,
         version=__version__,
         keywords="test testing framework automation python runner",
