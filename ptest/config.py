@@ -138,7 +138,7 @@ def _parse_options(option_args):
 
     # running
     parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
-                      help="Specify the xunit result xml path (relative to workspace) and run the failed test cases in it.")
+                      help="Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
