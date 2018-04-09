@@ -385,7 +385,7 @@ class TestFixtureSubExecutor(TestExecutor):
 
     def run_test_configuration(self):
         try:
-            params = {1: [], 2: [self.test_fixture.context]}[self.test_fixture.arguments_count]
+            params = {1: [], 2: [self.test_fixture.context]}[self.test_fixture.parameters_count]
             call_function(self.test_fixture.test_fixture_ref, *params)
         except Exception as e:
             self.test_fixture.status = TestFixtureStatus.FAILED

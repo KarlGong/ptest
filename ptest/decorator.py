@@ -3,7 +3,7 @@ import os
 import re
 
 from .enumeration import PDecoratorType, TestClassRunMode
-from .utils import urljoin, unquote, pathname2url, StringTypes
+from .utils import urljoin, unquote, pathname2url, StringTypes, get_parameters_count
 
 
 def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):
@@ -50,7 +50,7 @@ def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -73,7 +73,7 @@ def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -98,7 +98,7 @@ def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **cust
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -123,7 +123,7 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -211,7 +211,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test(func)
+        func.__parameters_count__ = get_parameters_count(func)
         # for data provider
         #                     normal    zipped    unzipped    mocked
         # __parameters__       None      None       None     not None
@@ -254,7 +254,7 @@ def AfterMethod(enabled=True, always_run=True, group="DEFAULT", description="", 
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -281,7 +281,7 @@ def AfterGroup(enabled=True, always_run=True, group="DEFAULT", description="", t
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -306,7 +306,7 @@ def AfterClass(enabled=True, always_run=True, description="", timeout=0, **custo
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -331,7 +331,7 @@ def AfterSuite(enabled=True, always_run=True, description="", timeout=0, **custo
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__arguments_count__ = __get_arguments_count_of_test_configuration(func)
+        func.__parameters_count__ = __get_parameters_count_of_test_configuration(func)
         return func
 
     return handle_func
@@ -343,12 +343,8 @@ def __get_location(func):
     return urljoin("file:", "%s:%s" % (unquote(pathname2url(file_path)), line_no))
 
 
-def __get_arguments_count_of_test_configuration(func):
-    arguments_count = len(inspect.getargspec(func)[0])
-    if arguments_count not in [1, 2]:
-        raise TypeError("%s() cannot be declared with %s arguments. Please declare with 1 or 2 arguments." % (func.__name__, arguments_count))
-    return arguments_count
-
-
-def __get_arguments_count_of_test(func):
-    return len(inspect.getargspec(func)[0])
+def __get_parameters_count_of_test_configuration(func):
+    parameters_count = get_parameters_count(func)
+    if parameters_count not in [1, 2]:
+        raise TypeError("%s() cannot be declared with %s parameters. Please declare with 1 or 2 parameters (including self)." % (func.__name__, parameters_count))
+    return parameters_count

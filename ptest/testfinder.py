@@ -122,12 +122,12 @@ def unzip_func(test_class_cls, test_func):
         name_map = {}
         for index, data in enumerate(test_func.__data_provider__):
             if isinstance(data, (list, tuple)):
-                parameters_number = len(data)
+                parameters_count = len(data)
                 parameters = data
             else:
-                parameters_number = 1
+                parameters_count = 1
                 parameters = [data]
-            if parameters_number == test_func.__arguments_count__ - 1:
+            if parameters_count == test_func.__parameters_count__ - 1:
                 mock = mock_func(test_func)
                 mock_name = ("%s#%s" % (test_func.__name__, test_func.__data_name__(index, parameters))) \
                     .replace(".", "_").replace(",", "_").replace(" ", "_")
@@ -144,10 +144,10 @@ def unzip_func(test_class_cls, test_func):
                 test_func.__funcs__.append(mock)
             else:
                 raise TypeError("The data provider is trying to pass %s extra arguments but %s.%s() takes %s."
-                                % (parameters_number, test_class_cls.__name__, test_func.__name__, test_func.__arguments_count__ - 1))
+                                % (parameters_count, test_class_cls.__name__, test_func.__name__, test_func.__parameters_count__ - 1))
     elif not test_func.__data_provider__: # normal
         test_func.__funcs__[0].__test_class__ = test_class_cls
-        if test_func.__arguments_count__ != 1:
-            raise TypeError("Since data provider is not specified, %s.%s() cannot be declared with %s parameters. Please declare with only 1 parameter (self)."
-                            % (test_class_cls.__name__, test_func.__name__, test_func.__arguments_count__))
+        if test_func.__parameters_count__ != 1:
+            raise TypeError("Since data provider is not specified, %s.%s() cannot be declared with %s parameters. Please declare with only 1 parameter (only self)."
+                            % (test_class_cls.__name__, test_func.__name__, test_func.__parameters_count__))
     return test_func.__funcs__

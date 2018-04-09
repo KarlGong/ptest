@@ -308,7 +308,7 @@ class TestFixture:
         self.timeout = test_fixture_ref.__timeout__
         self.custom_args = test_fixture_ref.__custom_args__
         self.location = test_fixture_ref.__location__
-        self.arguments_count = test_fixture_ref.__arguments_count__
+        self.parameters_count = test_fixture_ref.__parameters_count__
 
     @property
     def elapsed_time(self):

@@ -2,6 +2,7 @@ import ctypes
 import errno
 import os
 import sys
+import inspect
 import time
 import traceback
 import types
@@ -35,6 +36,13 @@ def remove_tree(dir_path, remove_root=True):
                 os.rmdir(os.path.join(root, name))
         if remove_root is True:
             os.rmdir(dir_path)
+
+
+def get_parameters_count(func):
+    if sys.version_info[0] == 2:
+        return len(inspect.getargspec(func)[0])
+    else:
+        return len(inspect.signature(func).parameters)
 
 
 def is_coroutine_function(func):
