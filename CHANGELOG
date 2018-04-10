@@ -1,4 +1,7 @@
 ## Change Log
+1.9.0 (compared to 1.8.2)
+
+- Add splitter "-" for long command names.
 
 1.8.2 (compared to 1.8.1)
 
