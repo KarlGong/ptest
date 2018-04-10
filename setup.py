@@ -8,7 +8,7 @@ from ptest import __version__
 
 current_dir = path.abspath(path.dirname(__file__))
 # Get the long description from the relevant file
-with open(path.join(current_dir, "README.rst"), encoding="utf-8") as f:
+with open(path.join(current_dir, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 with open(path.join(current_dir, "CHANGELOG"), encoding="utf-8") as f:
     long_description += "\n" + f.read()
@@ -16,9 +16,8 @@ with open(path.join(current_dir, "CHANGELOG"), encoding="utf-8") as f:
 classifiers = ["License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing",
                "Operating System :: Microsoft :: Windows",
-               "Operating System :: MacOS :: MacOS X"] + [
-                  ("Programming Language :: Python :: %s" % x) for x in
-                  "2.7 3.4 3.5".split()]
+               "Operating System :: MacOS :: MacOS X"] + \
+              [("Programming Language :: Python :: %s" % x) for x in "2.7 3.4 3.5 3.6".split()]
 
 
 def make_cmdline_entry_points():
@@ -38,6 +37,7 @@ def main():
         name="ptest",
         description="light test framework for Python",
         long_description=long_description,
+        long_description_content_type="text/markdown",
         version=__version__,
         keywords="test testing framework automation python runner",
         author="Karl Gong",
