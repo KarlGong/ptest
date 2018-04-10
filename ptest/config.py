@@ -128,41 +128,41 @@ def _parse_options(option_args):
     # path and property
     parser.add_option("-w", "--workspace", action="store", dest="workspace", default=".", metavar="dir",
                       help="Specify the workspace dir (relative to working directory). Default is current working directory.")
-    parser.add_option("-P", "--pythonpaths", action="store", dest="python_paths", default=None, metavar="paths",
+    parser.add_option("-P", "--python-paths", action="store", dest="python_paths", default=None, metavar="paths",
                       help="Specify the additional locations (relative to workspace) where to search test libraries from when they are imported. "
                            "Multiple paths can be given by separating them with a comma.")
-    parser.add_option("-p", "--propertyfile", action="store", dest="property_file", default=None, metavar="file",
+    parser.add_option("-p", "--property-file", action="store", dest="property_file", default=None, metavar="file",
                       help="Specify the property file (relative to workspace). "
                            "The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in module ptest.config.")
 
     # running
-    parser.add_option("-R", "--runfailed", action="store", dest="run_failed", default=None, metavar="file",
+    parser.add_option("-R", "--run-failed", action="store", dest="run_failed", default=None, metavar="file",
                       help="Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
-                           "NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path")
+                           "NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path")
     parser.add_option("-f", "--filter", action="store", dest="test_filter", default=None, metavar="class",
                       help="Specify the path of test filter class, select test cases to run by the specified filter. "
                            "The test filter class should implement class TestFilter in ptest.testfilter "
                            "The filter path format is: package.module.class "
-                           "NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path")
-    parser.add_option("-i", "--includetags", action="store", dest="include_tags", default=None, metavar="tags",
+                           "NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path")
+    parser.add_option("-i", "--include-tags", action="store", dest="include_tags", default=None, metavar="tags",
                       help="Select test cases to run by tags, separated by comma.")
-    parser.add_option("-e", "--excludetags", action="store", dest="exclude_tags", default=None, metavar="tags",
-                      help="Select test cases not to run by tags, separated by comma. These test cases are not run even if included with --includetags.")
-    parser.add_option("-g", "--includegroups", action="store", dest="include_groups", default=None, metavar="groups",
+    parser.add_option("-e", "--exclude-tags", action="store", dest="exclude_tags", default=None, metavar="tags",
+                      help="Select test cases not to run by tags, separated by comma. These test cases are not run even if included with --include-tags.")
+    parser.add_option("-g", "--include-groups", action="store", dest="include_groups", default=None, metavar="groups",
                       help="Select test cases to run by groups, separated by comma.")
-    parser.add_option("-n", "--testexecutornumber", action="store", dest="test_executor_number", metavar="int",
+    parser.add_option("-n", "--test-executor-number", action="store", dest="test_executor_number", metavar="int",
                       default=1, help="Specify the number of test executors. Default value is 1.")
 
     # output
-    parser.add_option("-o", "--outputdir", action="store", dest="output_dir", default="test-output", metavar="dir",
+    parser.add_option("-o", "--output-dir", action="store", dest="output_dir", default="test-output", metavar="dir",
                       help="Specify the output dir (relative to workspace).")
-    parser.add_option("-r", "--reportdir", action="store", dest="report_dir", default="html-report", metavar="dir",
+    parser.add_option("-r", "--report-dir", action="store", dest="report_dir", default="html-report", metavar="dir",
                       help="Specify the html report dir (relative to output dir).")
-    parser.add_option("-x", "--xunitxml", action="store", dest="xunit_xml", default="xunit-results.xml",
+    parser.add_option("-x", "--xunit-xml", action="store", dest="xunit_xml", default="xunit-results.xml",
                       metavar="file", help="Specify the xunit result xml path (relative to output dir).")
 
     # miscellaneous
@@ -170,17 +170,17 @@ def _parse_options(option_args):
                       help="Specify the path of test listener classes, separated by comma. "
                            "The listener class should implement class TestListener in ptest.plistener "
                            "The listener path format is: package.module.class "
-                           "NOTE: 1. ptest ONLY searches modules under --workspace, --pythonpaths and sys.path "
-                           "2. The listener class must be thread safe if you set -n(--testexecutornumber) greater than 1.")
+                           "NOTE: 1. ptest ONLY searches modules under --workspace, --python-paths and sys.path "
+                           "2. The listener class must be thread safe if you set -n(--test-executor-number) greater than 1.")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                       help="Set ptest console to verbose mode.")
     parser.add_option("--temp", action="store", dest="temp", default="ptest-temp", metavar="dir",
                       help="Specify the temp dir (relative to workspace).")
-    parser.add_option("--disablescreenshot", action="store_true", dest="disable_screenshot", default=False,
+    parser.add_option("--disable-screenshot", action="store_true", dest="disable_screenshot", default=False,
                       help="Disable taking screenshot for preporter.")
 
     # tool
-    parser.add_option("-m", "--mergexunitxmls", action="store", dest="merge_xunit_xmls", default=None, metavar="files",
+    parser.add_option("-m", "--merge-xunit-xmls", action="store", dest="merge_xunit_xmls", default=None, metavar="files",
                       help="Merge the xunit result xmls (relative to workspace). Multiple files can be given by separating them with a comma."
                             "Use --to to specify the path of merged xunit result xml.")
     parser.add_option("--to", action="store", dest="to", default=None, metavar='path',
@@ -197,13 +197,13 @@ def _parse_options(option_args):
     main_options = [options.test_targets, options.run_failed, options.merge_xunit_xmls]
     specified_options_count = len([option for option in main_options if option is not None])
     if specified_options_count == 0:
-        parser.error("You must specify one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
+        parser.error("You must specify one of the following options: -t(--targets), -R(--run-failed), -m(--merge-xunit-xmls).")
     elif specified_options_count > 1:
-        parser.error("You can ONLY specify one of the following options: -t(--targets), -R(--runfailed), -m(--mergexunitxmls).")
+        parser.error("You can ONLY specify one of the following options: -t(--targets), -R(--run-failed), -m(--merge-xunit-xmls).")
 
     # check '--to'
     if options.merge_xunit_xmls is not None and options.to is None:
-        parser.error("You must use --to to specify the path of merged xunit result xml (--mergexunitxmls).")
+        parser.error("You must use --to to specify the path of merged xunit result xml (--merge-xunit-xmls).")
 
     # spilt multiple values by comma
     def split(option_value):

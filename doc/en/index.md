@@ -653,7 +653,7 @@ In following case, all the test cases are standalone, so they can be run
 by multiple threads.
 
 *Note:* If you want to run following test cases parallel, you must set
-`-n(--testexecutornumber)` greater than 1.
+`-n(--test-executor-number)` greater than 1.
 
 ```python
 from ptest.decorator import TestClass, Test, BeforeClass, AfterClass
@@ -694,7 +694,7 @@ The default value is `None`. The value type should be `str`.
 **Examples:**
 
 In following case, the `PTestClass1` and `PTestClass2` will be run one
-by one even if the `-n(--testexecutornumber)` is set of greater than 1.
+by one even if the `-n(--test-executor-number)` is set of greater than 1.
 
 ```python
 from ptest.decorator import TestClass, Test
@@ -966,23 +966,23 @@ ptest command line parameters:
 Option | Argument | Documentation
 ------ | -------- | -------------
 -w(--workspace) | A directory | Specify the workspace dir (relative to working directory). <br>Default is current working directory.
--P(--pythonpaths) | A comma-separated list of paths | Specify the additional locations (relative to workspace)<br>where to search test libraries from when they are imported.<br>Multiple paths can be given by separating them with a comma.
--p(--propertyfile) | A property file | Specify the property file (relative to workspace).<br>The properties in property file will be overwritten by user defined properties in cmd line.<br>Get property via get_property() in module ptest.config.
--R(--runfailed) | A xml file | Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.
--t(--targets) | A comma-separated list of targets | Specify the path of test targets, separated by comma.<br>Test target can be package/module/class/method.<br>The target path format is: package[.module[.class[.method]]]<br>NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path
--f(--filter) | A Class | Specify the path of test filter class, select test cases to run by the specified filter.<br>The test filter class should implement class TestFilter in ptest.testfilter<br>The filter path format is: package.module.class<br>NOTE: ptest ONLY searches modules under --workspace, --pythonpaths and sys.path
--i(--includetags) | A comma-separated list of tags | Select test cases to run by tags, separated by comma.
--e(--excludetags) | A comma-separated list of tags | Select test cases not to run by tags, separated by comma.<br>These test cases are not run even if included with --includetags.
--g(--includegroups) | A group name | Select test cases to run by groups, separated by comma.
--n(--testexecutornumber) | A positive integer | Specify the number of test executors. Default value is 1.
--o(--outputdir) | A directory | Specify the output dir (relative to workspace).
--r(--reportdir) | A directory | Specify the html report dir (relative to output dir).
--x(--xunitxml) | A xml file | Specify the xunit result xml path (relative to output dir).
--l(--listeners) | A comma-separated list of classes | Specify the path of test listener classes, separated by comma.<br>The listener class should implement class TestListener in ptest.plistener<br>The listener path format is: package.module.class<br>NOTE: 1. ptest ONLY searches modules under --workspace, --pythonpaths and sys.path<br>2. The listener class must be thread safe if you set -n(--testexecutornumber) greater than 1
+-P(--python-paths) | A comma-separated list of paths | Specify the additional locations (relative to workspace)<br>where to search test libraries from when they are imported.<br>Multiple paths can be given by separating them with a comma.
+-p(--property-file) | A property file | Specify the property file (relative to workspace).<br>The properties in property file will be overwritten by user defined properties in cmd line.<br>Get property via get_property() in module ptest.config.
+-R(--run-failed) | A xml file | Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.
+-t(--targets) | A comma-separated list of targets | Specify the path of test targets, separated by comma.<br>Test target can be package/module/class/method.<br>The target path format is: package[.module[.class[.method]]]<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
+-f(--filter) | A Class | Specify the path of test filter class, select test cases to run by the specified filter.<br>The test filter class should implement class TestFilter in ptest.testfilter<br>The filter path format is: package.module.class<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
+-i(--include-tags) | A comma-separated list of tags | Select test cases to run by tags, separated by comma.
+-e(--exclude-tags) | A comma-separated list of tags | Select test cases not to run by tags, separated by comma.<br>These test cases are not run even if included with --include-tags.
+-g(--include-groups) | A group name | Select test cases to run by groups, separated by comma.
+-n(--test-executor-number) | A positive integer | Specify the number of test executors. Default value is 1.
+-o(--output-dir) | A directory | Specify the output dir (relative to workspace).
+-r(--report-dir) | A directory | Specify the html report dir (relative to output dir).
+-x(--xunit-xml) | A xml file | Specify the xunit result xml path (relative to output dir).
+-l(--listeners) | A comma-separated list of classes | Specify the path of test listener classes, separated by comma.<br>The listener class should implement class TestListener in ptest.plistener<br>The listener path format is: package.module.class<br>NOTE: 1. ptest ONLY searches modules under --workspace, --python-paths and sys.path<br>2. The listener class must be thread safe if you set -n(--test-executor-number) greater than 1
 -v(--verbose) |  | Set ptest console to verbose mode.
 --temp | A directory | Specify the temp dir (relative to workspace).
---disablescreenshot |   | Disable taking screenshot for preporter.
--m(--mergexunitxmls) | A comma-separated list of xmls | Merge the xunit result xmls (relative to workspace).<br>Multiple files can be given by separating them with a comma.<br>Use --to to specify the path of merged xunit result xml.
+--disable-screenshot |   | Disable taking screenshot for preporter.
+-m(--merge-xunit-xmls) | A comma-separated list of xmls | Merge the xunit result xmls (relative to workspace).<br>Multiple files can be given by separating them with a comma.<br>Use --to to specify the path of merged xunit result xml.
 --to | A path | Specify the 'to' destination (relative to workspace).
 -D\<key\>=\<value\> |   | Define properties via -D\<key\>=\<value\>. e.g., -Dmykey=myvalue<br>Get defined property via get_property() in module ptest.config.
 
@@ -1025,7 +1025,7 @@ class MyTestListener(TestListener):
 ```
 
 *Note:* The listener class must be thread safe if you set
-`-n(--testexecutornumber)` greater than 1.
+`-n(--test-executor-number)` greater than 1.
 
 Then use `-l(--listeners)` to specify the path of test listener classes
 
@@ -1144,4 +1144,4 @@ class PTestClass:
 ```
 
 You can disable ptest to take screenshot by adding command line option
-`--disablescreenshot`.
+`--disable-screenshot`.

@@ -82,7 +82,7 @@
 
 1.4.3 (compared to 1.4.2)
 
-- Add command option -m(--mergexunitxmls) to merge the xunit result xmls.
+- Add command option -m(--merge-xunit-xmls) to merge the xunit result xmls.
 
 1.4.2 (compared to 1.4.1)
 
@@ -94,7 +94,7 @@
 
 - Support custom args in test fixtures.
 
-- Add option (--pythonpaths) to specify additional python paths.
+- Add option (--python-paths) to specify additional python paths.
 
 1.4.0 (compared to 1.3.2)
 
@@ -144,7 +144,7 @@
 
 - Add always_run attribute to @Test.
 
-- Add command option --disablescreenshot to disable taking screenshot for failed test fixture.
+- Add command option --disable-screenshot to disable taking screenshot for failed test fixture.
 
 - Support group in test class.
 
