@@ -1,16 +1,15 @@
-from copy import copy
-from functools import cmp_to_key
 import threading
-import traceback
 import time
-
+import traceback
+from copy import copy
 from datetime import datetime
+from functools import cmp_to_key
 
 from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
+from .plistener import test_listeners
 from .plogger import preporter, pconsole, pconsole_err
 from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
     BeforeMethod, Test
-from .plistener import test_listeners
 from .util import call_function, kill_thread, format_thread_stack
 
 
@@ -112,6 +111,7 @@ class TestSuiteExecutor(TestExecutor):
 
         self.release_worker()
 
+
 class TestClassRunGroupExecutor(TestExecutor):
     def __init__(self, test_suite_executor, test_class_run_group):
         TestExecutor.__init__(self, test_suite_executor)
@@ -122,6 +122,7 @@ class TestClassRunGroupExecutor(TestExecutor):
             TestClassExecutor(self, test_class).start_and_join()
 
         self.release_worker()
+
 
 class TestClassExecutor(TestExecutor):
     def __init__(self, test_class_run_group_executor, test_class):
@@ -224,7 +225,7 @@ class TestCaseExecutor(TestExecutor):
 
         test_executor.release_worker()
 
-        after_method_executor =TestFixtureExecutor(self, self.test_case.after_method)
+        after_method_executor = TestFixtureExecutor(self, self.test_case.after_method)
         after_method_executor.acquire_worker()
         after_method_executor.start_and_join()
         after_method_executor.release_worker()
