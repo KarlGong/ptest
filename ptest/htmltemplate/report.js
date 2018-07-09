@@ -744,7 +744,8 @@ function renderTestFixturePanel(detailPanel, data) {
   for (var i = 0; i < data.logs.length; i++) {
     var level = data.logs[i].level;
     var message = data.logs[i].message;
-    var log = $('<p><span class="log-level">[{0}] </span><span class="{0}">{1}</span></p>'.format(level, message));
+    var time = data.logs[i].time;
+    var log = $('<p><span class="log-level" title="{0}">[{1}]</span>&nbsp;<span class="{1}">{2}</span></p>'.format(time, level, message));
     logs.append(log);
     if (data.logs[i].screenshots) {
       var screenshots = $('<div class="screenshots"></div>');

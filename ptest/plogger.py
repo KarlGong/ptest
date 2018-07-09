@@ -1,5 +1,6 @@
 import logging
 import sys
+from datetime import datetime
 
 from . import config
 
@@ -46,7 +47,7 @@ class PReporter:
         except AttributeError as e:
             pconsole.write_line("[%s] %s" % (logging.getLevelName(level), msg))
         else:
-            log = {"level": logging.getLevelName(level).lower(), "message": str(msg)}
+            log = {"time": str(datetime.now()), "level": logging.getLevelName(level).lower(), "message": str(msg)}
             if screenshot and not config.get_option("disable_screenshot"):
                 log["screenshots"] = screen_capturer.take_screenshots()
 
