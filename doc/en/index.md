@@ -967,7 +967,7 @@ Option | Argument | Documentation
 ------ | -------- | -------------
 -w(--workspace) | A directory | Specify the workspace dir (relative to working directory). <br>Default is current working directory.
 -P(--python-paths) | A comma-separated list of paths | Specify the additional locations (relative to workspace)<br>where to search test libraries from when they are imported.<br>Multiple paths can be given by separating them with a comma.
--p(--property-file) | A property file | Specify the property file (relative to workspace).<br>The properties in property file will be overwritten by user defined properties in cmd line.<br>Get property via get_property() in module ptest.config.
+-p(--property-file) | A property file | Specify the .ini property file (relative to workspace).<br>The properties in property file will be overwritten by user defined properties in cmd line.<br>Get property via get_property() in module ptest.config.
 -R(--run-failed) | A xml file | Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.
 -t(--targets) | A comma-separated list of targets | Specify the path of test targets, separated by comma.<br>Test target can be package/module/class/method.<br>The target path format is: package[.module[.class[.method]]]<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
 -f(--filter) | A Class | Specify the path of test filter class, select test cases to run by the specified filter.<br>The test filter class should implement class TestFilter in ptest.testfilter<br>The filter path format is: package.module.class<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path

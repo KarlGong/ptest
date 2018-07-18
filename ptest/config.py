@@ -132,7 +132,7 @@ def _parse_options(option_args):
                       help="Specify the additional locations (relative to workspace) where to search test libraries from when they are imported. "
                            "Multiple paths can be given by separating them with a comma.")
     parser.add_option("-p", "--property-file", action="store", dest="property_file", default=None, metavar="file",
-                      help="Specify the property file (relative to workspace). "
+                      help="Specify the .ini property file (relative to workspace). "
                            "The properties in property file will be overwritten by user defined properties in cmd line. "
                            "Get property via get_property() in module ptest.config.")
 
