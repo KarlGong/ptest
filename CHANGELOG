@@ -1,4 +1,8 @@
 ## Change Log
+1.9.1 (compared to 1.9.0)
+
+- Add timestamp for log in html report.
+
 1.9.0 (compared to 1.8.2)
 
 - Add splitter "-" for long command names.
