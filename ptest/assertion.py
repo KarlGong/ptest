@@ -1,4 +1,5 @@
 import re
+import time
 
 from .util import StringTypes
 
@@ -43,16 +44,18 @@ def assert_list_equals(actual_list, expected_list, msg=""):
     for i, element in enumerate(actual_list):
         if not element == expected_list[i]:
             __raise_error(msg, "element <index: %s> of expected list <%s> is: <%s>, but element <index: %s> of actual list <%s> is: <%s>" %
-                    (i, expected_list, expected_list[i], i, actual_list, actual_list[i]))
+                          (i, expected_list, expected_list[i], i, actual_list, actual_list[i]))
 
 
 def assert_list_elements_equal(actual_list, expected_list, msg=""):
     diff_elements = [element for element in actual_list if not element in expected_list]
     if len(diff_elements) != 0:
-        __raise_error(msg, "expected list <%s> doesn't contain elements <%s> from actual list <%s>." % (expected_list, diff_elements, actual_list))
+        __raise_error(msg, "expected list <%s> doesn't contain elements <%s> from actual list <%s>." % (
+            expected_list, diff_elements, actual_list))
     diff_elements = [element for element in expected_list if not element in actual_list]
     if len(diff_elements) != 0:
-        __raise_error(msg, "actual list <%s> doesn't contain elements <%s> from expected list <%s>." % (actual_list, diff_elements, expected_list))
+        __raise_error(msg, "actual list <%s> doesn't contain elements <%s> from expected list <%s>." % (
+            actual_list, diff_elements, expected_list))
 
 
 def assert_set_contains(superset, subset, msg=""):
@@ -72,14 +75,15 @@ def __raise_error(msg, error_msg):
         raise_msg = "%s" % error_msg
     raise AssertionError(raise_msg)
 
+
 # -------------------------------------------
 # --------- "assert that" assertion ---------
 # -------------------------------------------
 from numbers import Number
 from datetime import datetime, date
 
-
 SUBJECT_TYPE_MAP = {}
+
 
 def assert_that(subject):
     if subject is None:
@@ -100,10 +104,13 @@ def assert_that(subject):
         return _DateTimeSubject(subject)
     if isinstance(subject, date):
         return _DateSubject(subject)
+    if callable(subject):
+        return _CallableSubject(subject)
     for subject_type, subject_class in SUBJECT_TYPE_MAP.items():
         if isinstance(subject, subject_type):
             return subject_class(subject)
     return _ObjSubject(subject)
+
 
 # this method is used to format the obj
 def _format(obj):
@@ -113,9 +120,11 @@ def _format(obj):
         return ", ".join([_format(i) for i in obj])
     return str(obj)
 
+
 # this method is used to get the type name of the object
 def _type(obj):
     return type(obj).__name__
+
 
 class _Subject(object):
     def __init__(self, subject):
@@ -283,9 +292,11 @@ class _ObjSubject(_Subject):
 
     def __getattr__(self, item):
         if self._subject_name is None:
-            self._raise_raw_error("Cannot perform assertion \"%s\" for %s <%s>." % (item, _type(self._subject), self._subject), error=AttributeError)
+            self._raise_raw_error("Cannot perform assertion \"%s\" for %s <%s>." %
+                                  (item, _type(self._subject), self._subject), error=AttributeError)
         else:
-            self._raise_raw_error("Cannot perform assertion \"%s\" for %s named \"%s\"." % (item, _type(self._subject), self._subject_name), error=AttributeError)
+            self._raise_raw_error("Cannot perform assertion \"%s\" for %s named \"%s\"." %
+                                  (item, _type(self._subject), self._subject_name), error=AttributeError)
 
 
 class _NoneSubject(_ObjSubject):
@@ -514,6 +525,7 @@ class _IterableSubject(_ObjSubject):
             For each obj in this subject.
         """
         return _IterableEachSubject(self._subject)
+        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
 
 class _IterableEachSubject(object):
@@ -656,7 +668,7 @@ class _ListOrTupleSubject(_IterableSubject):
         if uncontained_objs:
             self._raise_error("doesn't contain elements <%s> in %s <%s>." %
                               (_format(uncontained_objs), _type(other_list_or_tuple), other_list_or_tuple))
-            
+
         uncontained_objs = [obj for obj in self._subject if obj not in other_list_or_tuple]
         if uncontained_objs:
             self._raise_error("contains elements <%s> not in %s <%s>." %
@@ -698,15 +710,14 @@ class _ListOrTupleSubject(_IterableSubject):
 class _SetSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
-    
+
     def is_super_of(self, other_set):
         """
             Fails unless this set is a superset of other set.
         """
         uncontained_objs = [obj for obj in other_set if obj not in self._subject]
         if uncontained_objs:
-            self._raise_error("doesn't contain elements <%s> in %s <%s>." %
-                              (_format(uncontained_objs), _type(other_set), other_set))
+            self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_format(uncontained_objs), _type(other_set), other_set))
         return self
 
     def is_sub_of(self, other_set):
@@ -715,8 +726,7 @@ class _SetSubject(_IterableSubject):
         """
         uncontained_objs = [obj for obj in self._subject if obj not in other_set]
         if uncontained_objs:
-            self._raise_error("contains elements <%s> not in %s <%s>." %
-                              (_format(uncontained_objs), _type(other_set), other_set))
+            self._raise_error("contains elements <%s> not in %s <%s>." % (_format(uncontained_objs), _type(other_set), other_set))
         return self
 
 
@@ -805,18 +815,21 @@ class _DictSubject(_IterableSubject):
             For each entry in this dict.
         """
         return _IterableEachSubject(self._subject.items())
+        return _ListOrTupleSubject([])  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
     def each_key(self):
         """
             For each key in this dict.
         """
         return _IterableEachSubject(self._subject.keys())
+        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
     def each_value(self):
         """
             For each value in this dict.
         """
         return _IterableEachSubject(self._subject.values())
+        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
 
 class _DateSubject(_ObjSubject):
@@ -844,3 +857,75 @@ class _DateTimeSubject(_DateSubject):
     def __init__(self, subject):
         _DateSubject.__init__(self, subject)
 
+
+class _CallableSubject(_ObjSubject):
+    def __init__(self, subject):
+        _ObjSubject.__init__(self, subject)
+        self._args = []
+        self._kwargs = {}
+
+    def with_args(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+        return self
+
+    def raises_exception(self, exception_class):
+        """
+            Fails unless this callable does't raise exception or raise wrong exception.
+        """
+        try:
+            self._subject(*self._args, **self._kwargs)
+        except Exception as e:
+            if not issubclass(e.__class__, exception_class):
+                self._raise_error("raises wrong exception <%s.%s>." % (e.__class__.__module__, e.__class__.__name__))
+        else:
+            self._raise_error("doesn't raise exception.")
+
+    def will(self, interval=1000, timeout=30000):
+        """
+            Failed if this callable's result doesn't match following assertions until timing out.
+
+        :param interval: interval of asserting, in milliseconds
+        :param timeout: timeout of asserting, in milliseconds
+        """
+        return _CallableWillSubject(self._subject, interval, timeout, self._args, self._kwargs)
+        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
+
+
+class _CallableWillSubject(object):
+    def __init__(self, subject, interval, timeout, args, kwargs):
+        self._subject = subject
+        self._interval = interval
+        self._timeout = timeout
+        self._args = args
+        self._kwargs = kwargs
+
+    def __getattr__(self, item):
+        if item in ["length", "index", "key", "attr", "each", "each_key", "each_value"]:
+            raise AttributeError("Cannot call \"%s\" in callable-will assertion." % item)
+
+        def wrapper(*args, **kwargs):
+            start_time = time.time() * 1000.0
+
+            last_exception = {"value": None}
+
+            try:
+                getattr(assert_that(self._subject(*self._args, **self._kwargs)), item)(*args, **kwargs)
+            except AssertionError as e:
+                last_exception["value"] = e
+            else:
+                return self
+
+            while (time.time() * 1000.0 - start_time) <= self._timeout:
+                time.sleep(self._interval / 1000.0)
+                try:
+                    getattr(assert_that(self._subject(*self._args, **self._kwargs)), item)(*args, **kwargs)
+                except AssertionError as e:
+                    last_exception["value"] = e
+                else:
+                    return self
+
+            raise AssertionError("Callable's result doesn't match expected until timing out, last assertion error is:\n%s" %
+                                 last_exception["value"])
+
+        return wrapper
