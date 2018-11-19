@@ -970,7 +970,7 @@ Option | Argument | Documentation
 -p(--property-file) | A property file | Specify the .ini property file (relative to workspace).<br>The properties in property file will be overwritten by user defined properties in cmd line.<br>Get property via get_property() in module ptest.config.
 -R(--run-failed) | A xml file | Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.
 -t(--targets) | A comma-separated list of targets | Specify the path of test targets, separated by comma.<br>Test target can be package/module/class/method.<br>The target path format is: package[.module[.class[.method]]]<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
--f(--filter) | A Class | Specify the path of test filter class, select test cases to run by the specified filter.<br>The test filter class should implement class TestFilter in ptest.testfilter<br>The filter path format is: package.module.class<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
+-f(--filter) | A Class | Specify the path of test filter class, select test cases to run by the specified filter.<br>The test filter class should implement class TestFilter in ptest.test_filter<br>The filter path format is: package.module.class<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
 -i(--include-tags) | A comma-separated list of tags | Select test cases to run by tags, separated by comma.
 -e(--exclude-tags) | A comma-separated list of tags | Select test cases not to run by tags, separated by comma.<br>These test cases are not run even if included with --include-tags.
 -g(--include-groups) | A group name | Select test cases to run by groups, separated by comma.
