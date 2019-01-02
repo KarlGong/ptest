@@ -12,6 +12,8 @@ from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, Before
     BeforeMethod, Test
 from .util import call_function, kill_thread, format_thread_stack
 
+thread_limiter = threading.BoundedSemaphore(768)
+
 
 class TestExecutor(threading.Thread):
     def __init__(self, parent_test_executor):
@@ -26,6 +28,16 @@ class TestExecutor(threading.Thread):
                     self.__properties[key] = value
         self.workers = 0
         self._lock = threading.RLock()
+        thread_limiter.acquire()
+
+    def run_(self):
+        pass
+
+    def run(self):
+        try:
+            self.run_()
+        finally:
+            thread_limiter.release()
 
     def start_and_join(self):
         self.start()
@@ -84,7 +96,7 @@ class TestSuiteExecutor(TestExecutor):
         self.test_suite = test_suite
         self.workers = workers
 
-    def run(self):
+    def run_(self):
         before_suite_executor = TestFixtureExecutor(self, self.test_suite.before_suite)
         before_suite_executor.acquire_worker()
         test_listeners.on_test_suite_start(self.test_suite)
@@ -117,7 +129,7 @@ class TestClassRunGroupExecutor(TestExecutor):
         TestExecutor.__init__(self, test_suite_executor)
         self.test_class_run_group = test_class_run_group
 
-    def run(self):
+    def run_(self):
         for test_class in self.test_class_run_group:
             TestClassExecutor(self, test_class).start_and_join()
 
@@ -129,7 +141,7 @@ class TestClassExecutor(TestExecutor):
         TestExecutor.__init__(self, test_class_run_group_executor)
         self.test_class = test_class
 
-    def run(self):
+    def run_(self):
         before_class_executor = TestFixtureExecutor(self, self.test_class.before_class)
         before_class_executor.acquire_worker()
         test_listeners.on_test_class_start(self.test_class)
@@ -166,7 +178,7 @@ class TestGroupExecutor(TestExecutor):
         TestExecutor.__init__(self, test_class_executor)
         self.test_group = test_group
 
-    def run(self):
+    def run_(self):
         before_group_executor = TestFixtureExecutor(self, self.test_group.before_group)
         before_group_executor.acquire_worker()
         test_listeners.on_test_group_start(self.test_group)
@@ -203,7 +215,7 @@ class TestCaseExecutor(TestExecutor):
         TestExecutor.__init__(self, test_group_executor)
         self.test_case = test_case
 
-    def run(self):
+    def run_(self):
         before_method_executor = TestFixtureExecutor(self, self.test_case.before_method)
         before_method_executor.acquire_worker()
         test_listeners.on_test_case_start(self.test_case)
@@ -275,7 +287,7 @@ class TestFixtureExecutor(TestExecutor):
         self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
         preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
 
-    def run(self):
+    def run_(self):
         self.test_fixture.start_time = datetime.now()
         self.update_properties({"running_test_fixture": self.test_fixture})
 
@@ -397,7 +409,7 @@ class TestFixtureSubExecutor(TestExecutor):
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
 
-    def run(self):
+    def run_(self):
         if isinstance(self.test_fixture, Test):
             self.run_test()
         else:
