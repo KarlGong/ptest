@@ -12,11 +12,9 @@ from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, Before
     BeforeMethod, Test
 from .util import call_function, kill_thread, format_thread_stack
 
-thread_limiter = threading.BoundedSemaphore(768)
-
 
 class TestExecutor(threading.Thread):
-    def __init__(self, parent_test_executor):
+    def __init__(self, parent_test_executor, workers=0):
         threading.Thread.__init__(self)
         self.parent_test_executor = parent_test_executor
         self.__properties = {}
@@ -26,18 +24,18 @@ class TestExecutor(threading.Thread):
                     self.__properties[key] = copy(value)
                 else:
                     self.__properties[key] = value
-        self.workers = 0
-        self._lock = threading.RLock()
-        thread_limiter.acquire()
+        self.workers = workers
+        self.lock = threading.RLock()
+        self.acquire_worker()
 
-    def run_(self):
+    def _run(self):
         pass
 
     def run(self):
         try:
-            self.run_()
+            self._run()
         finally:
-            thread_limiter.release()
+            self.release_worker()
 
     def start_and_join(self):
         self.start()
@@ -59,7 +57,7 @@ class TestExecutor(threading.Thread):
         return self.__properties
 
     def allocate_worker(self, child_test_executor):
-        with self._lock:
+        with self.lock:
             if self.workers > 0:
                 self.workers -= 1
                 child_test_executor.workers += 1
@@ -67,23 +65,30 @@ class TestExecutor(threading.Thread):
             else:
                 return False
 
-    def acquire_worker(self):
+    def apply_worker(self):
         if self.parent_test_executor:
-            with self._lock:
+            with self.lock:
                 if self.parent_test_executor.allocate_worker(self):
                     return True
                 else:
-                    if self.parent_test_executor.acquire_worker():
+                    if self.parent_test_executor.apply_worker():
                         return self.parent_test_executor.allocate_worker(self)
                     else:
                         return False
         else:
-            with self._lock:
+            with self.lock:
                 return self.workers > 0
+
+    def acquire_worker(self):
+        while True:
+            if self.apply_worker():
+                return
+            else:
+                time.sleep(1)
 
     def release_worker(self):
         if self.parent_test_executor:
-            with self.parent_test_executor._lock:
+            with self.parent_test_executor.lock:
                 self.parent_test_executor.workers += self.workers
                 self.workers = 0
         else:
@@ -92,17 +97,14 @@ class TestExecutor(threading.Thread):
 
 class TestSuiteExecutor(TestExecutor):
     def __init__(self, test_suite, workers):
-        TestExecutor.__init__(self, None)
+        TestExecutor.__init__(self, None, workers)
         self.test_suite = test_suite
-        self.workers = workers
 
-    def run_(self):
+    def _run(self):
         before_suite_executor = TestFixtureExecutor(self, self.test_suite.before_suite)
-        before_suite_executor.acquire_worker()
         test_listeners.on_test_suite_start(self.test_suite)
         self.test_suite.start_time = datetime.now()
         before_suite_executor.start_and_join()
-        before_suite_executor.release_worker()
 
         test_class_run_group_executors = []
 
@@ -115,13 +117,9 @@ class TestSuiteExecutor(TestExecutor):
             executor.join()
 
         after_suite_executor = TestFixtureExecutor(self, self.test_suite.after_suite)
-        after_suite_executor.acquire_worker()
         after_suite_executor.start_and_join()
-        after_suite_executor.release_worker()
         self.test_suite.end_time = datetime.now()
         test_listeners.on_test_suite_finish(self.test_suite)
-
-        self.release_worker()
 
 
 class TestClassRunGroupExecutor(TestExecutor):
@@ -129,11 +127,9 @@ class TestClassRunGroupExecutor(TestExecutor):
         TestExecutor.__init__(self, test_suite_executor)
         self.test_class_run_group = test_class_run_group
 
-    def run_(self):
+    def _run(self):
         for test_class in self.test_class_run_group:
             TestClassExecutor(self, test_class).start_and_join()
-
-        self.release_worker()
 
 
 class TestClassExecutor(TestExecutor):
@@ -141,13 +137,11 @@ class TestClassExecutor(TestExecutor):
         TestExecutor.__init__(self, test_class_run_group_executor)
         self.test_class = test_class
 
-    def run_(self):
+    def _run(self):
         before_class_executor = TestFixtureExecutor(self, self.test_class.before_class)
-        before_class_executor.acquire_worker()
         test_listeners.on_test_class_start(self.test_class)
         self.test_class.start_time = datetime.now()
         before_class_executor.start_and_join()
-        before_class_executor.release_worker()
 
         if self.test_class.run_mode == TestClassRunMode.SingleLine:
             for test_group in self.test_class.test_groups:
@@ -164,13 +158,9 @@ class TestClassExecutor(TestExecutor):
                 executor.join()
 
         after_class_executor = TestFixtureExecutor(self, self.test_class.after_class)
-        after_class_executor.acquire_worker()
         after_class_executor.start_and_join()
-        after_class_executor.release_worker()
         self.test_class.end_time = datetime.now()
         test_listeners.on_test_class_finish(self.test_class)
-
-        self.release_worker()
 
 
 class TestGroupExecutor(TestExecutor):
@@ -178,13 +168,11 @@ class TestGroupExecutor(TestExecutor):
         TestExecutor.__init__(self, test_class_executor)
         self.test_group = test_group
 
-    def run_(self):
+    def _run(self):
         before_group_executor = TestFixtureExecutor(self, self.test_group.before_group)
-        before_group_executor.acquire_worker()
         test_listeners.on_test_group_start(self.test_group)
         self.test_group.start_time = datetime.now()
         before_group_executor.start_and_join()
-        before_group_executor.release_worker()
 
         if self.test_group.test_class.run_mode == TestClassRunMode.SingleLine:
             for test_case in self.test_group.test_cases:
@@ -201,13 +189,9 @@ class TestGroupExecutor(TestExecutor):
                 executor.join()
 
         after_group_executor = TestFixtureExecutor(self, self.test_group.after_group)
-        after_group_executor.acquire_worker()
         after_group_executor.start_and_join()
-        after_group_executor.release_worker()
         self.test_group.end_time = datetime.now()
         test_listeners.on_test_group_finish(self.test_group)
-
-        self.release_worker()
 
 
 class TestCaseExecutor(TestExecutor):
@@ -215,16 +199,13 @@ class TestCaseExecutor(TestExecutor):
         TestExecutor.__init__(self, test_group_executor)
         self.test_case = test_case
 
-    def run_(self):
+    def _run(self):
         before_method_executor = TestFixtureExecutor(self, self.test_case.before_method)
-        before_method_executor.acquire_worker()
         test_listeners.on_test_case_start(self.test_case)
         self.test_case.start_time = datetime.now()
         before_method_executor.start_and_join()
-        before_method_executor.release_worker()
 
         test_executor = TestFixtureExecutor(self, self.test_case.test)
-        test_executor.acquire_worker()
         test_executor.start_and_join()
 
         logger_filler = "-" * (100 - len(self.test_case.full_name) - 6)
@@ -235,16 +216,10 @@ class TestCaseExecutor(TestExecutor):
         elif self.test_case.status == TestCaseStatus.SKIPPED:
             pconsole.write_line("%s%s|SKIP|" % (self.test_case.full_name, logger_filler))
 
-        test_executor.release_worker()
-
         after_method_executor = TestFixtureExecutor(self, self.test_case.after_method)
-        after_method_executor.acquire_worker()
         after_method_executor.start_and_join()
-        after_method_executor.release_worker()
         self.test_case.end_time = datetime.now()
         test_listeners.on_test_case_finish(self.test_case)
-
-        self.release_worker()
 
 
 class TestFixtureExecutor(TestExecutor):
@@ -252,11 +227,50 @@ class TestFixtureExecutor(TestExecutor):
         TestExecutor.__init__(self, parent_test_executor)
         self.test_fixture = test_fixture
 
-    def run_test_fixture(self):
-        if self.test_fixture.is_empty:
-            self.test_fixture.status = TestFixtureStatus.PASSED
-            return
+    def _run(self):
+        if self.test_fixture.is_empty: return
 
+        self.test_fixture.start_time = datetime.now()
+        self.update_properties({"running_test_fixture": self.test_fixture})
+
+        failed_setup_fixture = self.test_fixture.context.get_failed_setup_fixture()
+        if not failed_setup_fixture:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterSuite) and isinstance(failed_setup_fixture, BeforeSuite) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterClass) and isinstance(failed_setup_fixture, BeforeClass) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterGroup) and isinstance(failed_setup_fixture, BeforeGroup) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        elif isinstance(self.test_fixture, AfterMethod) and isinstance(failed_setup_fixture, BeforeMethod) and self.test_fixture.always_run:
+            self.run_test_fixture()
+        else:
+            self.skip_test_fixture(failed_setup_fixture)
+
+        # spread before's attributes
+        if isinstance(self.test_fixture, BeforeSuite):
+            before_suite_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
+            for test_class in self.test_fixture.test_suite.test_classes:
+                test_class.test_class_ref.__dict__.update(before_suite_dict)
+                for test_group in test_class.test_groups:
+                    test_group.test_class_ref.__dict__.update(before_suite_dict)
+                    for test_case in test_group.test_cases:
+                        test_case.test_case_ref.__self__.__dict__.update(before_suite_dict)
+        elif isinstance(self.test_fixture, BeforeClass):
+            before_class_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
+            for test_group in self.test_fixture.test_class.test_groups:
+                test_group.test_class_ref.__dict__.update(before_class_dict)
+                for test_case in test_group.test_cases:
+                    test_case.test_case_ref.__self__.__dict__.update(before_class_dict)
+        elif isinstance(self.test_fixture, BeforeGroup):
+            before_group_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
+            for test_case in self.test_fixture.test_group.test_cases:
+                test_case.test_case_ref.__self__.__dict__.update(before_group_dict)
+
+        self.update_properties({"running_test_fixture": None})
+        self.test_fixture.end_time = datetime.now()
+
+    def run_test_fixture(self):
         self.test_fixture.status = TestFixtureStatus.RUNNING
         test_fixture_sub_executor = TestFixtureSubExecutor(self)
         test_fixture_sub_executor.start()
@@ -278,63 +292,10 @@ class TestFixtureExecutor(TestExecutor):
             test_fixture_sub_executor.join()
 
     def skip_test_fixture(self, caused_test_fixture):
-        if self.test_fixture.is_empty:
-            self.test_fixture.status = TestFixtureStatus.SKIPPED
-            return
-
         from .plogger import preporter
         self.test_fixture.status = TestFixtureStatus.SKIPPED
         self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
         preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
-
-    def run_(self):
-        self.test_fixture.start_time = datetime.now()
-        self.update_properties({"running_test_fixture": self.test_fixture})
-
-        failed_setup_fixture = self.test_fixture.context.get_failed_setup_fixture()
-        if not failed_setup_fixture:
-            self.run_test_fixture()
-        elif isinstance(self.test_fixture, AfterSuite) and isinstance(failed_setup_fixture, BeforeSuite) and self.test_fixture.always_run:
-            self.run_test_fixture()
-        elif isinstance(self.test_fixture, AfterClass) and isinstance(failed_setup_fixture, BeforeClass) and self.test_fixture.always_run:
-            self.run_test_fixture()
-        elif isinstance(self.test_fixture, AfterGroup) and isinstance(failed_setup_fixture, BeforeGroup) and self.test_fixture.always_run:
-            self.run_test_fixture()
-        elif isinstance(self.test_fixture, AfterMethod) and isinstance(failed_setup_fixture, BeforeMethod) and self.test_fixture.always_run:
-            self.run_test_fixture()
-        else:
-            self.skip_test_fixture(failed_setup_fixture)
-
-        # spread before's attributes
-        if not self.test_fixture.is_empty:
-            if isinstance(self.test_fixture, BeforeSuite):
-                before_suite_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
-                for test_class in self.test_fixture.test_suite.test_classes:
-                    test_class.test_class_ref.__dict__.update(before_suite_dict)
-                    for test_group in test_class.test_groups:
-                        test_group.test_class_ref.__dict__.update(before_suite_dict)
-                        for test_case in test_group.test_cases:
-                            test_case.test_case_ref.__self__.__dict__.update(before_suite_dict)
-            elif isinstance(self.test_fixture, BeforeClass):
-                before_class_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
-                for test_group in self.test_fixture.test_class.test_groups:
-                    test_group.test_class_ref.__dict__.update(before_class_dict)
-                    for test_case in test_group.test_cases:
-                        test_case.test_case_ref.__self__.__dict__.update(before_class_dict)
-            elif isinstance(self.test_fixture, BeforeGroup):
-                before_group_dict = self.test_fixture.test_fixture_ref.__self__.__dict__
-                for test_case in self.test_fixture.test_group.test_cases:
-                    test_case.test_case_ref.__self__.__dict__.update(before_group_dict)
-
-        self.update_properties({"running_test_fixture": None})
-        self.test_fixture.end_time = datetime.now()
-
-    def acquire_worker(self):
-        while True:
-            if TestExecutor.acquire_worker(self):
-                return
-            else:
-                time.sleep(1)
 
 
 class TestFixtureSubExecutor(TestExecutor):
@@ -342,6 +303,12 @@ class TestFixtureSubExecutor(TestExecutor):
         TestExecutor.__init__(self, test_fixture_executor)
         self.test_fixture = test_fixture_executor.test_fixture
         self.setDaemon(True)
+
+    def _run(self):
+        if isinstance(self.test_fixture, Test):
+            self.run_test()
+        else:
+            self.run_test_configuration()
 
     def run_test(self):
         if self.test_fixture.expected_exceptions:
@@ -408,12 +375,6 @@ class TestFixtureSubExecutor(TestExecutor):
             preporter.error("Failed with following message:\n%s" % self.test_fixture.stack_trace, True)
         else:
             self.test_fixture.status = TestFixtureStatus.PASSED
-
-    def run_(self):
-        if isinstance(self.test_fixture, Test):
-            self.run_test()
-        else:
-            self.run_test_configuration()
 
 
 def current_executor():

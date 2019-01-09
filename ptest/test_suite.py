@@ -290,11 +290,11 @@ class TestFixture:
     def __init__(self, context, test_fixture_ref, fixture_type):
         self.context = context
         self.fixture_type = fixture_type
+        self.is_empty = False
         self.status = TestFixtureStatus.NOT_RUN
         if test_fixture_ref is None:
             self.is_empty = True
             return
-        self.is_empty = False
         self.test_fixture_ref = test_fixture_ref
         self.name = test_fixture_ref.__name__
         self.failure_message = ""
@@ -313,8 +313,7 @@ class TestFixture:
     @property
     def elapsed_time(self):
         time_delta = self.end_time - self.start_time
-        seconds = time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
-        return seconds
+        return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
 
 class BeforeSuite(TestFixture):
@@ -379,7 +378,6 @@ class AfterMethod(TestFixture):
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
         self.test_suite = self.test_case.test_suite
-        self.always_run = False
         if not self.is_empty:
             self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
             self.always_run = test_fixture_ref.__always_run__
@@ -392,7 +390,6 @@ class AfterGroup(TestFixture):
         self.test_group = self.context
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
-        self.always_run = False
         if not self.is_empty:
             self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
             self.always_run = test_fixture_ref.__always_run__
@@ -404,7 +401,6 @@ class AfterClass(TestFixture):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.AfterClass)
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
-        self.always_run = False
         if not self.is_empty:
             self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
             self.always_run = test_fixture_ref.__always_run__
@@ -414,7 +410,6 @@ class AfterSuite(TestFixture):
     def __init__(self, test_suite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.AfterSuite)
         self.test_suite = self.context
-        self.always_run = False
         if not self.is_empty:
             self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
             self.always_run = test_fixture_ref.__always_run__
