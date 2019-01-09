@@ -1,4 +1,8 @@
 ## Change Log
+1.9.4 (compared to 1.9.3)
+
+- Fix race condition issue.
+
 1.9.3 (compared to 1.9.2)
 
 - Fix that ptest is broken with too many parallel test cases.
