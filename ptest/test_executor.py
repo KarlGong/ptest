@@ -26,7 +26,8 @@ class TestExecutor(threading.Thread):
                     self.__properties[key] = value
         self.workers = workers
         self.lock = threading.RLock()
-        self.acquire_worker()
+        if self.workers == 0:
+            self.acquire_worker()
 
     def _run(self):
         pass
