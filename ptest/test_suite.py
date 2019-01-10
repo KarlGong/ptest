@@ -84,13 +84,25 @@ class TestSuite(TestContainer):
         for run_group in self.test_class_run_groups:
             run_groups.append(sorted(run_group, key=lambda test_class: test_class.run_mode, reverse=True))
 
-        # sort the test class run groups by its size and number of singleline test classes
+        # sort the test class run groups by its number of singleline test cases
         def cmp_run_group(run_group_a, run_group_b):
-            if not len(run_group_a) == len(run_group_b):
-                return len(run_group_a) - len(run_group_b)
+            single_line_count_a = single_line_count_b = parallel_count_a = parallel_count_b = 0
+            for test_class in run_group_a:
+                if test_class.run_mode == TestClassRunMode.SingleLine:
+                    single_line_count_a += len(test_class.test_cases)
+                else:
+                    parallel_count_a += len(test_class.test_cases)
+
+            for test_class in run_group_b:
+                if test_class.run_mode == TestClassRunMode.SingleLine:
+                    single_line_count_b += len(test_class.test_cases)
+                else:
+                    parallel_count_b += len(test_class.test_cases)
+
+            if single_line_count_a == single_line_count_b:
+                return parallel_count_a - parallel_count_b
             else:
-                return len([test_class for test_class in run_group_a if test_class.run_mode == TestClassRunMode.SingleLine]) - \
-                       len([test_class for test_class in run_group_b if test_class.run_mode == TestClassRunMode.SingleLine])
+                return single_line_count_a - single_line_count_b
 
         self.test_class_run_groups = sorted(run_groups, key=cmp_to_key(cmp_run_group), reverse=True)
 
