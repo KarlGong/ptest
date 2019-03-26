@@ -222,7 +222,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
         func.__data_index__ = None
         func.__data_provider__ = None
         func.__funcs__ = [func]
-        if data_provider:
+        if data_provider is not None:
             func.__data_provider__ = data_provider
             func.__funcs__ = []
             func.__data_name__ = data_name or (lambda index, params: index + 1)
