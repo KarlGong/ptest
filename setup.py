@@ -17,7 +17,7 @@ classifiers = ["License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing",
                "Operating System :: Microsoft :: Windows",
                "Operating System :: MacOS :: MacOS X"] + \
-              [("Programming Language :: Python :: %s" % x) for x in "2.7 3.4 3.5 3.6".split()]
+              [("Programming Language :: Python :: %s" % x) for x in "2.7 3.4 3.5 3.6 3.7".split()]
 
 
 def make_cmdline_entry_points():
