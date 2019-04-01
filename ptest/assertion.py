@@ -1,43 +1,45 @@
 import re
 import time
+from datetime import datetime, date
+from numbers import Number
 
-from .util import StringTypes
+from typing import Any, List, Set, Union, Iterable, Callable, Tuple, Dict, Type
 
 
 # -------------------------------------------
 # ------------ simple assertion -------------
 # -------------------------------------------
-def assert_true(actual, msg=""):
+def assert_true(actual: Any, msg: str = ""):
     if actual is not True:
         __raise_error(msg, "Expected: <True>, Actual: <%s>." % actual)
 
 
-def assert_false(actual, msg=""):
+def assert_false(actual: Any, msg: str = ""):
     if actual is not False:
         __raise_error(msg, "Expected: <False>, Actual: <%s>." % actual)
 
 
-def assert_none(actual, msg=""):
+def assert_none(actual: Any, msg: str = ""):
     if actual is not None:
         __raise_error(msg, "Expected: <None>, Actual: <%s>." % actual)
 
 
-def assert_not_none(actual, msg=""):
+def assert_not_none(actual: Any, msg: str = ""):
     if actual is None:
         __raise_error(msg, "Expected: NOT <None>, Actual: <None>.")
 
 
-def assert_equals(actual, expected, msg=""):
+def assert_equals(actual: Any, expected: Any, msg: str = ""):
     if not actual == expected:
         __raise_error(msg, "Expected: <%s>, Actual: <%s>." % (expected, actual))
 
 
-def assert_not_equals(actual, not_expected, msg=""):
+def assert_not_equals(actual: Any, not_expected: Any, msg: str = ""):
     if actual == not_expected:
         __raise_error(msg, "Expected: NOT <%s>, Actual: <%s>." % (not_expected, actual))
 
 
-def assert_list_equals(actual_list, expected_list, msg=""):
+def assert_list_equals(actual_list: List, expected_list: List, msg: str = ""):
     if len(actual_list) != len(expected_list):
         __raise_error(msg, "size of expected list <%s> is: <%s>, but size of actual list <%s> is: <%s>." %
                       (expected_list, len(expected_list), actual_list, len(actual_list)))
@@ -47,7 +49,7 @@ def assert_list_equals(actual_list, expected_list, msg=""):
                           (i, expected_list, expected_list[i], i, actual_list, actual_list[i]))
 
 
-def assert_list_elements_equal(actual_list, expected_list, msg=""):
+def assert_list_elements_equal(actual_list: List, expected_list: List, msg: str = ""):
     diff_elements = [element for element in actual_list if not element in expected_list]
     if len(diff_elements) != 0:
         __raise_error(msg, "expected list <%s> doesn't contain elements <%s> from actual list <%s>." % (
@@ -58,17 +60,17 @@ def assert_list_elements_equal(actual_list, expected_list, msg=""):
             actual_list, diff_elements, expected_list))
 
 
-def assert_set_contains(superset, subset, msg=""):
+def assert_set_contains(superset: Set, subset: Set, msg: str = ""):
     diff_elements = [element for element in subset if not element in superset]
     if len(diff_elements) != 0:
         __raise_error(msg, "Superset <%s> doesn't contain elements <%s> from subset <%s>." % (superset, diff_elements, subset))
 
 
-def fail(msg=""):
+def fail(msg: str = ""):
     __raise_error("", msg)
 
 
-def __raise_error(msg, error_msg):
+def __raise_error(msg: str, error_msg: str):
     if msg:
         raise_msg = "%s\n%s" % (msg, error_msg)
     else:
@@ -79,16 +81,19 @@ def __raise_error(msg, error_msg):
 # -------------------------------------------
 # --------- "assert that" assertion ---------
 # -------------------------------------------
-from numbers import Number
-from datetime import datetime, date
 
 SUBJECT_TYPE_MAP = {}
 
+AllSubjects = Union["_Subject", "_ObjSubject", "_NoneSubject", "_StringSubject", "_BoolSubject", "_NumericSubject", "_ListOrTupleSubject",
+                    "_SetSubject", "_DictSubject", "_DateTimeSubject", "_DateSubject", "_CallableSubject"]
 
-def assert_that(subject):
+IterableSubjects = Union["_Subject", "_ObjSubject", "_IterableSubject", "_StringSubject", "_ListOrTupleSubject", "_SetSubject",
+                         "_DictSubject"]
+
+def assert_that(subject: Any) -> AllSubjects:
     if subject is None:
         return _NoneSubject(subject)
-    if isinstance(subject, StringTypes):
+    if isinstance(subject, str):
         return _StringSubject(subject)
     if isinstance(subject, bool):
         return _BoolSubject(subject)
@@ -113,8 +118,8 @@ def assert_that(subject):
 
 
 # this method is used to format the obj
-def _format(obj):
-    if isinstance(obj, StringTypes):
+def _format(obj: Any) -> str:
+    if isinstance(obj, str):
         return "\"%s\"" % obj
     if isinstance(obj, list):
         return ", ".join([_format(i) for i in obj])
@@ -122,7 +127,7 @@ def _format(obj):
 
 
 # this method is used to get the type name of the object
-def _type(obj):
+def _type(obj: Any) -> str:
     return type(obj).__name__
 
 
@@ -132,28 +137,28 @@ class _Subject(object):
         self._subject_name = None
         self._msg = None
 
-    def named(self, name):
+    def named(self, name: str) -> AllSubjects:
         """
             Give a name to this subject.
         """
         self._subject_name = str(name)
         return self
 
-    def with_message(self, message):
+    def with_message(self, message: str) -> AllSubjects:
         """
            Set custom message for this assertion.
         """
         self._msg = str(message)
         return self
 
-    def _raise_error(self, partial_error_msg, error=AssertionError):
+    def _raise_error(self, partial_error_msg: str, error: Type[Exception] = AssertionError):
         if self._subject_name is None:
             error_msg = "Unexpectedly that the %s <%s> %s" % (_type(self._subject), self._subject, partial_error_msg)
         else:
             error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_type(self._subject), self._subject_name, partial_error_msg)
         self._raise_raw_error(error_msg, error)
 
-    def _raise_raw_error(self, error_msg, error=AssertionError):
+    def _raise_raw_error(self, error_msg: str, error: Type[Exception] = AssertionError):
         if self._msg:
             raise_msg = "%s\n%s" % (self._msg, error_msg)
         else:
@@ -165,7 +170,7 @@ class _ObjSubject(_Subject):
     def __init__(self, subject):
         _Subject.__init__(self, subject)
 
-    def is_instance_of(self, class_or_type_or_tuple):
+    def is_instance_of(self, class_or_type_or_tuple) -> AllSubjects:
         """
             Fails unless this subject is an instance of given class or type or tuple of types.
 
@@ -178,7 +183,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is not instance of <%s>." % _format(class_or_type_or_tuple))
         return self
 
-    def is_type_of(self, type_):
+    def is_type_of(self, type_) -> AllSubjects:
         """
            Fails unless this subject is of given type.
         """
@@ -186,7 +191,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is not type of %s." % type_)
         return self
 
-    def is_equal_to(self, other_obj):
+    def is_equal_to(self, other_obj: Any) -> AllSubjects:
         """
             Fails unless this subject is equal to other obj.
         """
@@ -194,7 +199,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is not equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
 
-    def is_not_equal_to(self, other_obj):
+    def is_not_equal_to(self, other_obj: Any) -> AllSubjects:
         """
             Fails unless this subject is not equal to other obj.
         """
@@ -202,7 +207,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is equal to %s <%s>." % (_type(other_obj), other_obj))
         return self
 
-    def is_same_as(self, other_obj):
+    def is_same_as(self, other_obj: Any) -> AllSubjects:
         """
             Fails unless this subject is identical to other obj.
         """
@@ -210,7 +215,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is not identical to %s <%s>." % (_type(other_obj), other_obj))
         return self
 
-    def is_not_same_as(self, other_obj):
+    def is_not_same_as(self, other_obj: Any) -> AllSubjects:
         """
             Fails unless this subject is not identical to other obj.
         """
@@ -218,7 +223,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is identical to %s <%s>." % (_type(other_obj), other_obj))
         return self
 
-    def is_none(self):
+    def is_none(self: Any) -> AllSubjects:
         """
             Fails unless this subject is None.
         """
@@ -226,7 +231,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is not <None>.")
         return self
 
-    def is_not_none(self):
+    def is_not_none(self: Any) -> AllSubjects:
         """
             Fails unless this subject is not None.
         """
@@ -234,7 +239,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is <None>.")
         return self
 
-    def is_in(self, iterable):
+    def is_in(self, iterable: Iterable) -> AllSubjects:
         """
            Fails unless this subject is equal to one element in the given iterable.
         """
@@ -242,7 +247,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is not in %s <%s>." % (_type(iterable), iterable))
         return self
 
-    def is_not_in(self, iterable):
+    def is_not_in(self, iterable: Iterable) -> AllSubjects:
         """
            Fails unless this subject is not equal to any element in the given iterable.
         """
@@ -250,7 +255,7 @@ class _ObjSubject(_Subject):
             self._raise_error("is in %s <%s>." % (_type(iterable), iterable))
         return self
 
-    def meets(self, func):
+    def meets(self, func: Callable[[Any], Any]) -> AllSubjects:
         """
             Fails unless this subject meets the given function.
             Note: The function must accepts one argument.
@@ -266,7 +271,7 @@ class _ObjSubject(_Subject):
             self._raise_error("doesn't meet function <%s>." % func.__name__)
         return self
 
-    def attr(self, attribute_name):
+    def attr(self, attribute_name: str) -> AllSubjects:
         """
             Assert the attribute of this subject. If the attribute does not exist, raise AttributeError.
         """
@@ -274,7 +279,7 @@ class _ObjSubject(_Subject):
             self._raise_error("doesn't have attribute <%s>." % attribute_name, error=AttributeError)
         return assert_that(getattr(self._subject, attribute_name))
 
-    def has_attr(self, attribute_name):
+    def has_attr(self, attribute_name: str) -> AllSubjects:
         """
             Fails unless this subject has the given attribute.
         """
@@ -282,7 +287,7 @@ class _ObjSubject(_Subject):
             self._raise_error("doesn't have attribute <%s>." % attribute_name)
         return self
 
-    def does_not_have_attr(self, attribute_name):
+    def does_not_have_attr(self, attribute_name: str) -> AllSubjects:
         """
             Fails unless this subject doesn't have the given attribute.
         """
@@ -308,7 +313,7 @@ class _BoolSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
-    def is_true(self):
+    def is_true(self) -> "_BoolSubject":
         """
             Fails unless this subject is true.
         """
@@ -316,7 +321,7 @@ class _BoolSubject(_ObjSubject):
             self._raise_error("is not <True>.")
         return self
 
-    def is_false(self):
+    def is_false(self) -> "_BoolSubject":
         """
             Fails unless this subject is false.
         """
@@ -329,7 +334,7 @@ class _NumericSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
-    def is_less_than(self, other_number):
+    def is_less_than(self, other_number: Number) -> "_NumericSubject":
         """
             Fails unless this subject is less than other number.
         """
@@ -337,7 +342,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not less than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    def is_greater_than(self, other_number):
+    def is_greater_than(self, other_number: Number) -> "_NumericSubject":
         """
             Fails unless this subject is greater than other number.
         """
@@ -345,7 +350,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not greater than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    def is_less_than_or_equal_to(self, other_number):
+    def is_less_than_or_equal_to(self, other_number: Number) -> "_NumericSubject":
         """
             Fails unless this subject is less than or equal to other number.
         """
@@ -353,13 +358,13 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is greater than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    def is_at_most(self, other_number):
+    def is_at_most(self, other_number: Number) -> "_NumericSubject":
         """
             Fails unless this subject is less than or equal to other number.
         """
         return self.is_less_than_or_equal_to(other_number)
 
-    def is_greater_than_or_equal_to(self, other_number):
+    def is_greater_than_or_equal_to(self, other_number: Number) -> "_NumericSubject":
         """
             Fails unless this subject is greater than or equal to other number.
         """
@@ -367,13 +372,13 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is less than %s <%s>." % (_type(other_number), other_number))
         return self
 
-    def is_at_least(self, other_number):
+    def is_at_least(self, other_number: Number) -> "_NumericSubject":
         """
             Fails unless this subject is greater than or equal to other number.
         """
         return self.is_greater_than_or_equal_to(other_number)
 
-    def is_zero(self):
+    def is_zero(self) -> "_NumericSubject":
         """
             Fails unless this subject is zero (0).
         """
@@ -381,7 +386,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not <0>.")
         return self
 
-    def is_not_zero(self):
+    def is_not_zero(self) -> "_NumericSubject":
         """
             Fails unless this subject is not zero (0).
         """
@@ -389,7 +394,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is <0>.")
         return self
 
-    def is_positive(self):
+    def is_positive(self) -> "_NumericSubject":
         """
             Fails unless this subject is positive.
         """
@@ -397,7 +402,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not positive.")
         return self
 
-    def is_negative(self):
+    def is_negative(self) -> "_NumericSubject":
         """
             Fails unless this subject is negative.
         """
@@ -405,7 +410,7 @@ class _NumericSubject(_ObjSubject):
             self._raise_error("is not negative.")
         return self
 
-    def is_between(self, low, high):
+    def is_between(self, low: Number, high: Number) -> "_NumericSubject":
         """
             Fails unless this subject is between low and high.
 
@@ -420,7 +425,7 @@ class _IterableSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
-    def is_empty(self):
+    def is_empty(self) -> IterableSubjects:
         """
             Fails unless this subject is empty.
         """
@@ -428,7 +433,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("is not empty.")
         return self
 
-    def is_not_empty(self):
+    def is_not_empty(self) -> IterableSubjects:
         """
             Fails unless this subject is not empty.
         """
@@ -436,7 +441,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("is empty.")
         return self
 
-    def has_length(self, expected_length):
+    def has_length(self, expected_length: int) -> IterableSubjects:
         """
             Fails unless this subject has the given length.
         """
@@ -444,7 +449,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't have a length of <%s>. It is <%s>." % (expected_length, len(self._subject)))
         return self
 
-    def contains(self, obj):
+    def contains(self, obj: Any) -> IterableSubjects:
         """
             Fails unless this subject contains the given object.
         """
@@ -452,7 +457,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't contain %s <%s>." % (_type(obj), obj))
         return self
 
-    def does_not_contain(self, obj):
+    def does_not_contain(self, obj: Any) -> IterableSubjects:
         """
             Fails unless this subject doesn't contain the given object.
         """
@@ -460,7 +465,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("contains %s <%s>." % (_type(obj), obj))
         return self
 
-    def contains_all_in(self, iterable):
+    def contains_all_in(self, iterable: Iterable) -> IterableSubjects:
         """
             Fails unless this subject contains all the elements in the given iterable.
         """
@@ -469,7 +474,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_format(uncontained_objs), _type(iterable), iterable))
         return self
 
-    def is_all_in(self, iterable):
+    def is_all_in(self, iterable: Iterable) -> IterableSubjects:
         """
             Fails unless all the elements in this subject are in the given iterable.
         """
@@ -478,7 +483,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("has elements <%s> not in %s <%s>." % (_format(uncontained_objs), _type(iterable), iterable))
         return self
 
-    def contains_any_in(self, iterable):
+    def contains_any_in(self, iterable: Iterable) -> IterableSubjects:
         """
             Fails unless this subject contains any element in the given iterable.
         """
@@ -487,7 +492,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't contain any element in %s <%s>." % (_type(iterable), iterable))
         return self
 
-    def is_any_in(self, iterable):
+    def is_any_in(self, iterable: Iterable) -> IterableSubjects:
         """
             Fails unless any element in this subject is in given iterable.
         """
@@ -496,7 +501,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("doesn't have any element in %s <%s>." % (_type(iterable), iterable))
         return self
 
-    def contains_none_in(self, iterable):
+    def contains_none_in(self, iterable: Iterable) -> IterableSubjects:
         """
             Fails unless this subject doesn't contain any element in the given iterable.
         """
@@ -505,7 +510,7 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("contains elements <%s> in %s <%s>." % (_format(contained_objs), _type(iterable), iterable))
         return self
 
-    def is_none_in(self, iterable):
+    def is_none_in(self, iterable: Iterable) -> IterableSubjects:
         """
             Fails unless any element in this subject is not in the given iterable.
         """
@@ -514,18 +519,17 @@ class _IterableSubject(_ObjSubject):
             self._raise_error("has elements <%s> in %s <%s>." % (_format(contained_objs), _type(iterable), iterable))
         return self
 
-    def length(self):
+    def length(self) -> "_NumericSubject":
         """
             Assert the length of this subject.
         """
         return _NumericSubject(len(self._subject))
 
-    def each(self):
+    def each(self) -> AllSubjects:
         """
             For each obj in this subject.
         """
         return _IterableEachSubject(self._subject)
-        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
 
 class _IterableEachSubject(object):
@@ -563,7 +567,7 @@ class _StringSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
-    def is_equal_to_ignoring_case(self, string):
+    def is_equal_to_ignoring_case(self, string: str) -> "_StringSubject":
         """
             Fails unless this string is equal to other string ignoring case.
         """
@@ -571,7 +575,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("is not equal to %s <%s> ignoring case." % (_type(string), string))
         return self
 
-    def is_blank(self):
+    def is_blank(self) -> "_StringSubject":
         """
             Fails unless this string is blank.
         """
@@ -579,7 +583,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("is not blank.")
         return self
 
-    def is_not_blank(self):
+    def is_not_blank(self) -> "_StringSubject":
         """
             Fails unless this string is not blank.
         """
@@ -587,7 +591,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("is blank.")
         return self
 
-    def starts_with(self, prefix):
+    def starts_with(self, prefix: str) -> "_StringSubject":
         """
             Fails unless this string starts with the given string.
         """
@@ -595,7 +599,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("doesn't start with %s <%s>." % (_type(prefix), prefix))
         return self
 
-    def ends_with(self, suffix):
+    def ends_with(self, suffix: str) -> "_StringSubject":
         """
             Fails unless this string ends with the given string.
         """
@@ -603,7 +607,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("doesn't end with %s <%s>." % (_type(suffix), suffix))
         return self
 
-    def matches(self, regex):
+    def matches(self, regex: str) -> "_StringSubject":
         """
             Fails unless this string matches the given regex.
 
@@ -613,7 +617,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("doesn't match regex <%s>." % regex)
         return self
 
-    def does_not_match(self, regex):
+    def does_not_match(self, regex: str) -> "_StringSubject":
         """
             Fails unless this string doesn't match the given regex.
 
@@ -623,7 +627,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("matches regex <%s>." % regex)
         return self
 
-    def is_alpha(self):
+    def is_alpha(self) -> "_StringSubject":
         """
             Fails unless this string contains only alphabetic chars.
         """
@@ -631,7 +635,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("doesn't contain only alphabetic chars.")
         return self
 
-    def is_digit(self):
+    def is_digit(self) -> "_StringSubject":
         """
             Fails unless this string contains only digits.
         """
@@ -639,7 +643,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("doesn't contain only digits.")
         return self
 
-    def is_lower(self):
+    def is_lower(self) -> "_StringSubject":
         """
             Fails unless this string contains only lowercase chars.
         """
@@ -647,7 +651,7 @@ class _StringSubject(_IterableSubject):
             self._raise_error("doesn't contain only lowercase chars.")
         return self
 
-    def is_upper(self):
+    def is_upper(self) -> "_StringSubject":
         """
             Fails unless this string contains only uppercase chars.
         """
@@ -660,7 +664,7 @@ class _ListOrTupleSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
-    def has_same_elements_as(self, other_list_or_tuple):
+    def has_same_elements_as(self, other_list_or_tuple: Union[List, Tuple]) -> "_ListOrTupleSubject":
         """
             Fails unless this list/tuple has the same elements as other list/tuple.
         """
@@ -675,7 +679,7 @@ class _ListOrTupleSubject(_IterableSubject):
                               (_format(uncontained_objs), _type(other_list_or_tuple), other_list_or_tuple))
         return self
 
-    def contains_duplicates(self):
+    def contains_duplicates(self) -> "_ListOrTupleSubject":
         """
             Fails unless this list/tuple contains duplicate elements.
         """
@@ -683,7 +687,7 @@ class _ListOrTupleSubject(_IterableSubject):
             self._raise_error("doesn't contain duplicate elements.")
         return self
 
-    def does_not_contain_duplicates(self):
+    def does_not_contain_duplicates(self) -> "_ListOrTupleSubject":
         """
             Fails unless this list/tuple doesn't contain duplicate elements.
         """
@@ -698,7 +702,7 @@ class _ListOrTupleSubject(_IterableSubject):
             self._raise_error("contains duplicate elements <%s>." % _format(duplicates))
         return self
 
-    def index(self, index):
+    def index(self, index: int) -> AllSubjects:
         """
             Assert the obj of this list/tuple by index. If index doesn't exist, raise IndexError.
         """
@@ -711,7 +715,7 @@ class _SetSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
-    def is_super_of(self, other_set):
+    def is_super_of(self, other_set: Set) -> "_SetSubject":
         """
             Fails unless this set is a superset of other set.
         """
@@ -720,7 +724,7 @@ class _SetSubject(_IterableSubject):
             self._raise_error("doesn't contain elements <%s> in %s <%s>." % (_format(uncontained_objs), _type(other_set), other_set))
         return self
 
-    def is_sub_of(self, other_set):
+    def is_sub_of(self, other_set: Set) -> "_SetSubject":
         """
             Fails unless this set is a subset of other set.
         """
@@ -734,7 +738,7 @@ class _DictSubject(_IterableSubject):
     def __init__(self, subject):
         _IterableSubject.__init__(self, subject)
 
-    def contains_key(self, key):
+    def contains_key(self, key: Any) -> "_DictSubject":
         """
             Fails unless this dict contains the given key.
         """
@@ -742,7 +746,7 @@ class _DictSubject(_IterableSubject):
             self._raise_error("doesn't contain key %s <%s>." % (_type(key), key))
         return self
 
-    def does_not_contain_key(self, key):
+    def does_not_contain_key(self, key: Any) -> "_DictSubject":
         """
             Fails unless this dict doesn't contain the given key.
         """
@@ -750,7 +754,7 @@ class _DictSubject(_IterableSubject):
             self._raise_error("contains key %s <%s>." % (_type(key), key))
         return self
 
-    def contains_value(self, value):
+    def contains_value(self, value: Any) -> "_DictSubject":
         """
             Fails unless this dict contains the given value.
         """
@@ -758,7 +762,7 @@ class _DictSubject(_IterableSubject):
             self._raise_error("doesn't contain value %s <%s>." % (_type(value), value))
         return self
 
-    def does_not_contain_value(self, value):
+    def does_not_contain_value(self, value: Any) -> "_DictSubject":
         """
             Fails unless this dict doesn't contain the given value.
         """
@@ -766,7 +770,7 @@ class _DictSubject(_IterableSubject):
             self._raise_error("contains value %s <%s>." % (_type(value), value))
         return self
 
-    def contains_entry(self, key, value):
+    def contains_entry(self, key: Any, value: Any) -> "_DictSubject":
         """
            Fails unless this dict contains the given entry.
         """
@@ -774,7 +778,7 @@ class _DictSubject(_IterableSubject):
             self._raise_error("doesn't contain entry, key: %s <%s>, value: %s <%s>." % (_type(key), key, _type(value), value))
         return self
 
-    def does_not_contain_entry(self, key, value):
+    def does_not_contain_entry(self, key: Any, value: Any) -> "_DictSubject":
         """
             Fails unless this dict doesn't contain the given entry.
         """
@@ -782,7 +786,7 @@ class _DictSubject(_IterableSubject):
             self._raise_error("contains entry, key: %s <%s>, value: %s <%s>." % (_type(key), key, _type(value), value))
         return self
 
-    def is_super_of(self, other_dict):
+    def is_super_of(self, other_dict: Dict) -> "_DictSubject":
         """
             Fails unless this dict contains all the entries in other dict.
         """
@@ -792,7 +796,7 @@ class _DictSubject(_IterableSubject):
                               (_format(uncontained_entries), _type(other_dict), other_dict))
         return self
 
-    def is_sub_of(self, other_dict):
+    def is_sub_of(self, other_dict: Dict) -> "_DictSubject":
         """
             Fails unless all the entries in this dict are in other dict.
         """
@@ -802,7 +806,7 @@ class _DictSubject(_IterableSubject):
                               (_format(uncontained_entries), _type(other_dict), other_dict))
         return self
 
-    def key(self, key):
+    def key(self, key: Any) -> AllSubjects:
         """
             Assert the value of this dict by key. If key doesn't exist, raise KeyError
         """
@@ -810,33 +814,30 @@ class _DictSubject(_IterableSubject):
             self._raise_error("doesn't contain key %s <%s>." % (_type(key), key), error=KeyError)
         return assert_that(self._subject[key])
 
-    def each(self):
+    def each(self) -> "_ListOrTupleSubject":
         """
             For each entry in this dict.
         """
         return _IterableEachSubject(self._subject.items())
-        return _ListOrTupleSubject([])  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
-    def each_key(self):
+    def each_key(self) -> AllSubjects:
         """
             For each key in this dict.
         """
         return _IterableEachSubject(self._subject.keys())
-        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
-    def each_value(self):
+    def each_value(self) -> AllSubjects:
         """
             For each value in this dict.
         """
         return _IterableEachSubject(self._subject.values())
-        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
 
 class _DateSubject(_ObjSubject):
     def __init__(self, subject):
         _ObjSubject.__init__(self, subject)
 
-    def is_before(self, other_date):
+    def is_before(self, other_date: date) -> "_DateSubject":
         """
             Fails unless this date is before other date.
         """
@@ -844,7 +845,7 @@ class _DateSubject(_ObjSubject):
             self._raise_error("is not before %s <%s>." % (_type(other_date), other_date))
         return self
 
-    def is_after(self, other_date):
+    def is_after(self, other_date: date) -> "_DateSubject":
         """
             Fails unless this date is after other date.
         """
@@ -853,9 +854,25 @@ class _DateSubject(_ObjSubject):
         return self
 
 
-class _DateTimeSubject(_DateSubject):
+class _DateTimeSubject(_ObjSubject):
     def __init__(self, subject):
-        _DateSubject.__init__(self, subject)
+        _ObjSubject.__init__(self, subject)
+
+    def is_before(self, other_datetime: datetime) -> "_DateTimeSubject":
+        """
+            Fails unless this datetime is before other datetime.
+        """
+        if self._subject >= other_datetime:
+            self._raise_error("is not before %s <%s>." % (_type(other_datetime), other_datetime))
+        return self
+
+    def is_after(self, other_datetime: datetime) -> "_DateTimeSubject":
+        """
+            Fails unless this datetime is after other datetime.
+        """
+        if self._subject <= other_datetime:
+            self._raise_error("is not after %s <%s>." % (_type(other_datetime), other_datetime))
+        return self
 
 
 class _CallableSubject(_ObjSubject):
@@ -864,12 +881,12 @@ class _CallableSubject(_ObjSubject):
         self._args = []
         self._kwargs = {}
 
-    def with_args(self, *args, **kwargs):
+    def with_args(self, *args, **kwargs) -> "_CallableSubject":
         self._args = args
         self._kwargs = kwargs
         return self
 
-    def raises_exception(self, exception_class):
+    def raises_exception(self, exception_class: Type[Exception]):
         """
             Fails unless this callable does't raise exception or raise wrong exception.
         """
@@ -881,7 +898,7 @@ class _CallableSubject(_ObjSubject):
         else:
             self._raise_error("doesn't raise exception.")
 
-    def will(self, interval=1000, timeout=30000):
+    def will(self, interval: int = 1000, timeout: int = 30000) -> AllSubjects:
         """
             Failed if this callable's result doesn't match following assertions until timing out.
 
@@ -889,7 +906,6 @@ class _CallableSubject(_ObjSubject):
         :param timeout: timeout of asserting, in milliseconds
         """
         return _CallableWillSubject(self._subject, interval, timeout, self._args, self._kwargs)
-        return assert_that(None)  # cheat ide for the code completion, remove it when stops supporting python 2.x
 
 
 class _CallableWillSubject(object):
