@@ -22,11 +22,13 @@ def TestClass(enabled=True, run_mode="singleline", run_group=None, description="
     def tracer(cls):
         cls.__pd_type__ = PDecoratorType.TestClass
         cls.__enabled__ = enabled
-        if run_mode.lower() in [TestClassRunMode.SingleLine, TestClassRunMode.Parallel]:
-            cls.__run_mode__ = run_mode.lower()
+        if isinstance(run_mode, str) and (run_mode.lower() in [TestClassRunMode.SingleLine.value, TestClassRunMode.Parallel.value]):
+            cls.__run_mode__ = TestClassRunMode(run_mode.lower())
+        elif isinstance(run_mode, TestClassRunMode):
+            cls.__run_mode__ = run_mode
         else:
             raise ValueError("Run mode <%s> is not supported. Please use <%s> or <%s>." % (
-                run_mode, TestClassRunMode.Parallel, TestClassRunMode.SingleLine))
+                run_mode, TestClassRunMode.Parallel.value, TestClassRunMode.SingleLine.value))
         cls.__run_group__ = None if run_group is None else str(run_group)
         cls.__description__ = description
         cls.__custom_args__ = custom_args

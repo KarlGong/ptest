@@ -82,7 +82,7 @@ class TestSuite(TestContainer):
         run_groups = []
         # sort the test classes in run group by its run mode
         for run_group in self.test_class_run_groups:
-            run_groups.append(sorted(run_group, key=lambda test_class: test_class.run_mode, reverse=True))
+            run_groups.append(sorted(run_group, key=lambda test_class: test_class.run_mode.value, reverse=True))
 
         # sort the test class run groups by its number of singleline test cases
         def cmp_run_group(run_group_a, run_group_b):
@@ -299,7 +299,7 @@ class TestCase:
 
 
 class TestFixture:
-    def __init__(self, context, test_fixture_ref, fixture_type):
+    def __init__(self, context, test_fixture_ref, fixture_type: PDecoratorType):
         self.context = context
         self.fixture_type = fixture_type
         self.is_empty = False
@@ -333,7 +333,7 @@ class BeforeSuite(TestFixture):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.BeforeSuite)
         self.test_suite = self.context
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_suite.name, self.fixture_type.value)
 
 
 class BeforeClass(TestFixture):
@@ -342,7 +342,7 @@ class BeforeClass(TestFixture):
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type.value)
 
 
 class BeforeGroup(TestFixture):
@@ -352,7 +352,7 @@ class BeforeGroup(TestFixture):
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type.value)
             self.group = test_fixture_ref.__group__
 
 
@@ -364,14 +364,14 @@ class BeforeMethod(TestFixture):
         self.test_class = self.test_case.test_class
         self.test_suite = self.test_case.test_suite
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type.value)
             self.group = test_fixture_ref.__group__
 
 
 class Test(TestFixture):
     def __init__(self, test_case, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
-        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+        self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type.value)
         self.test_case = self.context
         self.test_group = self.test_case.test_group
         self.test_class = self.test_case.test_class
@@ -391,7 +391,7 @@ class AfterMethod(TestFixture):
         self.test_class = self.test_case.test_class
         self.test_suite = self.test_case.test_suite
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type.value)
             self.always_run = test_fixture_ref.__always_run__
             self.group = test_fixture_ref.__group__
 
@@ -403,7 +403,7 @@ class AfterGroup(TestFixture):
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_group.test_suite
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_group.full_name, self.fixture_type.value)
             self.always_run = test_fixture_ref.__always_run__
             self.group = test_fixture_ref.__group__
 
@@ -414,7 +414,7 @@ class AfterClass(TestFixture):
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_class.full_name, self.fixture_type.value)
             self.always_run = test_fixture_ref.__always_run__
 
 
@@ -423,7 +423,7 @@ class AfterSuite(TestFixture):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.AfterSuite)
         self.test_suite = self.context
         if not self.is_empty:
-            self.full_name = "%s@%s" % (test_suite.name, self.fixture_type)
+            self.full_name = "%s@%s" % (test_suite.name, self.fixture_type.value)
             self.always_run = test_fixture_ref.__always_run__
 
 

@@ -1,9 +1,12 @@
-class TestClassRunMode:
+from enum import Enum
+
+
+class TestClassRunMode(Enum):
     SingleLine = "singleline"
     Parallel = "parallel"
 
 
-class PDecoratorType:
+class PDecoratorType(Enum):
     BeforeSuite = "BeforeSuite"
     AfterSuite = "AfterSuite"
     TestClass = "TestClass"
@@ -15,19 +18,21 @@ class PDecoratorType:
     BeforeMethod = "BeforeMethod"
     AfterMethod = "AfterMethod"
 
-class TestFixtureStatus:
+
+class TestFixtureStatus(Enum):
     NOT_RUN = "not_run"
     RUNNING = "running"
     PASSED = "passed"
     SKIPPED = "skipped"
     FAILED = "failed"
 
+
 TestCaseStatus = TestFixtureStatus
 
 
-class TestCaseCountItem:
-    PASSED = TestFixtureStatus.PASSED
-    FAILED = TestFixtureStatus.FAILED
-    SKIPPED = TestFixtureStatus.SKIPPED
-    NOT_RUN = TestFixtureStatus.NOT_RUN
+class TestCaseCountItem(Enum):
+    PASSED = "passed"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+    NOT_RUN = "not_run"
     TOTAL = "total"
