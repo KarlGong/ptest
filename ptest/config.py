@@ -4,20 +4,22 @@ import re
 from codecs import open
 from optparse import OptionParser, OptionGroup
 
+from typing import List
+
 from . import __version__
 
 _properties = {}
 _options = {}
 
 
-def get_option(option):
+def get_option(option: str) -> str:
     try:
         return _options[option]
     except KeyError:
         return None
 
 
-def get_property(key, default=None):
+def get_property(key: str, default: str = None) -> str:
     """
         Get property value.
         If no property found, default value will be returned.
@@ -28,7 +30,7 @@ def get_property(key, default=None):
         return default
 
 
-def get_int_property(key, default=None):
+def get_int_property(key: str, default: int = None) -> int:
     """
         Get property value and convert it to int.
         If no property found, default value will be returned.
@@ -39,7 +41,7 @@ def get_int_property(key, default=None):
         return default
 
 
-def get_float_property(key, default=None):
+def get_float_property(key: str, default: float = None) -> float:
     """
         Get property value and convert it to float.
         If no property found, default value will be returned.
@@ -50,7 +52,7 @@ def get_float_property(key, default=None):
         return default
 
 
-def get_boolean_property(key, default=None):
+def get_boolean_property(key: str, default: bool = None) -> bool:
     """
         Get property value and convert it to boolean.
         If no property found, default value will be returned.
@@ -66,7 +68,7 @@ def get_boolean_property(key, default=None):
         return default
 
 
-def get_list_property(key, default=None, sep=","):
+def get_list_property(key: str, default: List[str] = None, sep: str = ",") -> List[str]:
     """
         Get property value and convert it to list.
         If no property found, default value will be returned.
@@ -182,7 +184,7 @@ def _parse_options(option_args):
     # tool
     parser.add_option("-m", "--merge-xunit-xmls", action="store", dest="merge_xunit_xmls", default=None, metavar="files",
                       help="Merge the xunit result xmls (relative to workspace). Multiple files can be given by separating them with a comma."
-                            "Use --to to specify the path of merged xunit result xml.")
+                           "Use --to to specify the path of merged xunit result xml.")
     parser.add_option("--to", action="store", dest="to", default=None, metavar='path',
                       help="Specify the 'to' destination (relative to workspace).")
 
@@ -231,7 +233,8 @@ def _parse_options(option_args):
     options.xunit_xml = join_path(options.output_dir, options.xunit_xml)
     options.temp = join_path(options.workspace, options.temp)
 
-    options.merge_xunit_xmls = None if options.merge_xunit_xmls is None else [join_path(options.workspace, path) for path in options.merge_xunit_xmls]
+    options.merge_xunit_xmls = None if options.merge_xunit_xmls is None else [join_path(options.workspace, path) for path in
+                                                                              options.merge_xunit_xmls]
     options.to = None if options.to is None else join_path(options.workspace, options.to)
 
     _options.update(options.__dict__)
