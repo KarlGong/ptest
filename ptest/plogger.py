@@ -9,10 +9,10 @@ class PConsole:
     def __init__(self, out):
         self.out = out
 
-    def write(self, msg):
+    def write(self, msg: str):
         self.out.write(str(msg))
 
-    def write_line(self, msg):
+    def write_line(self, msg: str):
         self.out.write(str(msg) + "\n")
 
 
@@ -24,22 +24,22 @@ class PReporter:
     def __init__(self):
         pass
 
-    def debug(self, msg, screenshot=False):
+    def debug(self, msg: str, screenshot: bool = False):
         self.__log(logging.DEBUG, msg, screenshot)
 
-    def info(self, msg, screenshot=False):
+    def info(self, msg: str, screenshot: bool = False):
         self.__log(logging.INFO, msg, screenshot)
 
-    def warn(self, msg, screenshot=False):
+    def warn(self, msg: str, screenshot: bool = False):
         self.__log(logging.WARN, msg, screenshot)
 
-    def error(self, msg, screenshot=False):
+    def error(self, msg: str, screenshot: bool = False):
         self.__log(logging.ERROR, msg, screenshot)
 
-    def critical(self, msg, screenshot=False):
+    def critical(self, msg: str, screenshot: bool = False):
         self.__log(logging.CRITICAL, msg, screenshot)
 
-    def __log(self, level, msg, screenshot):
+    def __log(self, level: int, msg: str, screenshot: bool):
         from . import test_executor, screen_capturer
 
         try:
