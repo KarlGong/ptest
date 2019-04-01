@@ -17,17 +17,15 @@ classifiers = ["License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing",
                "Operating System :: Microsoft :: Windows",
                "Operating System :: MacOS :: MacOS X"] + \
-              [("Programming Language :: Python :: %s" % x) for x in "2.7 3.4 3.5 3.6 3.7".split()]
+              [("Programming Language :: Python :: %s" % x) for x in "3.4 3.5 3.6 3.7".split()]
 
 
 def make_cmdline_entry_points():
     target = "ptest.main:main"
     entry_points = []
     version = platform.python_version()
-    if version[0] == "2":
-        entry_points.append("ptest=%s" % target)
-    elif version[0] == "3":
-        entry_points.append("ptest3=%s" % target)
+    entry_points.append("ptest=%s" % target)
+    entry_points.append("ptest3=%s" % target)
     entry_points.append("ptest-%s=%s" % (version[:3], target))
     return entry_points
 
