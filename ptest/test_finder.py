@@ -5,11 +5,13 @@ import re
 import sys
 
 from .enumeration import PDecoratorType
+from .test_filter import TestFilterGroup
+from .test_suite import TestSuite
 from .util import mock_func
 
 
 class TestFinder:
-    def __init__(self, test_target, test_filter_group, target_test_suite):
+    def __init__(self, test_target: str, test_filter_group: TestFilterGroup, target_test_suite: TestSuite):
         self.test_target = test_target
         self.test_filter_group = test_filter_group
         self.target_test_suite = target_test_suite
@@ -35,12 +37,12 @@ class TestFinder:
                 module_ref = importlib.import_module(".".join(splitted_test_target[:i + 1]))
                 module_name_len = i + 1
             except ImportError as e:
-                if splitted_test_target[i] in str(e): # python 2.x only display bar for target foo.bar
+                if splitted_test_target[i] in str(e):  # python 2.x only display bar for target foo.bar
                     break
                 raise
 
         if module_ref is None:
-            raise ImportError("Test target <%s> is invalid.\nNo module named <%s>."% (self.test_target, splitted_test_target[0]))
+            raise ImportError("Test target <%s> is invalid.\nNo module named <%s>." % (self.test_target, splitted_test_target[0]))
 
         test_target_len = len(splitted_test_target)
         if module_name_len == test_target_len:
@@ -82,16 +84,16 @@ class TestFinder:
             self.test_name = splitted_test_target[-1]
             self.find_tests_in_module(module_ref)
         else:
-            raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't."% (
+            raise ImportError("Test target <%s> is probably invalid.\nModule <%s> exists but module <%s> doesn't." % (
                 self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
 
     def find_tests_in_package(self, package_ref):
-        if sys.version_info >= (3, 3): # support namespace packages
+        if sys.version_info >= (3, 3):  # support namespace packages
             package_name = package_ref.__name__
             if hasattr(package_ref.__path__, "_path"):
-                package_path = package_ref.__path__._path[0] # namespace package
+                package_path = package_ref.__path__._path[0]  # namespace package
             else:
-                package_path = package_ref.__path__[0] # __init__ package
+                package_path = package_ref.__path__[0]  # __init__ package
             for fn in os.listdir(package_path):
                 file_path = os.path.join(package_path, fn)
                 if os.path.isdir(file_path) and "." not in fn:
@@ -143,7 +145,7 @@ class TestFinder:
 
 
 def unzip_func(test_class_cls, test_func):
-    if not test_func.__funcs__: # zipped
+    if not test_func.__funcs__:  # zipped
         name_map = {}
         for index, data in enumerate(test_func.__data_provider__):
             if isinstance(data, (list, tuple)):
@@ -169,9 +171,10 @@ def unzip_func(test_class_cls, test_func):
             else:
                 raise TypeError("The data provider is trying to pass %s extra arguments but %s.%s() takes %s."
                                 % (parameters_count, test_class_cls.__name__, test_func.__name__, test_func.__parameters_count__ - 1))
-    elif not test_func.__data_provider__: # normal
+    elif not test_func.__data_provider__:  # normal
         test_func.__funcs__[0].__test_class__ = test_class_cls
         if test_func.__parameters_count__ != 1:
-            raise TypeError("Since data provider is not specified, %s.%s() cannot be declared with %s parameters. Please declare with only 1 parameter (only self)."
-                            % (test_class_cls.__name__, test_func.__name__, test_func.__parameters_count__))
+            raise TypeError(
+                "Since data provider is not specified, %s.%s() cannot be declared with %s parameters. Please declare with only 1 parameter (only self)."
+                % (test_class_cls.__name__, test_func.__name__, test_func.__parameters_count__))
     return test_func.__funcs__

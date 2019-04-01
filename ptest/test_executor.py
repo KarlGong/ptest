@@ -5,16 +5,18 @@ from copy import copy
 from datetime import datetime
 from functools import cmp_to_key
 
-from .enumeration import TestFixtureStatus, TestClassRunMode, TestCaseStatus
+from typing import List
+
+from .enumeration import TestFixtureStatus, TestClassRunMode, TestFixtureStatus
 from .plistener import test_listeners
 from .plogger import preporter, pconsole, pconsole_err
-from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, \
-    BeforeMethod, Test
+from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, BeforeMethod, Test, \
+    TestSuite, TestGroup, TestClass, TestCase, TestFixture
 from .util import call_function, kill_thread, format_thread_stack
 
 
 class TestExecutor(threading.Thread):
-    def __init__(self, parent_test_executor, workers=0):
+    def __init__(self, parent_test_executor: "TestExecutor", workers: int = 0):
         threading.Thread.__init__(self)
         self.parent_test_executor = parent_test_executor
         self.__properties = {}
@@ -57,7 +59,7 @@ class TestExecutor(threading.Thread):
     def get_properties(self):
         return self.__properties
 
-    def allocate_worker(self, child_test_executor):
+    def allocate_worker(self, child_test_executor: "TestExecutor"):
         with self.lock:
             if self.workers > 0:
                 self.workers -= 1
@@ -97,7 +99,7 @@ class TestExecutor(threading.Thread):
 
 
 class TestSuiteExecutor(TestExecutor):
-    def __init__(self, test_suite, workers):
+    def __init__(self, test_suite: TestSuite, workers: int):
         TestExecutor.__init__(self, None, workers)
         self.test_suite = test_suite
 
@@ -124,7 +126,7 @@ class TestSuiteExecutor(TestExecutor):
 
 
 class TestClassRunGroupExecutor(TestExecutor):
-    def __init__(self, test_suite_executor, test_class_run_group):
+    def __init__(self, test_suite_executor: TestSuiteExecutor, test_class_run_group: List[TestClass]):
         TestExecutor.__init__(self, test_suite_executor)
         self.test_class_run_group = test_class_run_group
 
@@ -134,7 +136,7 @@ class TestClassRunGroupExecutor(TestExecutor):
 
 
 class TestClassExecutor(TestExecutor):
-    def __init__(self, test_class_run_group_executor, test_class):
+    def __init__(self, test_class_run_group_executor: TestClassRunGroupExecutor, test_class: TestClass):
         TestExecutor.__init__(self, test_class_run_group_executor)
         self.test_class = test_class
 
@@ -165,7 +167,7 @@ class TestClassExecutor(TestExecutor):
 
 
 class TestGroupExecutor(TestExecutor):
-    def __init__(self, test_class_executor, test_group):
+    def __init__(self, test_class_executor: TestClassExecutor, test_group: TestGroup):
         TestExecutor.__init__(self, test_class_executor)
         self.test_group = test_group
 
@@ -196,7 +198,7 @@ class TestGroupExecutor(TestExecutor):
 
 
 class TestCaseExecutor(TestExecutor):
-    def __init__(self, test_group_executor, test_case):
+    def __init__(self, test_group_executor: TestGroupExecutor, test_case: TestCase):
         TestExecutor.__init__(self, test_group_executor)
         self.test_case = test_case
 
@@ -210,11 +212,11 @@ class TestCaseExecutor(TestExecutor):
         test_executor.start_and_join()
 
         logger_filler = "-" * (100 - len(self.test_case.full_name) - 6)
-        if self.test_case.status == TestCaseStatus.PASSED:
+        if self.test_case.status == TestFixtureStatus.PASSED:
             pconsole.write_line("%s%s|PASS|" % (self.test_case.full_name, logger_filler))
-        elif self.test_case.status == TestCaseStatus.FAILED:
+        elif self.test_case.status == TestFixtureStatus.FAILED:
             pconsole.write_line("%s%s|FAIL|" % (self.test_case.full_name, logger_filler))
-        elif self.test_case.status == TestCaseStatus.SKIPPED:
+        elif self.test_case.status == TestFixtureStatus.SKIPPED:
             pconsole.write_line("%s%s|SKIP|" % (self.test_case.full_name, logger_filler))
 
         after_method_executor = TestFixtureExecutor(self, self.test_case.after_method)
@@ -224,7 +226,7 @@ class TestCaseExecutor(TestExecutor):
 
 
 class TestFixtureExecutor(TestExecutor):
-    def __init__(self, parent_test_executor, test_fixture):
+    def __init__(self, parent_test_executor: TestExecutor, test_fixture: TestFixture):
         TestExecutor.__init__(self, parent_test_executor)
         self.test_fixture = test_fixture
 
@@ -288,11 +290,12 @@ class TestFixtureExecutor(TestExecutor):
                 self.test_fixture.failure_message = "Timed out executing this test fixture in %s seconds." % self.test_fixture.timeout
                 self.test_fixture.failure_type = "TimeoutException"
                 self.test_fixture.stack_trace = stack_trace
-                preporter.error("Failed with following message:\n%s\n%s" % (self.test_fixture.failure_message, self.test_fixture.stack_trace), True)
+                preporter.error(
+                    "Failed with following message:\n%s\n%s" % (self.test_fixture.failure_message, self.test_fixture.stack_trace), True)
         else:
             test_fixture_sub_executor.join()
 
-    def skip_test_fixture(self, caused_test_fixture):
+    def skip_test_fixture(self, caused_test_fixture: TestFixture):
         from .plogger import preporter
         self.test_fixture.status = TestFixtureStatus.SKIPPED
         self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
@@ -300,7 +303,7 @@ class TestFixtureExecutor(TestExecutor):
 
 
 class TestFixtureSubExecutor(TestExecutor):
-    def __init__(self, test_fixture_executor):
+    def __init__(self, test_fixture_executor: TestFixtureExecutor):
         TestExecutor.__init__(self, test_fixture_executor)
         self.test_fixture = test_fixture_executor.test_fixture
         self.setDaemon(True)

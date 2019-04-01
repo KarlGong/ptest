@@ -13,12 +13,19 @@ class TestContainer:
         self.test_cases = []
 
     @property
-    def elapsed_time(self):
+    def elapsed_time(self) -> float:
         time_delta = self.end_time - self.start_time
         return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
     @property
     def status_count(self):
+        status_map = {
+            TestFixtureStatus.PASSED: TestCaseCountItem.PASSED,
+            TestFixtureStatus.FAILED: TestCaseCountItem.FAILED,
+            TestFixtureStatus.SKIPPED: TestCaseCountItem.SKIPPED,
+            TestFixtureStatus.NOT_RUN: TestCaseCountItem.NOT_RUN,
+            TestFixtureStatus.RUNNING: TestCaseCountItem.RUNNING,
+        }
         status_count_dict = {
             TestCaseCountItem.TOTAL: 0,
             TestCaseCountItem.PASSED: 0,
@@ -28,11 +35,11 @@ class TestContainer:
         }
         for test_case in self.test_cases:
             status_count_dict[TestCaseCountItem.TOTAL] += 1
-            status_count_dict[test_case.status] += 1
+            status_count_dict[status_map[test_case.status]] += 1
         return status_count_dict
 
     @property
-    def pass_rate(self):
+    def pass_rate(self) -> float:
         status_count = self.status_count
         return float(status_count[TestCaseCountItem.PASSED]) * 100 / status_count[TestCaseCountItem.TOTAL]
 
@@ -111,7 +118,7 @@ class TestSuite(TestContainer):
             return self.before_suite
         return None
 
-    def get_test_class(self, full_name):
+    def get_test_class(self, full_name: str):
         for test_class in self.test_classes:
             if test_class.full_name == full_name:
                 return test_class
@@ -132,9 +139,9 @@ class TestSuite(TestContainer):
 
         test_case = test_group.get_test_case(test_case_func.__name__)
         if test_case is None:
-            if hasattr(test_class_cls, test_case_func.__name__): # normal
+            if hasattr(test_class_cls, test_case_func.__name__):  # normal
                 test_case = TestCase(test_group, getattr(test_class_cls(), test_case_func.__name__))
-            else: # mocked
+            else:  # mocked
                 test_class_ref = test_class_cls()
                 mock_method = types.MethodType(test_case_func, test_class_ref)
                 setattr(test_class_ref, test_case_func.__name__, mock_method)
@@ -147,7 +154,7 @@ class TestSuite(TestContainer):
 
 
 class TestClass(TestContainer):
-    def __init__(self, test_suite, test_class_ref):
+    def __init__(self, test_suite: TestSuite, test_class_ref):
         TestContainer.__init__(self)
         self.test_suite = test_suite
         self.test_class_ref = test_class_ref
@@ -171,7 +178,7 @@ class TestClass(TestContainer):
                 elif attr.__pd_type__ == PDecoratorType.AfterClass:
                     self.after_class = AfterClass(self, attr)
 
-    def get_failed_setup_fixture(self):
+    def get_failed_setup_fixture(self) -> "TestFixture":
         setup_fixture = self.test_suite.get_failed_setup_fixture()
         if setup_fixture:
             return setup_fixture
@@ -179,20 +186,20 @@ class TestClass(TestContainer):
             return self.before_class
         return None
 
-    def get_test_group(self, name):
+    def get_test_group(self, name: str) -> "TestGroup":
         for test_group in self.test_groups:
             if test_group.name == name:
                 return test_group
         return None
 
     @property
-    def is_group_feature_used(self):
+    def is_group_feature_used(self) -> bool:
         return not (len(self.test_groups) == 1 and self.test_groups[0].name == "DEFAULT" and self.test_groups[
             0].before_group.is_empty and self.test_groups[0].after_group.is_empty)
 
 
 class TestGroup(TestContainer):
-    def __init__(self, test_class, name, test_class_ref):
+    def __init__(self, test_class: TestClass, name: str, test_class_ref):
         TestContainer.__init__(self)
         self.test_class = test_class
         self.test_suite = self.test_class.test_suite
@@ -214,7 +221,7 @@ class TestGroup(TestContainer):
                 elif attr.__pd_type__ == PDecoratorType.AfterGroup:
                     self.after_group = AfterGroup(self, attr)
 
-    def get_failed_setup_fixture(self):
+    def get_failed_setup_fixture(self) -> "TestFixture":
         setup_fixture = self.test_class.get_failed_setup_fixture()
         if setup_fixture:
             return setup_fixture
@@ -222,7 +229,7 @@ class TestGroup(TestContainer):
             return self.before_group
         return None
 
-    def get_test_case(self, name):
+    def get_test_case(self, name: str) -> "TestCase":
         for test_case in self.test_cases:
             if test_case.name == name:
                 return test_case
@@ -230,7 +237,7 @@ class TestGroup(TestContainer):
 
 
 class TestCase:
-    def __init__(self, test_group, test_case_ref):
+    def __init__(self, test_group: TestGroup, test_case_ref):
         self.test_group = test_group
         self.test_class = self.test_group.test_class
         self.test_suite = self.test_class.test_suite
@@ -264,7 +271,7 @@ class TestCase:
                 elif attr.__pd_type__ == PDecoratorType.AfterMethod:
                     self.after_method = AfterMethod(self, attr)
 
-    def get_failed_setup_fixture(self):
+    def get_failed_setup_fixture(self) -> "TestFixture":
         setup_fixture = self.test_group.get_failed_setup_fixture()
         if setup_fixture:
             return setup_fixture
@@ -273,27 +280,27 @@ class TestCase:
         return None
 
     @property
-    def failure_message(self):
+    def failure_message(self) -> str:
         return self.test.failure_message
 
     @property
-    def failure_type(self):
+    def failure_type(self) -> str:
         return self.test.failure_type
 
     @property
-    def stack_trace(self):
+    def stack_trace(self) -> str:
         return self.test.stack_trace
 
     @property
-    def skip_message(self):
+    def skip_message(self) -> str:
         return self.test.skip_message
 
     @property
-    def status(self):
+    def status(self) -> TestFixtureStatus:
         return self.test.status
 
     @property
-    def elapsed_time(self):
+    def elapsed_time(self) -> float:
         time_delta = self.end_time - self.start_time
         return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
@@ -324,13 +331,13 @@ class TestFixture:
         self.parameters_count = test_fixture_ref.__parameters_count__
 
     @property
-    def elapsed_time(self):
+    def elapsed_time(self) -> float:
         time_delta = self.end_time - self.start_time
         return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
 
 class BeforeSuite(TestFixture):
-    def __init__(self, test_suite, test_fixture_ref):
+    def __init__(self, test_suite: TestSuite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.BeforeSuite)
         self.test_suite = self.context
         if not self.is_empty:
@@ -338,7 +345,7 @@ class BeforeSuite(TestFixture):
 
 
 class BeforeClass(TestFixture):
-    def __init__(self, test_class, test_fixture_ref):
+    def __init__(self, test_class: TestClass, test_fixture_ref):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.BeforeClass)
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
@@ -347,7 +354,7 @@ class BeforeClass(TestFixture):
 
 
 class BeforeGroup(TestFixture):
-    def __init__(self, test_group, test_fixture_ref):
+    def __init__(self, test_group: TestGroup, test_fixture_ref):
         TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.BeforeGroup)
         self.test_group = self.context
         self.test_class = self.test_group.test_class
@@ -358,7 +365,7 @@ class BeforeGroup(TestFixture):
 
 
 class BeforeMethod(TestFixture):
-    def __init__(self, test_case, test_fixture_ref):
+    def __init__(self, test_case: TestCase, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.BeforeMethod)
         self.test_case = self.context
         self.test_group = self.test_case.test_group
@@ -370,7 +377,7 @@ class BeforeMethod(TestFixture):
 
 
 class Test(TestFixture):
-    def __init__(self, test_case, test_fixture_ref):
+    def __init__(self, test_case: TestCase, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.Test)
         self.full_name = "%s@%s" % (test_case.full_name, self.fixture_type.value)
         self.test_case = self.context
@@ -385,7 +392,7 @@ class Test(TestFixture):
 
 
 class AfterMethod(TestFixture):
-    def __init__(self, test_case, test_fixture_ref):
+    def __init__(self, test_case: TestCase, test_fixture_ref):
         TestFixture.__init__(self, test_case, test_fixture_ref, PDecoratorType.AfterMethod)
         self.test_case = self.context
         self.test_group = self.test_case.test_group
@@ -398,7 +405,7 @@ class AfterMethod(TestFixture):
 
 
 class AfterGroup(TestFixture):
-    def __init__(self, test_group, test_fixture_ref):
+    def __init__(self, test_group: TestGroup, test_fixture_ref):
         TestFixture.__init__(self, test_group, test_fixture_ref, PDecoratorType.AfterGroup)
         self.test_group = self.context
         self.test_class = self.test_group.test_class
@@ -410,7 +417,7 @@ class AfterGroup(TestFixture):
 
 
 class AfterClass(TestFixture):
-    def __init__(self, test_class, test_fixture_ref):
+    def __init__(self, test_class: TestClass, test_fixture_ref):
         TestFixture.__init__(self, test_class, test_fixture_ref, PDecoratorType.AfterClass)
         self.test_class = self.context
         self.test_suite = self.test_class.test_suite
@@ -420,7 +427,7 @@ class AfterClass(TestFixture):
 
 
 class AfterSuite(TestFixture):
-    def __init__(self, test_suite, test_fixture_ref):
+    def __init__(self, test_suite: TestSuite, test_fixture_ref):
         TestFixture.__init__(self, test_suite, test_fixture_ref, PDecoratorType.AfterSuite)
         self.test_suite = self.context
         if not self.is_empty:

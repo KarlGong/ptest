@@ -7,9 +7,12 @@ import sys
 import time
 import traceback
 import types
+from threading import Thread
+
+from typing import Any
 
 
-def make_dirs(dir_path):
+def make_dirs(dir_path: str):
     try:
         os.makedirs(dir_path)
     except OSError as e:
@@ -17,7 +20,7 @@ def make_dirs(dir_path):
             raise
 
 
-def remove_tree(dir_path, remove_root=True):
+def remove_tree(dir_path: str, remove_root: bool = True):
     if os.path.exists(dir_path):
         for root, dirs, files in os.walk(dir_path, topdown=False):
             for name in files:
@@ -50,7 +53,7 @@ def call_function(func, *args, **kwargs):
     return func.__call__(*args, **kwargs)
 
 
-def kill_thread(thread):
+def kill_thread(thread: Thread):
     """
         Kill a python thread from another thread.
 
@@ -75,7 +78,7 @@ def kill_thread(thread):
     raise SystemError("Timed out waiting for thread <%s> to be killed." % thread)
 
 
-def format_thread_stack(thread):
+def format_thread_stack(thread: Thread):
     stack_code = ["Stack Trace:"]
     stack = sys._current_frames()[thread.ident]
     for file_name, line_no, name, line in traceback.extract_stack(stack):
@@ -85,18 +88,18 @@ def format_thread_stack(thread):
     return "\n".join(stack_code)
 
 
-def escape_html(obj):
+def escape_html(obj: Any):
     if isinstance(obj, dict):
         return {key: escape_html(value) for key, value in obj.items()}
     if isinstance(obj, list):
         return [escape_html(item) for item in obj]
     if isinstance(obj, str):
-        return obj.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;")\
+        return obj.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;") \
             .replace("\n", "<br/>")
     return obj
 
 
-def escape_filename(name):
+def escape_filename(name: str):
     _name = name
     escape_list = [
         ("%", "%25"),
