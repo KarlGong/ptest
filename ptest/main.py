@@ -7,7 +7,7 @@ from xml.dom import minidom
 from .util import make_dirs, remove_tree
 
 
-def get_rerun_targets(xml_file):
+def get_rerun_targets(xml_file: str):
     test_targets = []
     doc = minidom.parse(xml_file)
     if doc.documentElement.nodeName == "testsuites":
@@ -22,7 +22,7 @@ def get_rerun_targets(xml_file):
     return test_targets
 
 
-def merge_xunit_xmls(xml_files, to_file):
+def merge_xunit_xmls(xml_files: str, to_file: str):
     from .plogger import pconsole
     from .test_suite import default_test_suite
 
@@ -39,11 +39,11 @@ def merge_xunit_xmls(xml_files, to_file):
         for test_suite_node in root.getElementsByTagName("testsuite"):
             for test_case_node in test_suite_node.getElementsByTagName("testcase"):
                 test_case_name = "%s.%s" % (test_case_node.getAttribute("classname"), test_case_node.getAttribute("name"))
-                test_case_status = 0 # passed
+                test_case_status = 0  # passed
                 if test_case_node.getElementsByTagName("failure"):
-                    test_case_status = 1 # failed
+                    test_case_status = 1  # failed
                 elif test_case_node.getElementsByTagName("skipped"):
-                    test_case_status = 2 # skipped
+                    test_case_status = 2  # skipped
 
                 if test_case_name not in test_case_results or test_case_status < test_case_results[test_case_name]["status"]:
                     test_case_results[test_case_name] = {"status": test_case_status, "node": test_case_node}
@@ -77,14 +77,7 @@ def merge_xunit_xmls(xml_files, to_file):
 
 
 def main(args=None):
-    # fix encoding issue in python 2.x
     import sys
-    try:
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-    except NameError:
-        pass
-
     from . import config
     # load arguments
     if args is None:
@@ -161,7 +154,8 @@ def main(args=None):
             test_finder = TestFinder(test_target, test_filter_group, default_test_suite)
             test_finder.find_tests()
             if test_finder.repeated_test_count:
-                pconsole.write_line(" %s (%s tests found, %s repeated)" % (test_target, test_finder.found_test_count, test_finder.repeated_test_count))
+                pconsole.write_line(
+                    " %s (%s tests found, %s repeated)" % (test_target, test_finder.found_test_count, test_finder.repeated_test_count))
             else:
                 pconsole.write_line(" %s (%s tests found)" % (test_target, test_finder.found_test_count))
     else:
@@ -209,6 +203,7 @@ def main(args=None):
                 web_drivers = []
                 executor.update_properties({"web_drivers": web_drivers})
             web_drivers.append(web_driver)
+
         def new_start_client(self):
             try:
                 current_executor = test_executor.current_executor()
@@ -222,6 +217,7 @@ def main(args=None):
             web_drivers = executor.get_property("web_drivers")
             if web_drivers:
                 web_drivers.remove(web_driver)
+
         def new_stop_client(self):
             try:
                 current_executor = test_executor.current_executor()
@@ -230,6 +226,7 @@ def main(args=None):
                 remove_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
             except AttributeError as e:
                 pass
+
         WebDriver.start_client = new_start_client
         WebDriver.stop_client = new_stop_client
 
