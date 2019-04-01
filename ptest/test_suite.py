@@ -309,6 +309,7 @@ class TestFixture:
             return
         self.test_fixture_ref = test_fixture_ref
         self.name = test_fixture_ref.__name__
+        self.full_name = ""
         self.failure_message = ""
         self.failure_type = ""
         self.stack_trace = ""

@@ -4,17 +4,22 @@ import re
 from urllib.parse import urljoin, unquote
 from urllib.request import pathname2url
 
+from typing import Union, List, Tuple, Type, Dict, Callable, Iterable, Any
+
 from .enumeration import PDecoratorType, TestClassRunMode
 from .util import get_parameters_count
 
 
-def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):
+def TestClass(enabled: bool = True, run_mode: Union[str, TestClassRunMode] = "singleline", run_group: str = None, description: str = "",
+              **custom_args):
     """
         The TestClass decorator, it is used to mark a class as TestClass.
 
     :param enabled: enable or disable this test class.
-    :param run_mode: the run mode of all the test cases in this test class. If set to "parallel", all the test cases can be run by multiple threads. If set to "singleline", all the test cases will be only run by one thread.
-    :param run_group: the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one. If not, this test class will be belong to it own run group.
+    :param run_mode: the run mode of all the test cases in this test class. If set to "parallel", all the test cases can be run by multiple threads.
+        If set to "singleline", all the test cases will be only run by one thread.
+    :param run_group: the run group of this test class. If run group is specified, all the test classes in the same run group will be run one by one.
+        If not, this test class will be belong to it own run group.
     :param description: the description of this test class.
     :param custom_args: the custom arguments of this test class.
     """
@@ -37,7 +42,7 @@ def TestClass(enabled=True, run_mode="singleline", run_group=None, description="
     return tracer
 
 
-def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
+def BeforeSuite(enabled: bool = True, description: str = "", timeout: int = 0, **custom_args):
     """
         The BeforeSuite test fixture, it will be executed before test suite started.
 
@@ -60,7 +65,7 @@ def BeforeSuite(enabled=True, description="", timeout=0, **custom_args):
     return handle_func
 
 
-def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
+def BeforeClass(enabled: bool = True, description: str = "", timeout: int = 0, **custom_args):
     """
         The BeforeClass test fixture, it will be executed before test class started.
 
@@ -83,7 +88,7 @@ def BeforeClass(enabled=True, description="", timeout=0, **custom_args):
     return handle_func
 
 
-def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **custom_args):
+def BeforeGroup(enabled: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0, **custom_args):
     """
         The BeforeGroup test fixture, it will be executed before test group started.
 
@@ -108,7 +113,7 @@ def BeforeGroup(enabled=True, group="DEFAULT", description="", timeout=0, **cust
     return handle_func
 
 
-def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **custom_args):
+def BeforeMethod(enabled: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0, **custom_args):
     """
         The BeforeMethod test fixture, it will be executed before test started.
 
@@ -133,7 +138,14 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
     return handle_func
 
 
-def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, data_name=None, group="DEFAULT", description="", timeout=0,
+def Test(enabled: bool = True,
+         tags: Union[str, List[str], Tuple[str, ...]] = [],
+         expected_exceptions: Union[Type[Exception], List[Type[Exception]], Tuple[Type[Exception, ...]], Dict[Type[Exception], str]] = None,
+         data_provider: Iterable = None,
+         data_name: Callable[[int, Any], str] = None,
+         group: str = "DEFAULT",
+         description: str = "",
+         timeout: int = 0,
          **custom_args):
     """
         The Test decorator, it is used to mark a test as Test.
@@ -238,7 +250,8 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
     return handle_func
 
 
-def AfterMethod(enabled=True, always_run=True, group="DEFAULT", description="", timeout=0, **custom_args):
+def AfterMethod(enabled: bool = True, always_run: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0,
+                **custom_args):
     """
         The AfterMethod test fixture, it will be executed after test finished.
 
@@ -265,7 +278,8 @@ def AfterMethod(enabled=True, always_run=True, group="DEFAULT", description="", 
     return handle_func
 
 
-def AfterGroup(enabled=True, always_run=True, group="DEFAULT", description="", timeout=0, **custom_args):
+def AfterGroup(enabled: bool = True, always_run: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0,
+               **custom_args):
     """
         The AfterGroup test fixture, it will be executed after test group finished.
 
@@ -292,7 +306,7 @@ def AfterGroup(enabled=True, always_run=True, group="DEFAULT", description="", t
     return handle_func
 
 
-def AfterClass(enabled=True, always_run=True, description="", timeout=0, **custom_args):
+def AfterClass(enabled: bool = True, always_run: bool = True, description: str = "", timeout: int = 0, **custom_args):
     """
         The AfterClass test fixture, it will be executed after test class finished.
 
@@ -317,7 +331,7 @@ def AfterClass(enabled=True, always_run=True, description="", timeout=0, **custo
     return handle_func
 
 
-def AfterSuite(enabled=True, always_run=True, description="", timeout=0, **custom_args):
+def AfterSuite(enabled: bool = True, always_run: bool = True, description: str = "", timeout: int = 0, **custom_args):
     """
         The AfterSuite test fixture, it will be executed after test suite finished.
 
@@ -351,6 +365,6 @@ def __get_location(func):
 def __get_parameters_count_of_test_configuration(func):
     parameters_count = get_parameters_count(func)
     if parameters_count not in [1, 2]:
-        raise TypeError("%s() cannot be declared with %s parameters. Please declare with 1 or 2 parameters (including self)." % (
-        func.__name__, parameters_count))
+        raise TypeError("%s() cannot be declared with %s parameters. "
+                        "Please declare with 1 or 2 parameters (including self)." % (func.__name__, parameters_count))
     return parameters_count

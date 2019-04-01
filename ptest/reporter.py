@@ -6,16 +6,18 @@ import traceback
 from datetime import datetime
 from xml.dom import minidom
 
+from typing import List
+
 from . import config, __version__
-from .plogger import pconsole
-from .test_suite import default_test_suite
 from .enumeration import TestCaseStatus, TestCaseCountItem
+from .plogger import pconsole
+from .test_suite import default_test_suite, TestSuite, TestGroup, TestClass, TestCase, TestFixture
 from .util import make_dirs, remove_tree, escape_html
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def generate_xunit_xml(xml_file_path):
+def generate_xunit_xml(xml_file_path: str):
     pconsole.write_line("Generating xunit report...")
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
@@ -62,7 +64,7 @@ def generate_xunit_xml(xml_file_path):
         f.close()
 
 
-def generate_html_report(report_dir):
+def generate_html_report(report_dir: str):
     pconsole.write_line("Generating html report...")
 
     if os.path.exists(report_dir):
@@ -107,7 +109,7 @@ def generate_html_report(report_dir):
         f.close()
 
 
-def _get_test_suite_dict(test_suite):
+def _get_test_suite_dict(test_suite: TestSuite):
     test_suite_dict = {
         "name": escape_html(test_suite.name),
         "fullName": escape_html(test_suite.full_name),
@@ -124,11 +126,11 @@ def _get_test_suite_dict(test_suite):
     if not test_suite.before_suite.is_empty:
         test_suite_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
     if not test_suite.after_suite.is_empty:
-        test_suite_dict["afterSuite"] =_get_test_fixture_dict(test_suite.after_suite)
+        test_suite_dict["afterSuite"] = _get_test_fixture_dict(test_suite.after_suite)
     return test_suite_dict
 
 
-def _get_test_module_dicts(test_classes):
+def _get_test_module_dicts(test_classes: List[TestClass]):
     root_test_module_dict = {
         "name": "root",
         "testModules": []
@@ -157,8 +159,7 @@ def _get_test_module_dicts(test_classes):
         current_test_module_dict = root_test_module_dict
         splitted_full_name = test_class_dict["fullName"].split(".")[:-1]
         for i in range(len(splitted_full_name)):
-            test_module_dict = get_or_new_module(current_test_module_dict["testModules"],
-                                                 ".".join(splitted_full_name[:i + 1]))
+            test_module_dict = get_or_new_module(current_test_module_dict["testModules"], ".".join(splitted_full_name[:i + 1]))
             test_module_dict["total"] += test_class_dict["total"]
             test_module_dict["passed"] += test_class_dict["passed"]
             test_module_dict["failed"] += test_class_dict["failed"]
@@ -169,7 +170,7 @@ def _get_test_module_dicts(test_classes):
     return root_test_module_dict["testModules"]
 
 
-def _get_test_class_dict(test_class):
+def _get_test_class_dict(test_class: TestClass):
     test_class_dict = {
         "name": test_class.name,
         "fullName": test_class.full_name,
@@ -186,18 +187,20 @@ def _get_test_class_dict(test_class):
         "skipped": test_class.status_count[TestCaseCountItem.SKIPPED]
     }
     if test_class.is_group_feature_used:
-        test_class_dict["testGroups"] = sorted([_get_test_group_dict(test_group) for test_group in test_class.test_groups], key=lambda g: g["name"])
+        test_class_dict["testGroups"] = sorted([_get_test_group_dict(test_group) for test_group in test_class.test_groups],
+                                               key=lambda g: g["name"])
     else:
-        test_class_dict["testCases"] = sorted([_get_test_case_dict(test_case) for test_case in test_class.test_cases], key=lambda c: c["name"])
+        test_class_dict["testCases"] = sorted([_get_test_case_dict(test_case) for test_case in test_class.test_cases],
+                                              key=lambda c: c["name"])
 
     if not test_class.before_class.is_empty:
         test_class_dict["beforeClass"] = _get_test_fixture_dict(test_class.before_class)
     if not test_class.after_class.is_empty:
-        test_class_dict["afterClass"] =_get_test_fixture_dict(test_class.after_class)
+        test_class_dict["afterClass"] = _get_test_fixture_dict(test_class.after_class)
     return test_class_dict
 
 
-def _get_test_group_dict(test_group):
+def _get_test_group_dict(test_group: TestGroup):
     test_group_dict = {
         "name": escape_html(test_group.name),
         "fullName": escape_html(test_group.full_name),
@@ -218,7 +221,7 @@ def _get_test_group_dict(test_group):
     return test_group_dict
 
 
-def _get_test_case_dict(test_case):
+def _get_test_case_dict(test_case: TestCase):
     test_case_dict = {
         "name": escape_html(test_case.name),
         "fullName": escape_html(test_case.full_name),
@@ -239,7 +242,7 @@ def _get_test_case_dict(test_case):
     return test_case_dict
 
 
-def _get_test_fixture_dict(test_fixture):
+def _get_test_fixture_dict(test_fixture: TestFixture):
     test_fixture_dict = {
         "name": escape_html(test_fixture.name),
         "fullName": escape_html(test_fixture.full_name),
