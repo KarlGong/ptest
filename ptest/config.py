@@ -1,7 +1,6 @@
 import os
 import platform
 import re
-from codecs import open
 from optparse import OptionParser, OptionGroup
 
 from typing import List

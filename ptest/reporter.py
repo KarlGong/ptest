@@ -3,7 +3,6 @@ import os
 import platform
 import shutil
 import traceback
-from codecs import open
 from datetime import datetime
 from xml.dom import minidom
 

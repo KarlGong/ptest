@@ -1,5 +1,4 @@
 import platform
-from codecs import open
 from os import path
 
 from setuptools import setup

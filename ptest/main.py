@@ -2,7 +2,6 @@ import importlib
 import os
 import shlex
 import traceback
-from codecs import open
 from xml.dom import minidom
 
 from .util import make_dirs, remove_tree
