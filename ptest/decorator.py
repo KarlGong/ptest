@@ -1,9 +1,11 @@
 import inspect
 import os
 import re
+from urllib.parse import urljoin, unquote
+from urllib.request import pathname2url
 
 from .enumeration import PDecoratorType, TestClassRunMode
-from .util import urljoin, unquote, pathname2url, StringTypes, get_parameters_count
+from .util import get_parameters_count
 
 
 def TestClass(enabled=True, run_mode="singleline", run_group=None, description="", **custom_args):
@@ -129,7 +131,8 @@ def BeforeMethod(enabled=True, group="DEFAULT", description="", timeout=0, **cus
     return handle_func
 
 
-def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, data_name=None, group="DEFAULT", description="", timeout=0, **custom_args):
+def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, data_name=None, group="DEFAULT", description="", timeout=0,
+         **custom_args):
     """
         The Test decorator, it is used to mark a test as Test.
 
@@ -173,7 +176,7 @@ def Test(enabled=True, tags=[], expected_exceptions=None, data_provider=None, da
         if not tags:
             func.__tags__ = []
         else:
-            if isinstance(tags, StringTypes):
+            if isinstance(tags, str):
                 tag_list = tags.split(",")
             elif isinstance(tags, (list, tuple)):
                 tag_list = tags
@@ -346,5 +349,6 @@ def __get_location(func):
 def __get_parameters_count_of_test_configuration(func):
     parameters_count = get_parameters_count(func)
     if parameters_count not in [1, 2]:
-        raise TypeError("%s() cannot be declared with %s parameters. Please declare with 1 or 2 parameters (including self)." % (func.__name__, parameters_count))
+        raise TypeError("%s() cannot be declared with %s parameters. Please declare with 1 or 2 parameters (including self)." % (
+        func.__name__, parameters_count))
     return parameters_count

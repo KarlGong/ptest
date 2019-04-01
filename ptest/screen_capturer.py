@@ -1,11 +1,9 @@
 import os
-import traceback
 import uuid
 from io import BytesIO
 
 from . import config
 from .exception import ScreenshotError
-from .plogger import preporter
 from .util import escape_filename
 
 # ----------------------------------------------------------------------

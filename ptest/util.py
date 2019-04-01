@@ -1,23 +1,13 @@
+import asyncio
 import ctypes
 import errno
+import inspect
 import os
 import sys
-import inspect
 import time
 import traceback
 import types
 
-if sys.version_info[0] == 2:
-    StringTypes = (str, unicode)
-else:
-    StringTypes = (str,)
-
-if sys.version_info[0] == 2:
-    from urlparse import urljoin
-    from urllib import unquote, pathname2url
-else:
-    from urllib.parse import urljoin, unquote
-    from urllib.request import pathname2url
 
 def make_dirs(dir_path):
     try:
@@ -45,13 +35,6 @@ def get_parameters_count(func):
         return len(inspect.signature(func).parameters)
 
 
-def is_coroutine_function(func):
-    if sys.version_info[:2] >= (3, 4):
-        import asyncio
-        return asyncio.iscoroutinefunction(func)
-    return False
-
-
 def mock_func(func):
     fn = types.FunctionType(func.__code__, func.__globals__, func.__name__, func.__defaults__, func.__closure__)
     # in case fun was given attrs (note this dict is a shallow copy):
@@ -60,8 +43,7 @@ def mock_func(func):
 
 
 def call_function(func, *args, **kwargs):
-    if is_coroutine_function(func):
-        import asyncio
+    if asyncio.iscoroutinefunction(func):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         return loop.run_until_complete(func.__call__(*args, **kwargs))
@@ -75,8 +57,7 @@ def kill_thread(thread):
     :param thread: a threading.Thread instance
     """
     exc = ctypes.py_object(SystemExit)
-    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-        ctypes.c_long(thread.ident), exc)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread.ident), exc)
     if res == 0:
         raise ValueError("nonexistent thread id")
     elif res > 1:
@@ -109,9 +90,9 @@ def escape_html(obj):
         return {key: escape_html(value) for key, value in obj.items()}
     if isinstance(obj, list):
         return [escape_html(item) for item in obj]
-    if isinstance(obj, StringTypes):
-        return obj.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") \
-            .replace(" ", "&nbsp;").replace('"', "&quot;").replace("\n", "<br/>")
+    if isinstance(obj, str):
+        return obj.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;").replace('"', "&quot;")\
+            .replace("\n", "<br/>")
     return obj
 
 

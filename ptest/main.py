@@ -5,7 +5,7 @@ import traceback
 from codecs import open
 from xml.dom import minidom
 
-from .util import make_dirs, remove_tree, StringTypes
+from .util import make_dirs, remove_tree
 
 
 def get_rerun_targets(xml_file):
@@ -91,7 +91,7 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
     elif not isinstance(args, (tuple, list)):
-        if not isinstance(args, StringTypes):
+        if not isinstance(args, str):
             sys.stderr.write("ERROR: args <%s> is not a string or argument list." % args)
             return
         args = shlex.split(args)
