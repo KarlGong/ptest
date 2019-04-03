@@ -7,7 +7,7 @@ from functools import cmp_to_key
 
 from typing import List
 
-from .enumeration import TestFixtureStatus, TestClassRunMode, TestFixtureStatus
+from .enumeration import TestCaseStatus, TestClassRunMode, TestFixtureStatus
 from .plistener import test_listeners
 from .plogger import preporter, pconsole, pconsole_err
 from .test_suite import AfterSuite, BeforeSuite, AfterClass, BeforeClass, BeforeGroup, AfterGroup, AfterMethod, BeforeMethod, Test, \
@@ -212,11 +212,11 @@ class TestCaseExecutor(TestExecutor):
         test_executor.start_and_join()
 
         logger_filler = "-" * (100 - len(self.test_case.full_name) - 6)
-        if self.test_case.status == TestFixtureStatus.PASSED:
+        if self.test_case.status == TestCaseStatus.PASSED:
             pconsole.write_line("%s%s|PASS|" % (self.test_case.full_name, logger_filler))
-        elif self.test_case.status == TestFixtureStatus.FAILED:
+        elif self.test_case.status == TestCaseStatus.FAILED:
             pconsole.write_line("%s%s|FAIL|" % (self.test_case.full_name, logger_filler))
-        elif self.test_case.status == TestFixtureStatus.SKIPPED:
+        elif self.test_case.status == TestCaseStatus.SKIPPED:
             pconsole.write_line("%s%s|SKIP|" % (self.test_case.full_name, logger_filler))
 
         after_method_executor = TestFixtureExecutor(self, self.test_case.after_method)

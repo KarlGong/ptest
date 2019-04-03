@@ -9,7 +9,7 @@ from xml.dom import minidom
 from typing import List
 
 from . import config, __version__
-from .enumeration import TestFixtureStatus, TestCaseCountItem
+from .enumeration import TestCaseStatus, TestCaseCountItem
 from .plogger import pconsole
 from .test_suite import default_test_suite, TestSuite, TestGroup, TestClass, TestCase, TestFixture
 from .util import make_dirs, remove_tree, escape_html
@@ -37,11 +37,11 @@ def generate_xunit_xml(xml_file_path: str):
         test_case_ele.setAttribute("name", test_case.name)
         test_case_ele.setAttribute("classname", test_case.test_class.full_name)
         test_case_ele.setAttribute("time", "%.3f" % test_case.elapsed_time)
-        if test_case.status == TestFixtureStatus.SKIPPED:
+        if test_case.status == TestCaseStatus.SKIPPED:
             skipped_ele = doc.createElement("skipped")
             test_case_ele.appendChild(skipped_ele)
             skipped_ele.setAttribute("message", test_case.skip_message)
-        elif test_case.status == TestFixtureStatus.FAILED:
+        elif test_case.status == TestCaseStatus.FAILED:
             failure_ele = doc.createElement("failure")
             test_case_ele.appendChild(failure_ele)
             failure_ele.setAttribute("message", test_case.failure_message)

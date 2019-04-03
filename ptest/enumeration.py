@@ -27,6 +27,14 @@ class TestFixtureStatus(Enum):
     FAILED = "failed"
 
 
+class TestCaseStatus(Enum):
+    NOT_RUN = "not_run"
+    RUNNING = "running"
+    PASSED = "passed"
+    SKIPPED = "skipped"
+    FAILED = "failed"
+
+
 class TestCaseCountItem(Enum):
     PASSED = "passed"
     FAILED = "failed"

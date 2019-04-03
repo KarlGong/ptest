@@ -1,7 +1,7 @@
 import types
 from functools import cmp_to_key
 
-from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode
+from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode, TestCaseStatus
 
 SECOND_MICROSECOND_CONVERSION_FACTOR = 1000000.0
 
@@ -296,8 +296,15 @@ class TestCase:
         return self.test.skip_message
 
     @property
-    def status(self) -> TestFixtureStatus:
-        return self.test.status
+    def status(self) -> TestCaseStatus:
+        status_map = {
+            TestFixtureStatus.NOT_RUN: TestCaseStatus.NOT_RUN,
+            TestFixtureStatus.RUNNING: TestCaseStatus.RUNNING,
+            TestFixtureStatus.PASSED: TestCaseStatus.PASSED,
+            TestFixtureStatus.SKIPPED: TestCaseStatus.SKIPPED,
+            TestFixtureStatus.FAILED: TestCaseStatus.FAILED,
+        }
+        return status_map[self.test.status]
 
     @property
     def elapsed_time(self) -> float:
