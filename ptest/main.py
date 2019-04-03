@@ -101,7 +101,6 @@ def main(args=None):
     from .test_finder import TestFinder
     from .test_suite import default_test_suite
     from .plogger import pconsole
-    from .enumeration import TestCaseCountItem
 
     pconsole.write_line("Starting ptest...")
 
@@ -254,8 +253,7 @@ def main(args=None):
     pconsole.write_line("=" * 100)
     pconsole.write_line("Test finished in %.2fs." % default_test_suite.elapsed_time)
     pconsole.write_line("Total: %s, passed: %s, failed: %s, skipped: %s. Pass rate: %.1f%%." % (
-        status_count[TestCaseCountItem.TOTAL], status_count[TestCaseCountItem.PASSED],
-        status_count[TestCaseCountItem.FAILED], status_count[TestCaseCountItem.SKIPPED], default_test_suite.pass_rate))
+        status_count.total, status_count.passed, status_count.failed, status_count.skipped, default_test_suite.pass_rate))
 
     # generate the test report
     pconsole.write_line("")

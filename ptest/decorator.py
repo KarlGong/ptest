@@ -140,7 +140,7 @@ def BeforeMethod(enabled: bool = True, group: str = "DEFAULT", description: str 
 
 def Test(enabled: bool = True,
          tags: Union[str, List[str], Tuple[str, ...]] = [],
-         expected_exceptions: Union[Type[Exception], List[Type[Exception]], Tuple[Type[Exception, ...]], Dict[Type[Exception], str]] = None,
+         expected_exceptions: Union[Type[Exception], List[Type[Exception]], Tuple[Type[Exception], ...], Dict[Type[Exception], str]] = None,
          data_provider: Iterable = None,
          data_name: Callable[[int, Any], str] = None,
          group: str = "DEFAULT",

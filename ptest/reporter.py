@@ -9,7 +9,7 @@ from xml.dom import minidom
 from typing import List
 
 from . import config, __version__
-from .enumeration import TestCaseStatus, TestCaseCountItem
+from .enumeration import TestCaseStatus
 from .plogger import pconsole
 from .test_suite import default_test_suite, TestSuite, TestGroup, TestClass, TestCase, TestFixture
 from .util import make_dirs, remove_tree, escape_html
@@ -24,9 +24,9 @@ def generate_xunit_xml(xml_file_path: str):
     doc.appendChild(test_suite_ele)
     status_count = default_test_suite.status_count
     test_suite_ele.setAttribute("name", default_test_suite.name)
-    test_suite_ele.setAttribute("tests", str(status_count[TestCaseCountItem.TOTAL]))
-    test_suite_ele.setAttribute("failures", str(status_count[TestCaseCountItem.FAILED]))
-    test_suite_ele.setAttribute("skips", str(status_count[TestCaseCountItem.SKIPPED]))
+    test_suite_ele.setAttribute("tests", str(status_count.total))
+    test_suite_ele.setAttribute("failures", str(status_count.failed))
+    test_suite_ele.setAttribute("skips", str(status_count.skipped))
     test_suite_ele.setAttribute("errors", "0")
     test_suite_ele.setAttribute("time", "%.3f" % default_test_suite.elapsed_time)
     test_suite_ele.setAttribute("timestamp", str(default_test_suite.start_time))
@@ -118,10 +118,10 @@ def _get_test_suite_dict(test_suite: TestSuite):
         "startTime": str(test_suite.start_time),
         "endTime": str(test_suite.end_time),
         "elapsedTime": test_suite.elapsed_time,
-        "total": test_suite.status_count[TestCaseCountItem.TOTAL],
-        "passed": test_suite.status_count[TestCaseCountItem.PASSED],
-        "failed": test_suite.status_count[TestCaseCountItem.FAILED],
-        "skipped": test_suite.status_count[TestCaseCountItem.SKIPPED]
+        "total": test_suite.status_count.total,
+        "passed": test_suite.status_count.passed,
+        "failed": test_suite.status_count.failed,
+        "skipped": test_suite.status_count.skipped
     }
     if not test_suite.before_suite.is_empty:
         test_suite_dict["beforeSuite"] = _get_test_fixture_dict(test_suite.before_suite)
@@ -175,16 +175,16 @@ def _get_test_class_dict(test_class: TestClass):
         "name": test_class.name,
         "fullName": test_class.full_name,
         "type": "class",
-        "runMode": test_class.run_mode,
+        "runMode": test_class.run_mode.value,
         "runGroup": test_class.run_group,
         "description": test_class.description,
         "startTime": str(test_class.start_time),
         "endTime": str(test_class.end_time),
         "elapsedTime": test_class.elapsed_time,
-        "total": test_class.status_count[TestCaseCountItem.TOTAL],
-        "passed": test_class.status_count[TestCaseCountItem.PASSED],
-        "failed": test_class.status_count[TestCaseCountItem.FAILED],
-        "skipped": test_class.status_count[TestCaseCountItem.SKIPPED]
+        "total": test_class.status_count.total,
+        "passed": test_class.status_count.passed,
+        "failed": test_class.status_count.failed,
+        "skipped": test_class.status_count.skipped
     }
     if test_class.is_group_feature_used:
         test_class_dict["testGroups"] = sorted([_get_test_group_dict(test_group) for test_group in test_class.test_groups],
@@ -209,10 +209,10 @@ def _get_test_group_dict(test_group: TestGroup):
         "startTime": str(test_group.start_time),
         "endTime": str(test_group.end_time),
         "elapsedTime": test_group.elapsed_time,
-        "total": test_group.status_count[TestCaseCountItem.TOTAL],
-        "passed": test_group.status_count[TestCaseCountItem.PASSED],
-        "failed": test_group.status_count[TestCaseCountItem.FAILED],
-        "skipped": test_group.status_count[TestCaseCountItem.SKIPPED]
+        "total": test_group.status_count.total,
+        "passed": test_group.status_count.passed,
+        "failed": test_group.status_count.failed,
+        "skipped": test_group.status_count.skipped
     }
     if not test_group.before_group.is_empty:
         test_group_dict["beforeGroup"] = _get_test_fixture_dict(test_group.before_group)

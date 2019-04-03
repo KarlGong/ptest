@@ -1,9 +1,19 @@
 import types
 from functools import cmp_to_key
 
-from .enumeration import PDecoratorType, TestFixtureStatus, TestCaseCountItem, TestClassRunMode, TestCaseStatus
+from .enumeration import PDecoratorType, TestFixtureStatus, TestClassRunMode, TestCaseStatus
 
 SECOND_MICROSECOND_CONVERSION_FACTOR = 1000000.0
+
+
+class StatusCount:
+    def __init__(self):
+        self.total = 0
+        self.not_run = 0
+        self.running = 0
+        self.passed = 0
+        self.failed = 0
+        self.skipped = 0
 
 
 class TestContainer:
@@ -18,30 +28,26 @@ class TestContainer:
         return time_delta.seconds + time_delta.microseconds / SECOND_MICROSECOND_CONVERSION_FACTOR
 
     @property
-    def status_count(self):
-        status_map = {
-            TestFixtureStatus.PASSED: TestCaseCountItem.PASSED,
-            TestFixtureStatus.FAILED: TestCaseCountItem.FAILED,
-            TestFixtureStatus.SKIPPED: TestCaseCountItem.SKIPPED,
-            TestFixtureStatus.NOT_RUN: TestCaseCountItem.NOT_RUN,
-            TestFixtureStatus.RUNNING: TestCaseCountItem.RUNNING,
-        }
-        status_count_dict = {
-            TestCaseCountItem.TOTAL: 0,
-            TestCaseCountItem.PASSED: 0,
-            TestCaseCountItem.FAILED: 0,
-            TestCaseCountItem.SKIPPED: 0,
-            TestCaseCountItem.NOT_RUN: 0
-        }
+    def status_count(self) -> StatusCount:
+        count = StatusCount()
         for test_case in self.test_cases:
-            status_count_dict[TestCaseCountItem.TOTAL] += 1
-            status_count_dict[status_map[test_case.status]] += 1
-        return status_count_dict
+            count.total += 1
+            if test_case.status == TestCaseStatus.NOT_RUN:
+                count.not_run += 1
+            elif test_case.status == TestCaseStatus.RUNNING:
+                count.running += 1
+            elif test_case.status == TestCaseStatus.PASSED:
+                count.passed += 1
+            elif test_case.status == TestCaseStatus.FAILED:
+                count.failed += 1
+            elif test_case.status == TestCaseStatus.SKIPPED:
+                count.skipped += 1
+        return count
 
     @property
     def pass_rate(self) -> float:
         status_count = self.status_count
-        return float(status_count[TestCaseCountItem.PASSED]) * 100 / status_count[TestCaseCountItem.TOTAL]
+        return float(status_count.passed) * 100 / status_count.total
 
 
 class TestSuite(TestContainer):

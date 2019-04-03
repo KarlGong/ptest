@@ -33,12 +33,3 @@ class TestCaseStatus(Enum):
     PASSED = "passed"
     SKIPPED = "skipped"
     FAILED = "failed"
-
-
-class TestCaseCountItem(Enum):
-    PASSED = "passed"
-    FAILED = "failed"
-    SKIPPED = "skipped"
-    NOT_RUN = "not_run"
-    RUNNING = "running"
-    TOTAL = "total"
