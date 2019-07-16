@@ -90,6 +90,7 @@ AllSubjects = Union["_Subject", "_ObjSubject", "_NoneSubject", "_StringSubject",
 IterableSubjects = Union["_Subject", "_ObjSubject", "_IterableSubject", "_StringSubject", "_ListOrTupleSubject", "_SetSubject",
                          "_DictSubject"]
 
+
 def assert_that(subject: Any) -> AllSubjects:
     if subject is None:
         return _NoneSubject(subject)
@@ -152,18 +153,19 @@ class _Subject(object):
         return self
 
     def _raise_error(self, partial_error_msg: str, error: Type[Exception] = AssertionError):
-        if self._subject_name is None:
-            error_msg = "Unexpectedly that the %s <%s> %s" % (_type(self._subject), self._subject, partial_error_msg)
-        else:
-            error_msg = "Unexpectedly that the %s named \"%s\" %s" % (_type(self._subject), self._subject_name, partial_error_msg)
+        error_msg = "Unexpectedly that the %s %s" % (self, partial_error_msg)
+        if self._msg:
+            error_msg = "%s\n%s" % (self._msg, error_msg)
         self._raise_raw_error(error_msg, error)
 
     def _raise_raw_error(self, error_msg: str, error: Type[Exception] = AssertionError):
-        if self._msg:
-            raise_msg = "%s\n%s" % (self._msg, error_msg)
+        raise error(error_msg)
+
+    def __str__(self):
+        if self._subject_name is None:
+            return "%s <%s>" % (_type(self._subject), self._subject)
         else:
-            raise_msg = "%s" % error_msg
-        raise error(raise_msg)
+            return "%s named \"%s\"" % (_type(self._subject), self._subject_name)
 
 
 class _ObjSubject(_Subject):
@@ -296,12 +298,7 @@ class _ObjSubject(_Subject):
         return self
 
     def __getattr__(self, item):
-        if self._subject_name is None:
-            self._raise_raw_error("Cannot perform assertion \"%s\" for %s <%s>." %
-                                  (item, _type(self._subject), self._subject), error=AttributeError)
-        else:
-            self._raise_raw_error("Cannot perform assertion \"%s\" for %s named \"%s\"." %
-                                  (item, _type(self._subject), self._subject_name), error=AttributeError)
+        self._raise_raw_error("Cannot perform assertion \"%s\" for %s." % (item, self), error=AttributeError)
 
 
 class _NoneSubject(_ObjSubject):
