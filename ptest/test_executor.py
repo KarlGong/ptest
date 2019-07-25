@@ -298,8 +298,8 @@ class TestFixtureExecutor(TestExecutor):
     def skip_test_fixture(self, caused_test_fixture: TestFixture):
         from .plogger import preporter
         self.test_fixture.status = TestFixtureStatus.SKIPPED
-        self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type
-        preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type)
+        self.test_fixture.skip_message = "@%s failed, so skipped." % caused_test_fixture.fixture_type.value
+        preporter.warn("@%s failed, so skipped." % caused_test_fixture.fixture_type.value)
 
 
 class TestFixtureSubExecutor(TestExecutor):
