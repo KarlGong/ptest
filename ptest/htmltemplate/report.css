@@ -405,21 +405,21 @@ body {
     color: #CE2400;
 }
 
-.test-fixture .screenshots {
+.test-fixture .images {
     border-left: 1px #979797 dashed;
     margin: 8px 0 8px 20px;
     display: flex;
 }
 
-.test-fixture .screenshot:first-child {
+.test-fixture .image:first-child {
     margin-left: 20px;
 }
 
-.test-fixture .screenshot {
+.test-fixture .image {
     margin-right: 10px;
 }
 
-.test-fixture .screenshot .link {
+.test-fixture .image .link {
     display: inline-block;
     padding: 1px;
     line-height: 0;
@@ -427,12 +427,12 @@ body {
     transition: background-color 0.5s ease-out;
 }
 
-.test-fixture .screenshot .link:hover {
+.test-fixture .image .link:hover {
     background-color: #4ae;
     transition: none;
 }
 
-.test-fixture .screenshot .image{
+.test-fixture .image img{
     height: 40px;
     border: 1px #c3e3fc solid;
     border-radius: 3px;

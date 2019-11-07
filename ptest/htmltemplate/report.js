@@ -748,19 +748,28 @@ function renderTestFixturePanel(detailPanel, data) {
     var log = $('<p><span class="log-level" title="{0}">[{1}]</span>&nbsp;<span class="{1}">{2}</span></p>'.format(time, level, message));
     logs.append(log);
     if (data.logs[i].screenshots) {
-      var screenshots = $('<div class="screenshots"></div>');
+      var screenshots = $('<div class="images"></div>');
       for (var j = 0; j < data.logs[i].screenshots.length; j++) {
         var screenshotData = data.logs[i].screenshots[j];
         var screenshot;
         if (screenshotData.error) {
-          screenshot =  $('<div class="screenshot"><a class="link" href="" data-lightbox="{0}" data-title="{1}" title="{2}"><img class="image" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjE5MjAiIGhlaWdodD0iMTA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDwhLS0gQ3JlYXRlZCB3aXRoIFNWRy1lZGl0IC0gaHR0cDovL3N2Zy1lZGl0Lmdvb2dsZWNvZGUuY29tLyAtLT4KIDxnPgogIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICA8bGluZSBzdHJva2U9IiNlZDFjMjQiIGlkPSJzdmdfNyIgeTI9IjEwODAiIHgyPSIxOTIwIiB5MT0iMCIgeDE9IjAiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1kYXNoYXJyYXk9Im51bGwiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiLz4KICA8bGluZSBzdHJva2U9IiNlZDFjMjQiIGlkPSJzdmdfOCIgeTI9IjEwODAiIHgyPSIwIiB5MT0iMCIgeDE9IjE5MjAiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1kYXNoYXJyYXk9Im51bGwiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiLz4KIDwvZz4KPC9zdmc+" /></a></div>'.format(screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), screenshotData.error, screenshotData.source));
+          screenshot =  $('<div class="image"><a class="link" href="" data-lightbox="{0}" data-title="{1}" title="{2}"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjE5MjAiIGhlaWdodD0iMTA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDwhLS0gQ3JlYXRlZCB3aXRoIFNWRy1lZGl0IC0gaHR0cDovL3N2Zy1lZGl0Lmdvb2dsZWNvZGUuY29tLyAtLT4KIDxnPgogIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICA8bGluZSBzdHJva2U9IiNlZDFjMjQiIGlkPSJzdmdfNyIgeTI9IjEwODAiIHgyPSIxOTIwIiB5MT0iMCIgeDE9IjAiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1kYXNoYXJyYXk9Im51bGwiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiLz4KICA8bGluZSBzdHJva2U9IiNlZDFjMjQiIGlkPSJzdmdfOCIgeTI9IjEwODAiIHgyPSIwIiB5MT0iMCIgeDE9IjE5MjAiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1kYXNoYXJyYXk9Im51bGwiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiLz4KIDwvZz4KPC9zdmc+" /></a></div>'.format(screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), screenshotData.error, screenshotData.source));
         } else {
           var dataTitle = screenshotData.source === "Desktop" ? "Desktop" : screenshotData.title + "\n" + screenshotData.url;
-          screenshot = $('<div class="screenshot"><a class="link" href="{0}" data-lightbox="{1}" data-title="{2}" title="{3}"><img class="image" src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), dataTitle, screenshotData.source));
+          screenshot = $('<div class="image"><a class="link" href="{0}" data-lightbox="{1}" data-title="{2}" title="{3}"><img src="{0}" /></a></div>'.format(encodeURIComponent(screenshotData.path), screenshotData.path.substring(0, screenshotData.path.lastIndexOf("-")), dataTitle, screenshotData.source));
         }
         screenshots.append(screenshot);
       }
       logs.append(screenshots);
+    }
+    if (data.logs[i].images) {
+      var images = $('<div class="images"></div>');
+      for (var k = 0; k < data.logs[i].images.length; k++) {
+        var imageData = data.logs[i].images[k];
+        var image = $('<div class="image"><a class="link" href="{0}" data-lightbox="{1}" data-title="Image-{2}" title="Image-{2}"><img src="{0}" /></a></div>'.format(encodeURIComponent(imageData.path), imageData.path.substring(0, imageData.path.lastIndexOf("-")), k + 1));
+        images.append(image)
+      }
+      logs.append(images);
     }
   }
 

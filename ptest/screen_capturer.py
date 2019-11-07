@@ -1,10 +1,8 @@
 import os
-import uuid
 from io import BytesIO
 
 from . import config
 from .exception import ScreenshotError
-from .util import escape_filename
 
 # ----------------------------------------------------------------------
 # -------- [ cross-platform multiple screenshots module ] --------------
@@ -270,19 +268,14 @@ def mss(*args, **kwargs):
 
 
 # ----------------------------------------------------------------------
-# ----------- [ take screenshot for webdriver or desktop ] -------------
+# ----------- [ take screenshot for desktop & webdriver ] -------------
 # ----------------------------------------------------------------------
-def take_screenshots():
-    from . import test_executor
-
-    web_drivers = test_executor.current_executor().get_property("web_drivers")
-    running_test_fixture = test_executor.current_executor().get_property("running_test_fixture")
-    hash_code = str(uuid.uuid4()).split("-")[0]
+def take_screenshots(path_prefix: str):
     screenshots = []
 
     screenshot = {
         "source": "Desktop",
-        "path": "%s-%s-0.png" % (escape_filename(running_test_fixture.full_name), hash_code)
+        "path": "%s-screenshot-0.png" % path_prefix
     }
 
     if system() == 'Darwin' and not pyobjc_installed:
@@ -299,11 +292,14 @@ def take_screenshots():
 
     screenshots.append(screenshot)
 
+    from . import test_executor
+    web_drivers = test_executor.current_executor().get_property("web_drivers")
+
     if web_drivers:
         for index, web_driver in enumerate(web_drivers):
             screenshot = {
                 "source": "Web Driver",
-                "path": "%s-%s-%s.png" % (escape_filename(running_test_fixture.full_name), hash_code, index + 1)
+                "path": "%s-screenshot-%s.png" % (path_prefix, index + 1)
             }
 
             try:
