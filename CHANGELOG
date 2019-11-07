@@ -1,4 +1,9 @@
 ## Change Log
+2.0.0 (compared to 1.9.5)
+
+- Retire python 2.x
+- Support preporter log images.
+
 1.9.5 (compared to 1.9.4)
 
 - Support empty data_provider.
