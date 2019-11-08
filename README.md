@@ -74,27 +74,18 @@ executors is *2*.
 **%python_installation_dir%\Scripts** (e.g., C:\Python27\Scripts,
 C:\Python35\Scripts) is added to the PATH environment variable.
 
-    Python 2.x:
-     $ ptest -w c:\folder -t mytest -n 2
-    Python 3.x:
-     $ ptest3 -w c:\folder -t mytest -n 2
+    $ ptest -w c:\folder -t mytest -n 2
 
 The target can be package/module/class/method. If the target is
 package/module/class, all the test cases under target will be executed.
 For example, if you only want to execute the test *test1* in this
 module.
 
-    Python 2.x:
-     $ ptest -w c:\folder -t mytest.PTestClass.test1
-    Python 3.x:
-     $ ptest3 -w c:\folder -t mytest.PTestClass.test1
+    $ ptest -w c:\folder -t mytest.PTestClass.test1
 
 For more options, please use `-h`.
 
-    Python 2.x:
-     $ ptest -h
-    Python 3.x:
-     $ ptest3 -h
+    $ ptest -h
 
 For more code examples, please refer to the `examples` folder in source
 distribution or visit
