@@ -71,8 +71,8 @@ workspace is *c:\folder*, target is *mytest* and number of test
 executors is *2*.
 
 *Note:* If you are using Windows, please confirm that
-**%python_installation_dir%\Scripts** (e.g., C:\Python27\Scripts,
-C:\Python35\Scripts) is added to the PATH environment variable.
+**%python_installation_dir%\Scripts** (e.g., C:\Python35\Scripts,
+C:\Python37\Scripts) is added to the PATH environment variable.
 
     $ ptest -w c:\folder -t mytest -n 2
 
