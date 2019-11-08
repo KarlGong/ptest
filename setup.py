@@ -47,6 +47,7 @@ def main():
         classifiers=classifiers,
         packages=["ptest"],
         package_data={"ptest": ["htmltemplate/*.*"]},
+        python_requires=">=3.4",
         zip_safe=False,
     )
 
