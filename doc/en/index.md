@@ -862,18 +862,12 @@ class PTestClass:
 If you want to run above test case with all test data supplied from the
 data provider.
 
-    Python 2.x:
-     $ ptest -t mytest.PTestClass.test_square
-    Python 3.x:
-     $ ptest3 -t mytest.PTestClass.test_square
+    $ ptest -t mytest.PTestClass.test_square
 
 If you want to run above test case with 4th test data supplied from the
 data provider.
 
-    Python 2.x:
-     $ ptest -t mytest.PTestClass.test_square#4
-    Python 3.x:
-     $ ptest3 -t mytest.PTestClass.test_square#4
+    $ ptest -t mytest.PTestClass.test_square#4
 
 ### 2.3.12 - data_name
 
@@ -905,10 +899,7 @@ Then the test names are `test_add#1_1` and `test_add#2_3`.
 If you want to run above test case with 2th test data supplied from the
 data provider.
 
-    Python 2.x:
-     $ ptest -t mytest.PTestClass.test_add#2_3
-    Python 3.x:
-     $ ptest3 -t mytest.PTestClass.test_add#2_3
+    $ ptest -t mytest.PTestClass.test_add#2_3
 
 ## 2.4 - Extra Decorators
 
@@ -952,13 +943,10 @@ ptest can be invoked in different ways:
 
 Usage:
 
-    Python 2.x:
-     $ ptest [options] [properties]
-    Python 3.x:
-     $ ptest3 [options] [properties]
+    $ ptest [options] [properties]
 
 *Note:* If you are using Windows, please confirm that
-**%python_installation_dir%\Scripts** (e.g., C:\Python27\Scripts)
+**%python_installation_dir%\Scripts** (e.g., C:\Python37\Scripts)
 is added to the PATH environment variable.
 
 ptest command line parameters:
@@ -1029,10 +1017,7 @@ class MyTestListener(TestListener):
 
 Then use `-l(--listeners)` to specify the path of test listener classes
 
-    Python 2.x:
-     $ ptest -t mytest -l listener.MyTestListener
-    Python 3.x:
-     $ ptest3 -t mytest -l listener.MyTestListener
+    $ ptest -t mytest -l listener.MyTestListener
 
 # 5 - Test results
 
