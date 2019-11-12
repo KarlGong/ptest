@@ -1,4 +1,8 @@
 ## Change Log
+2.0.1 (compared to 2.0.0)
+
+- Implement f-string to be compatible with python < 3.6
+
 2.0.0 (compared to 1.9.5)
 
 - Retire python 2.x
