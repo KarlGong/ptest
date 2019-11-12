@@ -3,6 +3,7 @@ import ctypes
 import errno
 import inspect
 import os
+import re
 import sys
 import time
 import traceback
@@ -116,3 +117,7 @@ def escape_filename(name: str):
     for char, to in escape_list:
         _name = _name.replace(char, to)
     return _name
+
+
+def fstring(s: str, _globals, _locals):
+    return re.sub(r"{(.*?)}", lambda match: str(eval(match.group(1), _globals, _locals)), s)
