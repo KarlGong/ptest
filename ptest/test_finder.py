@@ -114,7 +114,7 @@ class TestFinder:
             test_func = getattr(test_class_cls, class_element)
             if hasattr(test_func, "__pd_type__") and test_func.__pd_type__ == PDecoratorType.Test \
                     and hasattr(test_func, "__enabled__") and test_func.__enabled__:
-                if not self.test_name:
+                if self.test_name is None:
                     for func in unzip_func(test_class_cls, test_func):
                         if self.test_filter_group.filter(func):
                             self.__add_test(test_class_cls, func)
