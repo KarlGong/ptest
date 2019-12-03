@@ -1,17 +1,14 @@
 import inspect
 import os
 import re
+from typing import Union, List, Tuple, Type, Dict, Callable, Iterable, Any
 from urllib.parse import urljoin, unquote
 from urllib.request import pathname2url
 
-from typing import Union, List, Tuple, Type, Dict, Callable, Iterable, Any
-
 from .enumeration import PDecoratorType, TestClassRunMode
-from .util import get_parameters_count
 
 
-def TestClass(enabled: bool = True, run_mode: Union[str, TestClassRunMode] = "singleline", run_group: str = None, description: str = "",
-              **custom_args):
+def TestClass(enabled: bool = True, run_mode: Union[str, TestClassRunMode] = "singleline", run_group: str = None, description: str = "", **custom_args):
     """
         The TestClass decorator, it is used to mark a class as TestClass.
 
@@ -228,7 +225,7 @@ def Test(enabled: bool = True,
         func.__timeout__ = timeout
         func.__custom_args__ = custom_args
         func.__location__ = __get_location(func)
-        func.__parameters_count__ = get_parameters_count(func)
+        func.__parameters_count__ = len(inspect.signature(func).parameters)
         # for data provider
         #                     normal    zipped    unzipped    mocked
         # __parameters__       None      None       None     not None
@@ -243,15 +240,14 @@ def Test(enabled: bool = True,
             func.__data_provider__ = data_provider
             func.__funcs__ = []
             func.__data_name__ = data_name or (lambda index, params: index + 1)
-            if len(inspect.getargspec(func.__data_name__)[0]) != 2:
+            if len(inspect.signature(func.__data_name__).parameters) != 2:
                 raise TypeError("Data name function must be declared with 2 parameters.")
         return func
 
     return handle_func
 
 
-def AfterMethod(enabled: bool = True, always_run: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0,
-                **custom_args):
+def AfterMethod(enabled: bool = True, always_run: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0, **custom_args):
     """
         The AfterMethod test fixture, it will be executed after test finished.
 
@@ -278,8 +274,7 @@ def AfterMethod(enabled: bool = True, always_run: bool = True, group: str = "DEF
     return handle_func
 
 
-def AfterGroup(enabled: bool = True, always_run: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0,
-               **custom_args):
+def AfterGroup(enabled: bool = True, always_run: bool = True, group: str = "DEFAULT", description: str = "", timeout: int = 0, **custom_args):
     """
         The AfterGroup test fixture, it will be executed after test group finished.
 
@@ -363,7 +358,7 @@ def __get_location(func):
 
 
 def __get_parameters_count_of_test_configuration(func):
-    parameters_count = get_parameters_count(func)
+    parameters_count = len(inspect.signature(func).parameters)
     if parameters_count not in [1, 2]:
         raise TypeError("%s() cannot be declared with %s parameters. "
                         "Please declare with 1 or 2 parameters (including self)." % (func.__name__, parameters_count))

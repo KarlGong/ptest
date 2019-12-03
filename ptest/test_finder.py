@@ -1,8 +1,6 @@
 import importlib
 import os
-import pkgutil
 import re
-import sys
 
 from .enumeration import PDecoratorType
 from .test_filter import TestFilterGroup
@@ -88,26 +86,19 @@ class TestFinder:
                 self.test_target, ".".join(splitted_test_target[:module_name_len]), ".".join(splitted_test_target[:module_name_len + 1])))
 
     def find_tests_in_package(self, package_ref):
-        if sys.version_info >= (3, 3):  # support namespace packages
-            package_name = package_ref.__name__
-            if hasattr(package_ref.__path__, "_path"):
-                package_path = package_ref.__path__._path[0]  # namespace package
-            else:
-                package_path = package_ref.__path__[0]  # __init__ package
-            for fn in os.listdir(package_path):
-                file_path = os.path.join(package_path, fn)
-                if os.path.isdir(file_path) and "." not in fn:
-                    self.find_tests_in_package(importlib.import_module(package_name + "." + fn))
-                elif os.path.isfile(file_path):
-                    file_name, file_ext = os.path.splitext(fn)
-                    if fn != "__init__.py" and file_ext == ".py":
-                        self.find_tests_in_module(importlib.import_module(package_name + "." + file_name))
+        package_name = package_ref.__name__
+        if hasattr(package_ref.__path__, "_path"):
+            package_path = package_ref.__path__._path[0]  # namespace package
         else:
-            for _, name, is_package in pkgutil.iter_modules(package_ref.__path__):
-                if is_package:
-                    self.find_tests_in_package(importlib.import_module(package_ref.__name__ + "." + name))
-                else:
-                    self.find_tests_in_module(importlib.import_module(package_ref.__name__ + "." + name))
+            package_path = package_ref.__path__[0]  # regular package
+        for fn in os.listdir(package_path):
+            file_path = os.path.join(package_path, fn)
+            if os.path.isdir(file_path) and "." not in fn:
+                self.find_tests_in_package(importlib.import_module(package_name + "." + fn))
+            elif os.path.isfile(file_path):
+                file_name, file_ext = os.path.splitext(fn)
+                if fn != "__init__.py" and file_ext == ".py":
+                    self.find_tests_in_module(importlib.import_module(package_name + "." + file_name))
 
     def find_tests_in_module(self, module_ref):
         for module_element in dir(module_ref):

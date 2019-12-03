@@ -32,13 +32,6 @@ def remove_tree(dir_path: str, remove_root: bool = True):
             os.rmdir(dir_path)
 
 
-def get_parameters_count(func):
-    if sys.version_info[0] == 2:
-        return len(inspect.getargspec(func)[0])
-    else:
-        return len(inspect.signature(func).parameters)
-
-
 def mock_func(func):
     fn = types.FunctionType(func.__code__, func.__globals__, func.__name__, func.__defaults__, func.__closure__)
     # in case fun was given attrs (note this dict is a shallow copy):
