@@ -1,7 +1,6 @@
 import asyncio
 import ctypes
 import errno
-import inspect
 import os
 import re
 import sys

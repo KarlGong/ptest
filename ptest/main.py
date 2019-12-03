@@ -193,7 +193,7 @@ def main(args=None):
     # add webdriver instance to test executor to support capturing screenshot for webdriver
     try:
         from selenium.webdriver.remote.webdriver import WebDriver
-    except ImportError as e:
+    except ImportError as ie:
         pass
     else:
         def add_web_driver(executor, web_driver):
@@ -209,7 +209,7 @@ def main(args=None):
                 add_web_driver(current_executor, self)
                 add_web_driver(current_executor.parent_test_executor, self)
                 add_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
-            except AttributeError as e:
+            except AttributeError as ae:
                 pass
 
         def remove_web_driver(executor, web_driver):
@@ -223,7 +223,7 @@ def main(args=None):
                 remove_web_driver(current_executor, self)
                 remove_web_driver(current_executor.parent_test_executor, self)
                 remove_web_driver(current_executor.parent_test_executor.parent_test_executor, self)
-            except AttributeError as e:
+            except AttributeError as ae:
                 pass
 
         WebDriver.start_client = new_start_client
