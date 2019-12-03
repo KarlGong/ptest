@@ -44,7 +44,7 @@ class TestFinder:
 
         test_target_len = len(splitted_test_target)
         if module_name_len == test_target_len:
-            if self.test_data_name:
+            if self.test_data_name is not None:
                 raise ImportError("Test target <%s> is invalid.\n"
                                   "It looks like a test case with data provider, "
                                   "but only test module <%s> is provided."
@@ -57,7 +57,7 @@ class TestFinder:
                 # test target is module
                 self.find_tests_in_module(module_ref)
         elif module_name_len == test_target_len - 1:
-            if self.test_data_name:
+            if self.test_data_name is not None:
                 raise ImportError("Test target <%s> is invalid.\n"
                                   "It looks like a test case with data provider, "
                                   "but only test class <%s> is provided."
@@ -119,12 +119,12 @@ class TestFinder:
                         if self.test_filter_group.filter(func):
                             self.__add_test(test_class_cls, func)
                 else:
-                    if self.test_data_name and test_func.__data_provider__:
+                    if self.test_data_name is not None and test_func.__data_provider__:
                         if self.test_name == test_func.__name__:
                             for func in unzip_func(test_class_cls, test_func):
                                 if "%s#%s" % (self.test_name, self.test_data_name) == func.__name__ and self.test_filter_group.filter(func):
                                     self.__add_test(test_class_cls, func)
-                    elif not self.test_data_name and self.test_name == test_func.__name__:
+                    elif self.test_data_name is None and self.test_name == test_func.__name__:
                         for func in unzip_func(test_class_cls, test_func):
                             if self.test_filter_group.filter(func):
                                 self.__add_test(test_class_cls, func)
