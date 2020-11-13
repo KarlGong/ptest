@@ -16,7 +16,7 @@ classifiers = ["License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing",
                "Operating System :: Microsoft :: Windows",
                "Operating System :: MacOS :: MacOS X"] + \
-              [("Programming Language :: Python :: %s" % x) for x in "3.5 3.6 3.7".split()]
+              [("Programming Language :: Python :: %s" % x) for x in "3.6 3.7 3.8 3.9".split()]
 
 
 def make_cmdline_entry_points():
@@ -47,7 +47,7 @@ def main():
         classifiers=classifiers,
         packages=["ptest"],
         package_data={"ptest": ["htmltemplate/*.*"]},
-        python_requires=">=3.5",
+        python_requires=">=3.6",
         zip_safe=False,
     )
 
