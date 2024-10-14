@@ -139,7 +139,7 @@ def _parse_options(option_args):
 
     # running
     parser.add_option("-R", "--run-failed", action="store", dest="run_failed", default=None, metavar="file",
-                      help="Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.")
+                      help="Specify the junit result xml path (relative to workspace) and run the failed/skipped test cases in it.")
     parser.add_option("-t", "--targets", action="store", dest="test_targets", default=None, metavar="targets",
                       help="Specify the path of test targets, separated by comma. Test target can be package/module/class/method. "
                            "The target path format is: package[.module[.class[.method]]] "
@@ -163,8 +163,8 @@ def _parse_options(option_args):
                       help="Specify the output dir (relative to workspace).")
     parser.add_option("-r", "--report-dir", action="store", dest="report_dir", default="html-report", metavar="dir",
                       help="Specify the html report dir (relative to output dir).")
-    parser.add_option("-x", "--xunit-xml", action="store", dest="xunit_xml", default="xunit-results.xml",
-                      metavar="file", help="Specify the xunit result xml path (relative to output dir).")
+    parser.add_option("-x", "--junit-xml", action="store", dest="junit_xml", default="junit-results.xml",
+                      metavar="file", help="Specify the junit result xml path (relative to output dir).")
 
     # miscellaneous
     parser.add_option("-l", "--listeners", action="store", dest="test_listeners", default=None, metavar="class",
@@ -181,9 +181,9 @@ def _parse_options(option_args):
                       help="Disable taking screenshot for preporter.")
 
     # tool
-    parser.add_option("-m", "--merge-xunit-xmls", action="store", dest="merge_xunit_xmls", default=None, metavar="files",
-                      help="Merge the xunit result xmls (relative to workspace). Multiple files can be given by separating them with a comma."
-                           "Use --to to specify the path of merged xunit result xml.")
+    parser.add_option("-m", "--merge-junit-xmls", action="store", dest="merge_junit_xmls", default=None, metavar="files",
+                      help="Merge the junit result xmls (relative to workspace). Multiple files can be given by separating them with a comma."
+                           "Use --to to specify the path of merged junit result xml.")
     parser.add_option("--to", action="store", dest="to", default=None, metavar='path',
                       help="Specify the 'to' destination (relative to workspace).")
 
@@ -195,16 +195,16 @@ def _parse_options(option_args):
     options, unknown_args = parser.parse_args(option_args)
 
     # only one of the main options can be specified
-    main_options = [options.test_targets, options.run_failed, options.merge_xunit_xmls]
+    main_options = [options.test_targets, options.run_failed, options.merge_junit_xmls]
     specified_options_count = len([option for option in main_options if option is not None])
     if specified_options_count == 0:
-        parser.error("You must specify one of the following options: -t(--targets), -R(--run-failed), -m(--merge-xunit-xmls).")
+        parser.error("You must specify one of the following options: -t(--targets), -R(--run-failed), -m(--merge-junit-xmls).")
     elif specified_options_count > 1:
-        parser.error("You can ONLY specify one of the following options: -t(--targets), -R(--run-failed), -m(--merge-xunit-xmls).")
+        parser.error("You can ONLY specify one of the following options: -t(--targets), -R(--run-failed), -m(--merge-junit-xmls).")
 
     # check '--to'
-    if options.merge_xunit_xmls is not None and options.to is None:
-        parser.error("You must use --to to specify the path of merged xunit result xml (--merge-xunit-xmls).")
+    if options.merge_junit_xmls is not None and options.to is None:
+        parser.error("You must use --to to specify the path of merged junit result xml (--merge-junit-xmls).")
 
     # spilt multiple values by comma
     def split(option_value):
@@ -216,7 +216,7 @@ def _parse_options(option_args):
     options.exclude_tags = split(options.exclude_tags)
     options.include_groups = split(options.include_groups)
     options.test_listeners = split(options.test_listeners)
-    options.merge_xunit_xmls = split(options.merge_xunit_xmls)
+    options.merge_junit_xmls = split(options.merge_junit_xmls)
 
     # convert to full path for options
     def join_path(base_path, sub_path):
@@ -229,11 +229,11 @@ def _parse_options(option_args):
     options.run_failed = None if options.run_failed is None else join_path(options.workspace, options.run_failed)
     options.output_dir = join_path(options.workspace, options.output_dir)
     options.report_dir = join_path(options.output_dir, options.report_dir)
-    options.xunit_xml = join_path(options.output_dir, options.xunit_xml)
+    options.junit_xml = join_path(options.output_dir, options.junit_xml)
     options.temp = join_path(options.workspace, options.temp)
 
-    options.merge_xunit_xmls = None if options.merge_xunit_xmls is None else [join_path(options.workspace, path) for path in
-                                                                              options.merge_xunit_xmls]
+    options.merge_junit_xmls = None if options.merge_junit_xmls is None else [join_path(options.workspace, path) for path in
+                                                                              options.merge_junit_xmls]
     options.to = None if options.to is None else join_path(options.workspace, options.to)
 
     _options.update(options.__dict__)

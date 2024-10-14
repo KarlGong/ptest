@@ -17,8 +17,8 @@ from .util import make_dirs, remove_tree, escape_html
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def generate_xunit_xml(xml_file_path: str):
-    pconsole.write_line("Generating xunit report...")
+def generate_junit_xml(xml_file_path: str):
+    pconsole.write_line("Generating junit report...")
     doc = minidom.Document()
     test_suite_ele = doc.createElement("testsuite")
     doc.appendChild(test_suite_ele)
@@ -49,7 +49,7 @@ def generate_xunit_xml(xml_file_path: str):
             failure_ele.appendChild(doc.createTextNode(test_case.stack_trace))
 
     if os.path.exists(xml_file_path):
-        pconsole.write_line("Cleaning old xunit report...")
+        pconsole.write_line("Cleaning old junit report...")
         os.remove(xml_file_path)
     else:
         make_dirs(os.path.dirname(xml_file_path))
@@ -57,9 +57,9 @@ def generate_xunit_xml(xml_file_path: str):
     f = open(xml_file_path, mode="w", encoding="utf-8")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
-        pconsole.write_line("xunit report is generated at %s" % xml_file_path)
+        pconsole.write_line("junit report is generated at %s" % xml_file_path)
     except Exception as e:
-        pconsole.write_line("Failed to generate xunit report.\n%s" % traceback.format_exc())
+        pconsole.write_line("Failed to generate junit report.\n%s" % traceback.format_exc())
     finally:
         f.close()
 

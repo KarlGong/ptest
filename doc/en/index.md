@@ -956,7 +956,7 @@ Option | Argument | Documentation
 -w(--workspace) | A directory | Specify the workspace dir (relative to working directory). <br>Default is current working directory.
 -P(--python-paths) | A comma-separated list of paths | Specify the additional locations (relative to workspace)<br>where to search test libraries from when they are imported.<br>Multiple paths can be given by separating them with a comma.
 -p(--property-file) | A property file | Specify the .ini property file (relative to workspace).<br>The properties in property file will be overwritten by user defined properties in cmd line.<br>Get property via get_property() in module ptest.config.
--R(--run-failed) | A xml file | Specify the xunit result xml path (relative to workspace) and run the failed/skipped test cases in it.
+-R(--run-failed) | A xml file | Specify the junit result xml path (relative to workspace) and run the failed/skipped test cases in it.
 -t(--targets) | A comma-separated list of targets | Specify the path of test targets, separated by comma.<br>Test target can be package/module/class/method.<br>The target path format is: package[.module[.class[.method]]]<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
 -f(--filter) | A Class | Specify the path of test filter class, select test cases to run by the specified filter.<br>The test filter class should implement class TestFilter in ptest.test_filter<br>The filter path format is: package.module.class<br>NOTE: ptest ONLY searches modules under --workspace, --python-paths and sys.path
 -i(--include-tags) | A comma-separated list of tags | Select test cases to run by tags, separated by comma.
@@ -965,12 +965,12 @@ Option | Argument | Documentation
 -n(--test-executor-number) | A positive integer | Specify the number of test executors. Default value is 1.
 -o(--output-dir) | A directory | Specify the output dir (relative to workspace).
 -r(--report-dir) | A directory | Specify the html report dir (relative to output dir).
--x(--xunit-xml) | A xml file | Specify the xunit result xml path (relative to output dir).
+-x(--junit-xml) | A xml file | Specify the junit result xml path (relative to output dir).
 -l(--listeners) | A comma-separated list of classes | Specify the path of test listener classes, separated by comma.<br>The listener class should implement class TestListener in ptest.plistener<br>The listener path format is: package.module.class<br>NOTE: 1. ptest ONLY searches modules under --workspace, --python-paths and sys.path<br>2. The listener class must be thread safe if you set -n(--test-executor-number) greater than 1
 -v(--verbose) |  | Set ptest console to verbose mode.
 --temp | A directory | Specify the temp dir (relative to workspace).
 --disable-screenshot |   | Disable taking screenshot for preporter.
--m(--merge-xunit-xmls) | A comma-separated list of xmls | Merge the xunit result xmls (relative to workspace).<br>Multiple files can be given by separating them with a comma.<br>Use --to to specify the path of merged xunit result xml.
+-m(--merge-junit-xmls) | A comma-separated list of xmls | Merge the junit result xmls (relative to workspace).<br>Multiple files can be given by separating them with a comma.<br>Use --to to specify the path of merged junit result xml.
 --to | A path | Specify the 'to' destination (relative to workspace).
 -D\<key\>=\<value\> |   | Define properties via -D\<key\>=\<value\>. e.g., -Dmykey=myvalue<br>Get defined property via get_property() in module ptest.config.
 
@@ -984,8 +984,8 @@ You can invoke ptest by code:
 from ptest.main import main
 
 main("-t xxx")
-main(["-R", "last\xunit.xml"])
-main(("-m", "xunit1.xml,xunit2.xml", "--to", "xunit.xml"))
+main(["-R", "last/junit.xml"])
+main(("-m", "junit1.xml,junit2.xml", "--to", "junit.xml"))
 ```
 
 ## 3.3 - PyCharm
@@ -1021,7 +1021,7 @@ Then use `-l(--listeners)` to specify the path of test listener classes
 
 # 5 - Test results
 
-ptest generates two reports - standard xunit xml result and html report.
+ptest generates two reports - standard junit xml result and html report.
 
 ## 5.1 - Success, failure, skipped and assert
 

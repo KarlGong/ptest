@@ -22,11 +22,11 @@ def get_rerun_targets(xml_file: str):
     return test_targets
 
 
-def merge_xunit_xmls(xml_files: str, to_file: str):
+def merge_junit_xmls(xml_files: str, to_file: str):
     from .plogger import pconsole
     from .test_suite import default_test_suite
 
-    pconsole.write_line("Start to merge xunit result xmls...")
+    pconsole.write_line("Start to merge junit result xmls...")
 
     test_case_results = {}
 
@@ -61,7 +61,7 @@ def merge_xunit_xmls(xml_files: str, to_file: str):
         test_suite_ele.appendChild(test_case_result["node"])
 
     if os.path.exists(to_file):
-        pconsole.write_line("Cleaning old merged xunit result xml...")
+        pconsole.write_line("Cleaning old merged junit result xml...")
         os.remove(to_file)
     else:
         make_dirs(os.path.dirname(to_file))
@@ -69,9 +69,9 @@ def merge_xunit_xmls(xml_files: str, to_file: str):
     f = open(to_file, mode="w", encoding="utf-8")
     try:
         doc.writexml(f, "\t", "\t", "\n", "utf-8")
-        pconsole.write_line("Merged xunit xml is generated at %s" % to_file)
+        pconsole.write_line("Merged junit xml is generated at %s" % to_file)
     except Exception:
-        pconsole.write_line("Failed to generate merged xunit xml.\n%s" % traceback.format_exc())
+        pconsole.write_line("Failed to generate merged junit xml.\n%s" % traceback.format_exc())
     finally:
         f.close()
 
@@ -89,10 +89,10 @@ def main(args=None):
         args = shlex.split(args)
     config.load(args)
 
-    # merge xunit result xmls
-    xunit_xmls = config.get_option("merge_xunit_xmls")
-    if xunit_xmls is not None:
-        merge_xunit_xmls(xunit_xmls, config.get_option("to"))
+    # merge junit result xmls
+    junit_xmls = config.get_option("merge_junit_xmls")
+    if junit_xmls is not None:
+        merge_junit_xmls(junit_xmls, config.get_option("to"))
         return
 
     # run test
@@ -159,15 +159,15 @@ def main(args=None):
                 pconsole.write_line(" %s (%s tests found)" % (test_target, test_finder.found_test_count))
     else:
         # rerun failed/skipped test cases
-        pconsole.write_line("Run failed/skipped tests in xunit xml:")
-        xunit_xml = config.get_option("run_failed")
-        test_targets = get_rerun_targets(xunit_xml)
+        pconsole.write_line("Run failed/skipped tests in junit xml:")
+        junit_xml = config.get_option("run_failed")
+        test_targets = get_rerun_targets(junit_xml)
         found_test_count = 0
         for test_target in test_targets:
             test_finder = TestFinder(test_target, test_filter_group, default_test_suite)
             test_finder.find_tests()
             found_test_count += test_finder.found_test_count
-        pconsole.write_line(" %s (%s tests found)" % (xunit_xml, found_test_count))
+        pconsole.write_line(" %s (%s tests found)" % (junit_xml, found_test_count))
 
     # add test listeners
     listener_paths = config.get_option("test_listeners")
@@ -258,7 +258,7 @@ def main(args=None):
     # generate the test report
     pconsole.write_line("")
     pconsole.write_line("=" * 100)
-    reporter.generate_xunit_xml(config.get_option("xunit_xml"))
+    reporter.generate_junit_xml(config.get_option("junit_xml"))
     reporter.generate_html_report(config.get_option("report_dir"))
 
     # clean temp dir
